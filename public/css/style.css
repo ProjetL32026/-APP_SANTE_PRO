@@ -1,0 +1,443 @@
+:root {
+    --teal: #00BCD4;
+    --teal-gradient: linear-gradient(180deg, #00BCD4 0%, #0097A7 100%);
+    --bg-color: #F4F7FE;
+    --text-dark: #1B2559;
+    --text-gray: #A3AED0;
+    --border: #E2E8F0;
+}
+
+body { font-family: 'Nunito', sans-serif; background-color: var(--bg-color); color: var(--text-dark); margin: 0; }
+
+/* --- SIDEBAR --- */
+.sidebar {
+    background: var(--teal-gradient);
+    height: 100vh;
+    color: white;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed; 
+    width: inherit;
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    padding: 2.5rem 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+
+.brand-logo-container { background: rgba(255, 255, 255, 0.2); padding: 8px; border-radius: 10px; display: flex; }
+.brand-logo-svg { width: 28px; height: 28px; fill: white; }
+
+.nav-container { display: flex; flex-direction: column; flex-grow: 1; }
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 15px 25px !important;
+    font-weight: 600;
+    transition: 0.3s;
+    display: flex; align-items: center;
+    border-left: 4px solid transparent;
+    text-decoration: none;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15);
+    border-left: 4px solid white;
+}
+
+.logout-link { margin-top: auto !important; margin-bottom: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px !important; }
+
+/* --- CONTENU --- */
+.main-content { padding: 2rem; }
+.section-header { border-left: 5px solid var(--teal); padding-left: 20px; margin-bottom: 30px; }
+.section-header h2, .section-header h5 { font-weight: 700; color: var(--text-dark); margin: 0; font-family: 'Poppins'; }
+
+/* Cartes de Stats */
+.card-stat {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: transform 0.3s;
+}
+.card-stat:hover { transform: translateY(-5px); }
+
+.stat-icon-circle {
+    width: 45px; height: 45px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1rem;
+}
+
+/* --- ZONE DE DÉFILEMENT (SCROLL) --- */
+.table-scroll-area {
+    max-height: 400px; /* Hauteur fixe pour activer le défilement */
+    overflow-y: auto;
+    background: white;
+    border-radius: 0 0 20px 20px;
+}
+/*ajout*/
+/* --- Style pour Gestion des Infirmiers --- */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-left: 5px solid #00BCD4;
+    padding-left: 20px;
+}
+
+.btn-main {
+    background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    box-shadow: 0px 10px 20px rgba(0, 188, 212, 0.2);
+    transition: 0.3s;
+}
+
+.search-container {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.data-scroll-area {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+/* ============================================================
+   DESIGN DES CARTES MÉDECINS (Inspiré de cadre.PNG)
+   ============================================================ */
+
+/* 1. La Grille (Contrôle la largeur des cartes) */
+.doctors-grid {
+    display: grid;
+    /* Crée des colonnes de 320px minimum. Si l'écran est large, en met plusieurs. */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 25px;
+    padding: 10px 5px;
+}
+
+/* 2. La Carte Principale */
+.doctor-card {
+    background: #ffffff;
+    border-radius: 30px; /* Coins très arrondis comme sur l'image */
+    padding: 25px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: transform 0.3s ease;
+    width: 100%;
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+}
+
+/* 3. Badge Statut (Haut à droite) */
+.status-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #E6FAF5; /* Vert/Aqua très clair */
+    color: #05CD99;
+    padding: 5px 15px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* 4. Header (Avatar + Nom) */
+.doc-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.doc-avatar-square {
+    width: 65px;
+    height: 65px;
+    background: #00BCD4; /* Couleur Teal de ton projet */
+    border-radius: 18px; /* Carré arrondi */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.8rem;
+}
+
+.doc-header-info h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1B2559;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.doc-spec {
+    color: #00BCD4;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* 5. Zone d'infos (Rectangle gris clair) */
+.doc-contact-box {
+    background: #F8FAFD;
+    border-radius: 20px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.contact-item i {
+    color: #A3AED0;
+    width: 20px;
+}
+
+.days-tag {
+    background: white;
+    border: 1px solid #E2E8F0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    margin-right: 4px;
+    color: #718096;
+}
+
+/* 6. Boutons d'actions Pastels */
+.btn-edit-light {
+    background: #E0F7FA;
+    color: #00BCD4;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn-delete-light {
+    background: #FFF5F4;
+    color: #EE5D50;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn-edit-light:hover { background: #B2EBF2; }
+.btn-delete-light:hover { background: #FFEBEE; }
+
+/* 7. Scroll Area (Pour ne pas déborder du dashboard) */
+.doctors-scroll-area {
+    max-height: 75vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.doctors-scroll-area::-webkit-scrollbar { width: 6px; }
+.doctors-scroll-area::-webkit-scrollbar-thumb { 
+    background: #00BCD4; 
+    border-radius: 10px; 
+}
+/* --- MODAL --- */
+.modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 2000;
+    align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.form-control-custom { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 12px; outline: none; margin-bottom: 15px; background: #F8FAFD; }
+/* Titre spécifique en Aqua et Gras */
+.modal-title-aqua {
+    color: #00BCD4; /* Couleur Aqua/Turquoise */
+    font-weight: 800; /* Très gras */
+    font-size: 1.6rem; /* Taille légèrement réduite pour la lisibilité */
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Ajustement de la taille de la modal */
+.custom-modal {
+    background: white;
+    width: 95%;
+    max-width: 600px; /* Moins large pour être plus compacte */
+    padding: 30px; /* Padding réduit */
+    border-radius: 25px;
+    
+    /* Gestion de la hauteur */
+    max-height: 85vh; /* Limite la hauteur à 85% de l'écran */
+    overflow-y: auto; /* Ajoute un scroll interne si le contenu dépasse */
+    
+    position: relative;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+/* Style des labels pour qu'ils soient plus fins et sombres comme l'image */
+.form-label {
+    font-weight: 600;
+    color: #2D3748;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+/* Inputs plus compacts */
+.custom-input {
+    background-color: #F8FAFD !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 10px 12px;
+    height: 40px; /* Hauteur fixe pour uniformiser */
+    font-size: 0.9rem;
+}
+/* --- Ajustement des Titres Secondaires (Cartes) --- */
+.chart-card h3 { 
+    font-size:1.5rem !important; /* Taille diminuée pour plus de finesse */
+    font-weight: 700; 
+    font-family: 'Poppins', sans-serif; 
+    color: var(--text-dark); /* Ton bleu foncé #1B2559 */
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    margin-bottom: 25px;
+    text-transform: none;
+}
+
+/* --- Stickers / Icônes à côté des titres --- */
+.chart-card h3 i { 
+    color: var(--teal) !important; /* Force la couleur Aqua #00BCD4 */
+    background: rgba(0, 188, 212, 0.1); /* Petit fond discret pour l'effet "sticker" */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+    /* Harmonisation du Titre Principal */
+    
+
+    /* Style de la carte de paramètres */
+    .settings-card {
+        background: white;
+        padding: 35px;
+        border-radius: 24px; /* Coins plus arrondis comme les statistiques */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border);
+    }
+
+    /* Titres des sous-sections avec "Stickers" Aqua */
+    .section-title {
+        font-family: 'Poppins';
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .section-title i {
+        color: var(--teal) !important;
+        background: rgba(0, 188, 212, 0.1);
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 0.85rem;
+    }
+
+    /* Inputs personnalisés */
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        background-color: #F8FAFD;
+        outline: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .form-control-custom:focus {
+        border-color: var(--teal);
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.1);
+    }
+
+    .form-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+        display: block;
+    }
+
+    /* Bouton Gradient Aqua */
+    .btn-save {
+        background: var(--teal-gradient);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 188, 212, 0.2);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3);
+    }
+
+/* Personnalisation de la barre de défilement */
+.table-scroll-area::-webkit-scrollbar { width: 6px; }
+.table-scroll-area::-webkit-scrollbar-track { background: #f1f1f1; }
+.table-scroll-area::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 10px; }
+
+.table-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.table thead { position: sticky; top: 0; background: white; z-index: 10; }
+.table thead th { border-bottom: 2px solid var(--bg-color); color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; padding: 20px; }
+.table tbody td { padding: 15px 20px; border-bottom: 1px solid var(--bg-color); }
+
+@media (max-width: 768px) {
+    .sidebar { position: relative; height: auto; width: 100%; }
+    .main-content { padding: 1rem; margin-left: 0 !important; }
+}

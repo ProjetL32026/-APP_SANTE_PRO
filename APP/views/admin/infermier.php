@@ -1,5 +1,8 @@
-<?php include '../layout/header.php'; ?>
-<?php include '../layout/sidebar.php'; ?>
+<?php 
+// On remonte d'un niveau pour sortir de 'admin' et entrer dans 'layout'
+include '../APP/views/layout/header.php'; 
+include '../APP/views/layout/sidebar.php'; 
+?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
     <div class="header-section border-0 p-0">
@@ -79,4 +82,4 @@
     }
 </script>
 
-<?php include '../layout/footer.php'; ?>
+<?php include '../APP/views/layout/footer.php'; ?>

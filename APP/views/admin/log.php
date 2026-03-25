@@ -1,8 +1,10 @@
 <?php 
-    $page_title = "Connexion Admin"; 
-    // On remonte d'un dossier pour trouver le layout
-    include '../layout/header_authen.php'; 
+// 1. On appelle ton header spécial authentification
+include '../APP/views/layout/header_authen.php'; 
 ?>
+
+<div class="login-container">
+    </div>
 
 <div class="card p-4">
     <div class="text-center">

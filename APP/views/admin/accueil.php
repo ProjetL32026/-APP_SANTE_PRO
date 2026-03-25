@@ -1,5 +1,8 @@
-<?php include '../layout/header.php'; ?>
-<?php include '../layout/sidebar.php'; ?>
+<?php 
+// Dans APP/views/admin/accueil.php
+include '../APP/views/layout/header.php'; 
+include '../APP/views/layout/sidebar.php'; 
+?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
     <div class="section-header">
@@ -62,4 +65,6 @@
     </div>
 </main>
 
-<?php include '../layout/footer.php'; ?>
+<?php 
+include '../APP/views/layout/footer.php'; 
+?>

@@ -73,7 +73,7 @@ include __DIR__ . '/../layout/sidebar.php';
                 <td><?= htmlspecialchars($inf['telephone']) ?></td>
                 <td><?= htmlspecialchars($inf['email']) ?></td>
                 <td class="text-center">
-                <button class="btn btn-sm text-primary" onclick='editInfirmier(<?= json_encode($inf) ?>)'>
+                <button class="btn btn-sm text-primary" onclick='editInfirmier(<?= htmlspecialchars(json_encode($inf), ENT_QUOTES, 'UTF-8') ?>)'>
     <i class="fas fa-edit"></i>
 </button>
     
@@ -95,6 +95,7 @@ include __DIR__ . '/../layout/sidebar.php';
     <div class="custom-modal">
         <h3 class="fw-bold mb-4" style="font-family: 'Poppins'; color: var(--teal);">Ajouter un Infirmier</h3>
         <form action="/SANTE_PRO/APP/controllers/InfirmierController.php" method="POST">
+        <input type="hidden" name="id" id="edit_id">
     <div class="row">
         <div class="col-6">
             <label class="fw-bold small mb-2">Nom</label>
@@ -150,44 +151,48 @@ include __DIR__ . '/../layout/sidebar.php';
     }
     
     function closeModal() { 
-        document.getElementById('modal-infirmier').classList.remove('open'); 
-        document.querySelector('.custom-modal h3').innerText = "Ajouter un Infirmier";
-        let form = document.querySelector('#modal-infirmier form');
-        form.reset();
-        
-        // Remettre le mot de passe en obligatoire pour un nouvel ajout
-        form.querySelector('[name="password"]').required = true;
-        form.querySelector('[name="password"]').placeholder = "••••••••";
-        
-        let inputId = document.getElementById('edit_id');
-        if(inputId) inputId.remove(); 
-    }
+    const modal = document.getElementById('modal-infirmier');
+    modal.classList.remove('open'); 
+    
+    const form = modal.querySelector('form');
+    form.reset();
+    
+    // On remet le titre par défaut
+    modal.querySelector('h3').innerText = "Ajouter un Infirmier";
+    
+    // On vide l'ID caché au lieu de le supprimer
+    const inputId = document.getElementById('edit_id');
+    if(inputId) inputId.value = ""; 
+    
+    // On remet le mot de passe obligatoire
+    const mdpInput = form.querySelector('[name="password"]');
+    mdpInput.required = true;
+    mdpInput.placeholder = "••••••••";
+}
 
     function editInfirmier(inf) {
-        document.querySelector('.custom-modal h3').innerText = "Modifier l'infirmier";
-        let form = document.querySelector('#modal-infirmier form');
-        
-        let inputId = document.getElementById('edit_id') || document.createElement('input');
-        if(!inputId.id){
-            inputId.type = 'hidden';
-            inputId.name = 'id';
-            inputId.id = 'edit_id';
-            form.appendChild(inputId);
-        }
-        
-        inputId.value = inf.id;
-        form.querySelector('[name="nom"]').value = inf.nom;
-        form.querySelector('[name="prenom"]').value = inf.prenom;
-        form.querySelector('[name="username"]').value = inf.username; // INDISPENSABLE
-        form.querySelector('[name="email"]').value = inf.email;
-        form.querySelector('[name="telephone"]').value = inf.telephone;
-        form.querySelector('[name="service"]').value = inf.id_specialite;
-        
-        form.querySelector('[name="password"]').required = false;
-        form.querySelector('[name="password"]').placeholder = "(Laisser vide pour garder l'actuel)";
+    document.querySelector('.custom-modal h3').innerText = "Modifier l'infirmier";
+    let form = document.querySelector('#modal-infirmier form');
+    
+    // On récupère l'input qui est déjà dans le HTML
+    document.getElementById('edit_id').value = inf.id;
+    
+    // Remplissage des champs classiques
+    form.querySelector('[name="nom"]').value = inf.nom;
+    form.querySelector('[name="prenom"]').value = inf.prenom;
+    form.querySelector('[name="username"]').value = inf.username;
+    form.querySelector('[name="email"]').value = inf.email;
+    form.querySelector('[name="telephone"]').value = inf.telephone;
+    form.querySelector('[name="service"]').value = inf.id_specialite;
+    
+    // Gestion spécifique du mot de passe pour la modification
+    let mdpInput = form.querySelector('[name="password"]');
+    mdpInput.required = false; 
+    mdpInput.placeholder = "(Laisser vide pour garder l'actuel)";
+    mdpInput.value = ""; // On vide le champ au cas où il y avait du texte
 
-        openModal();
-    }
+    openModal();
+}
 
     window.onclick = function(event) {
         if (event.target == document.getElementById('modal-infirmier')) { closeModal(); }

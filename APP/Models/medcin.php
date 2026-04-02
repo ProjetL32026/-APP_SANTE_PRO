@@ -11,45 +11,44 @@ class Medecin {
             $this->db->beginTransaction();
 
             // 1. Insertion dans la table 'utilisateur'
-            // La table utilisateur contient bien ces colonnes [cite: 1]
-            $sqlUser = "INSERT INTO utilisateur (nom, prenom, username, email, role, telephone) 
-                        VALUES (:nom, :prenom, :username, :email, 'medecin', :tel)";
+            // MODIFICATION : On ajoute 'mot_de_passe' ICI
+            $sqlUser = "INSERT INTO utilisateur (nom, prenom, username, email, mot_de_passe, role, telephone) 
+                        VALUES (:nom, :prenom, :username, :email, :mdp, 'medecin', :tel)";
+            
             $stmtUser = $this->db->prepare($sqlUser);
             $stmtUser->execute([
                 ':nom'      => $nom,
                 ':prenom'   => $prenom,
                 ':username' => $username,
                 ':email'    => $email,
+                ':mdp'      => password_hash($mdp, PASSWORD_DEFAULT), // On hache ici !
                 ':tel'      => $tel
             ]);
 
             $userId = $this->db->lastInsertId();
 
             // 2. Insertion dans la table 'medecin'
-            // Transformation du tableau des jours pour la colonne 'jour_travail' 
-            $jours_str = implode(', ', $jours);
+            $jours_str = is_array($jours) ? implode(', ', $jours) : $jours;
 
-            // CORRECTION : Ajout de la colonne 'type' présente dans ton SQL 
-            $sqlMed = "INSERT INTO medecin (id_medecin, type, status, heure_debut, heure_fin, jour_travail, mot_de_passe, id_specialite) 
-                       VALUES (:id, :type, :status, :h_debut, :h_fin, :jours, :mdp, :id_spec)";
+            // MODIFICATION : On retire 'mot_de_passe' d'ici car il est déjà dans 'utilisateur'
+            $sqlMed = "INSERT INTO medecin (id_medecin, type, status, heure_debut, heure_fin, jour_travail, id_specialite) 
+                       VALUES (:id, :type, :status, :h_debut, :h_fin, :jours, :id_spec)";
             
             $stmtMed = $this->db->prepare($sqlMed);
             $stmtMed->execute([
-                ':id'        => $userId,      // id_medecin est la PK et FK 
-                ':type'      => 'Général',    // Valeur pour la colonne 'type' 
-                ':status'    => 'ACTIF',      // Valeur pour la colonne 'status' 
+                ':id'        => $userId,
+                ':type'      => 'Général',
+                ':status'    => 'ACTIF',
                 ':h_debut'   => $h_debut,
                 ':h_fin'     => $h_fin,
                 ':jours'     => $jours_str,
-                ':mdp'       => password_hash($mdp, PASSWORD_BCRYPT),
-                ':id_spec'   => $id_spec      // FK vers la table specialite [cite: 3, 4]
+                ':id_spec'   => $id_spec
             ]);
 
             $this->db->commit();
             return true;
         } catch (PDOException $e) {
             $this->db->rollBack();
-            // Utilisation de error_log pour ne pas casser l'affichage utilisateur
             error_log("Erreur SQL Médecin : " . $e->getMessage());
             return false;
         }

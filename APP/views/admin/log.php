@@ -15,7 +15,7 @@ include '../APP/views/layout/header_authen.php';
         <p class="text-muted">Espace administrateur</p>
     </div>
 
-    <form action="../../auth/process_login.php" method="POST">
+    <form action="/SANTE_PRO/APP/controllers/LoginController.php" method="POST">
         <div class="mb-3">
             <label class="form-label fw-medium">Nom d'utilisateur</label>
             <div class="input-group">

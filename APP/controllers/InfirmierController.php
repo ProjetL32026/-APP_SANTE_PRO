@@ -10,9 +10,9 @@ $infirmier = new Infirmier($db);
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id_a_supprimer = $_GET['id'];
     if ($infirmier->supprimer($id_a_supprimer)) {
-        header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&success=delete");
+        header("Location: /SANTE_PRO/public/index.php?page=infirmier&success=delete");
     } else {
-        header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&error=delete");
+        header("Location: /SANTE_PRO/public/index.php?page=infirmier&error=delete");
     }
     exit(); 
 }
@@ -32,23 +32,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 2. Validation simple
     if (empty($nom) || empty($username) || empty($email) || empty($service)) {
-        header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&error=empty");
+        header("Location: /SANTE_PRO/public/index.php?page=infirmier&error=empty");
         exit();
     }
 
     if (!empty($id)) {
         // ACTION : MODIFIER (On passe les 7 arguments dans l'ordre du modèle)
         if ($infirmier->modifier($id, $nom, $prenom, $username, $email, $tel, $service)) {
-            header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&status=updated");
+            header("Location: /SANTE_PRO/public/index.php?page=infirmier&status=updated");
         } else {
-            header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&error=update_failed");
+            header("Location: /SANTE_PRO/public/index.php?page=infirmier&error=update_failed");
         }
     } else {
         // ACTION : AJOUTER (On passe les 7 arguments : nom, prenom, username, email, tel, mdp, service)
         if ($infirmier->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $service)) {
-            header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&status=success");
+            header("Location: /SANTE_PRO/public/index.php?page=infirmier&status=success");
         } else {
-            header("Location: /SANTÉ_PRO/public/index.php?page=infirmier&error=insert_failed");
+            header("Location: /SANTE_PRO/public/index.php?page=infirmier&error=insert_failed");
         }
     }
     exit();

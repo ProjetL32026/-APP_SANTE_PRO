@@ -94,7 +94,7 @@ include __DIR__ . '/../layout/sidebar.php';
 <div class="modal-overlay" id="modal-infirmier">
     <div class="custom-modal">
         <h3 class="fw-bold mb-4" style="font-family: 'Poppins'; color: var(--teal);">Ajouter un Infirmier</h3>
-        <form action="/SANT%C3%89_PRO/APP/controllers/InfirmierController.php" method="POST">
+        <form action="/SANTE_PRO/APP/controllers/InfirmierController.php" method="POST">
     <div class="row">
         <div class="col-6">
             <label class="fw-bold small mb-2">Nom</label>

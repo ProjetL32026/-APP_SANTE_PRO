@@ -46,7 +46,7 @@ include '../APP/views/layout/sidebar.php';
             </span>
             <input type="text" id="searchInput" class="form-control border-start-0" 
                    placeholder="Rechercher un médecin (nom, spécialité)..." 
-                   style="border-radius: 0 12px 12px 0; height: 45px;">
+                   style="border-radius: 0 12px 12px 0; height: 45px;" onkeyup="filterDoctors()">
         </div>
     </div>
 
@@ -62,7 +62,7 @@ include '../APP/views/layout/sidebar.php';
     <div class="doc-header">
         <div class="doc-avatar-square"><i class="fas fa-user-md"></i></div>
         <div class="doc-header-info">
-            <h3>Dr. <?= htmlspecialchars($m['nom']) ?></h3>
+        <h3>Dr. <?= htmlspecialchars($m['nom'] . ' ' . $m['prenom']) ?></h3>
             <span class="doc-spec text-uppercase"><?= htmlspecialchars($m['nom_specialite']) ?></span>
         </div>
     </div>
@@ -234,6 +234,32 @@ include '../APP/views/layout/sidebar.php';
     window.onclick = function(event) {
         if (event.target == document.getElementById('modal-medecin')) { closeModal(); }
     }
+    function filterDoctors() {
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toLowerCase().trim();
+    let cards = document.querySelectorAll(".doctor-card");
+
+    cards.forEach(card => {
+        // On récupère le titre h3 (Ex: Dr. Noha)
+        let h3 = card.querySelector("h3");
+        // On récupère la spécialité (Ex: Urgences)
+        let spec = card.querySelector(".doc-spec");
+
+        if (h3 && spec) {
+            let nameText = h3.textContent.toLowerCase();
+            let specText = spec.textContent.toLowerCase();
+
+            // DEBUG : Affiche dans la console F12 pour vérifier
+            console.log("Recherche de : " + filter + " dans : " + nameText);
+
+            if (nameText.includes(filter) || specText.includes(filter)) {
+                card.style.display = ""; // On affiche
+            } else {
+                card.style.display = "none"; // On cache
+            }
+        }
+    });
+}
 </script>
 
 <?php include '../APP/views/layout/footer.php'; ?>

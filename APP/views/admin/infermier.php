@@ -37,9 +37,9 @@ include __DIR__ . '/../layout/sidebar.php';
             <span class="input-group-text bg-white border-end-0" style="border-radius: 12px 0 0 12px;">
                 <i class="fas fa-search text-muted"></i>
             </span>
-            <input type="text" class="form-control border-start-0" 
+            <input type="text" id="searchInfirmier" class="form-control border-start-0" 
                    placeholder="Rechercher un infirmier (nom, service)..." 
-                   style="border-radius: 0 12px 12px 0; height: 45px;">
+                   style="border-radius: 0 12px 12px 0; height: 45px;" onkeyup="filterInfirmiers()">
         </div>
     </div>
 
@@ -197,6 +197,28 @@ include __DIR__ . '/../layout/sidebar.php';
     window.onclick = function(event) {
         if (event.target == document.getElementById('modal-infirmier')) { closeModal(); }
     }
+    function filterInfirmiers() {
+    // 1. Récupérer la saisie et la mettre en minuscule
+    let input = document.getElementById("searchInfirmier");
+    let filter = input.value.toLowerCase().trim();
+    
+    // 2. Cibler toutes les lignes du tableau
+    let tableBody = document.querySelector(".table tbody");
+    let rows = tableBody.getElementsByTagName("tr");
+
+    // 3. Parcourir chaque ligne pour filtrer
+    for (let i = 0; i < rows.length; i++) {
+        // On récupère tout le texte de la ligne (Nom, Prénom, Service...)
+        let rowText = rows[i].textContent.toLowerCase();
+        
+        // 4. Si le texte de recherche est présent, on affiche, sinon on cache
+        if (rowText.includes(filter)) {
+            rows[i].style.display = ""; // Affiche la ligne
+        } else {
+            rows[i].style.display = "none"; // Cache la ligne
+        }
+    }
+}
 </script>
 
 <?php include '../APP/views/layout/footer.php'; ?>

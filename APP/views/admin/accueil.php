@@ -1,5 +1,25 @@
 <?php 
-// Dans APP/views/admin/accueil.php
+// 1. Connexion à la base de données
+require_once __DIR__ . '/../../../config/db.php'; 
+$database = new Database();
+$db = $database->getConnection();
+
+// 2. Requête pour compter le nombre d'infirmiers
+// On compte les entrées dans la table utilisateur qui ont le rôle 'infirmier'
+$queryInfirmiers = "SELECT COUNT(*) as total FROM utilisateur WHERE role = 'infirmier'";
+$stmtInf = $db->prepare($queryInfirmiers);
+$stmtInf->execute();
+$dataInf = $stmtInf->fetch(PDO::FETCH_ASSOC);
+$totalInfirmiers = $dataInf['total'];
+
+// 3. (Optionnel) Tu peux faire pareil pour les médecins
+$queryMedecins = "SELECT COUNT(*) as total FROM utilisateur WHERE role = 'medecin'";
+$stmtMed = $db->prepare($queryMedecins);
+$stmtMed->execute();
+$dataMed = $stmtMed->fetch(PDO::FETCH_ASSOC);
+$totalMedecins = $dataMed['total'];
+
+// Ensuite tes inclusions de layout
 include '../APP/views/layout/header.php'; 
 include '../APP/views/layout/sidebar.php'; 
 ?>
@@ -21,14 +41,14 @@ include '../APP/views/layout/sidebar.php';
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #E8F5E9; color: #4CAF50;"><i class="fas fa-user-check"></i></div>
                 <div class="text-muted small fw-bold">MÉDECINS ACTIFS</div>
-                <div class="h3 fw-bold m-0">en attente</div>
+                <div class="h3 fw-bold m-0"><?= $totalMedecins ?></div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #FFF3E0; color: #FF9800;"><i class="fas fa-user-nurse"></i></div>
                 <div class="text-muted small fw-bold">INFIRMIERS</div>
-                <div class="h3 fw-bold m-0">en attente</div>
+                <div class="h3 fw-bold m-0"><?= $totalInfirmiers ?></div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">

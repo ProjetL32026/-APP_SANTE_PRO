@@ -6,7 +6,7 @@ class Medecin {
         $this->db = $db;
     }
 
-    public function ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_spec, $h_debut, $h_fin, $jours) {
+    public function ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_spec, $h_debut, $h_fin, $jours,$type) {
         try {
             $this->db->beginTransaction();
 
@@ -37,7 +37,7 @@ class Medecin {
             $stmtMed = $this->db->prepare($sqlMed);
             $stmtMed->execute([
                 ':id'        => $userId,
-                ':type'      => 'Général',
+                ':type'      => $type,
                 ':status'    => 'ACTIF',
                 ':h_debut'   => $h_debut,
                 ':h_fin'     => $h_fin,

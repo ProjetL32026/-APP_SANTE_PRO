@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $email = $_POST['email'] ?? '';
     $tel = $_POST['telephone'] ?? '';
+    $type = $_POST['type'] ?? 'Dr.';
     $id_spec = $_POST['id_specialite'] ?? null;
     $h_debut = $_POST['heure_debut'] ?? null;
     $h_fin = $_POST['heure_fin'] ?? null;
@@ -65,9 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtU->execute($paramsU);
     
             // 4. Mise à jour de la table MEDECIN (Horaires, spécialité...)
-            $sqlM = "UPDATE medecin SET id_specialite = ?, heure_debut = ?, heure_fin = ?, jour_travail = ? WHERE id_medecin = ?";
-            $stmtM = $db->prepare($sqlM);
-            $stmtM->execute([$id_spec, $h_debut, $h_fin, $jours, $id]);
+            $sqlM = "UPDATE medecin SET type = ?, id_specialite = ?, heure_debut = ?, heure_fin = ?, jour_travail = ? WHERE id_medecin = ?";
+$stmtM = $db->prepare($sqlM);
+$stmtM->execute([$type, $id_spec, $h_debut, $h_fin, $jours, $id]);
     
             $db->commit();
             header("Location: /SANTE_PRO/public/index.php?page=medcin&status=updated");
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 2. On appelle la méthode du Modèle
         // Elle va créer l'Utilisateur, récupérer son ID, puis créer le Médecin
-        if ($medecin->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_spec, $h_debut, $h_fin, $jours_array)) {
+        if ($medecin->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_spec, $h_debut, $h_fin, $jours_array, $type)) {
             // Succès : Redirection vers la liste avec un message vert
             header("Location: /SANTE_PRO/public/index.php?page=medcin&status=success");
         } else {

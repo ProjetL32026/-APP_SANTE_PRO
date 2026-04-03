@@ -7,6 +7,7 @@ $db = $database->getConnection();
 // Requête pour récupérer les médecins et leurs noms de spécialités 
 $query = "SELECT u.nom, u.prenom, u.email, u.telephone, 
                  s.nom_specialite, m.status, m.id_medecin,
+                 m.type, -- On utilise 'type' ici car c'est le nom dans ta BDD
                  m.heure_debut, m.heure_fin, m.jour_travail 
           FROM utilisateur u 
           JOIN medecin m ON u.id = m.id_medecin 
@@ -16,13 +17,21 @@ $query = "SELECT u.nom, u.prenom, u.email, u.telephone,
 $stmt = $db->prepare($query);
 $stmt->execute();
 $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $medecin_a_modifier = null;
+
+// Cas 1 : On veut MODIFIER (on charge les données)
 if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['id'])) {
     $stmt = $db->prepare("SELECT u.*, m.* FROM utilisateur u JOIN medecin m ON u.id = m.id_medecin WHERE m.id_medecin = ?");
     $stmt->execute([$_GET['id']]);
     $medecin_a_modifier = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Script pour ouvrir le modal automatiquement au chargement
+    if ($medecin_a_modifier) {
+        echo "<script>window.onload = function() { openModal(); }</script>";
+    }
+} 
+// Cas 2 : On veut AJOUTER (formulaire vide)
+elseif (isset($_GET['action']) && $_GET['action'] == 'add') {
     echo "<script>window.onload = function() { openModal(); }</script>";
 }
 include '../APP/views/layout/header.php'; 
@@ -34,9 +43,9 @@ include '../APP/views/layout/sidebar.php';
         <div class="section-header">
             <h2>Équipe Médicale</h2>
         </div>
-        <button class="btn-main" onclick="openModal()">
-            <i class="fas fa-plus me-2"></i> Nouveau Médecin
-        </button>
+        <a href="?page=medcin&action=add" class="btn-main text-decoration-none">
+    <i class="fas fa-plus me-2"></i> Nouveau Médecin
+</a>
     </div>
 
     <div class="search-container">
@@ -62,7 +71,7 @@ include '../APP/views/layout/sidebar.php';
     <div class="doc-header">
         <div class="doc-avatar-square"><i class="fas fa-user-md"></i></div>
         <div class="doc-header-info">
-        <h3>Dr. <?= htmlspecialchars($m['nom'] . ' ' . $m['prenom']) ?></h3>
+        <h3><?= htmlspecialchars(($m['type'] ?? 'Dr.') . ' ' . $m['nom'] . ' ' . $m['prenom']) ?></h3>
             <span class="doc-spec text-uppercase"><?= htmlspecialchars($m['nom_specialite']) ?></span>
         </div>
     </div>
@@ -108,7 +117,13 @@ include '../APP/views/layout/sidebar.php';
         <form action="/SANTE_PRO/APP/controllers/MedcinController.php" method="POST">
             <input type="hidden" name="action" value="<?= $medecin_a_modifier ? 'update' : 'add' ?>">
             <input type="hidden" name="id_medecin" value="<?= $medecin_a_modifier['id_medecin'] ?? '' ?>">
-
+            <div class="col-md-12">
+            <label class="fw-bold small mb-2">Titre académique</label>
+<select name="type" class="form-control-custom" required>
+    <option value="Dr." <?= ($medecin_a_modifier && $medecin_a_modifier['type'] == 'Dr.') ? 'selected' : '' ?>>Docteur (Dr.)</option>
+    <option value="Pr." <?= ($medecin_a_modifier && $medecin_a_modifier['type'] == 'Pr.') ? 'selected' : '' ?>>Professeur (Pr.)</option>
+</select>
+</div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="fw-bold small mb-2">Nom</label>

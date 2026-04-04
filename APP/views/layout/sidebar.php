@@ -1,6 +1,8 @@
 <?php
-// On récupère le nom de la page actuelle dans l'URL. Si vide, c'est 'accueil'.
-$current_page = isset($_GET['page']) ? $_GET['page'] : 'accueil';
+// On gère uniquement l'affichage actif du menu
+if (!isset($current_page)) {
+    $current_page = isset($_GET['page']) ? $_GET['page'] : 'accueil';
+}
 ?>
 
 <nav class="col-12 col-md-3 col-lg-2 sidebar">
@@ -25,6 +27,9 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'accueil';
         <a class="nav-link <?php echo ($current_page == 'infirmier') ? 'active' : ''; ?>" href="index.php?page=infirmier">
             <i class="fas fa-user-nurse me-2"></i> Infirmiers
         </a>
+        <a class="nav-link <?php echo ($current_page == 'specialite') ? 'active' : ''; ?>" href="index.php?page=specialite">
+    <i class="fas fa-notes-medical me-2"></i> Spécialités
+</a>
         
         <a class="nav-link <?php echo ($current_page == 'statistique') ? 'active' : ''; ?>" href="index.php?page=statistique">
             <i class="fas fa-chart-line me-2"></i> Statistiques

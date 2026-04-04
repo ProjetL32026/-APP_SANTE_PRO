@@ -17,7 +17,10 @@ $query = "SELECT u.nom, u.prenom, u.email, u.telephone,
 $stmt = $db->prepare($query);
 $stmt->execute();
 $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+//Requête pour récupérer les spécialité a la liste déroulante
+$stmt_specs = $db->prepare("SELECT id_specialite, nom_specialite FROM specialite ORDER BY nom_specialite ASC");
+$stmt_specs->execute();
+$all_specialities = $stmt_specs->fetchAll(PDO::FETCH_ASSOC);
 $medecin_a_modifier = null;
 
 // Cas 1 : On veut MODIFIER (on charge les données)
@@ -149,18 +152,20 @@ include '../APP/views/layout/sidebar.php';
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-bold small mb-2">Spécialité</label>
-                    <select name="id_specialite" class="form-control-custom" required>
-                        <option value="">-- Sélectionner --</option>
-                        <?php 
-                        $specs = [1 => 'Urgences', 2 => 'Pédiatrie', 3 => 'Radiologie'];
-                        foreach($specs as $id => $label): 
-                            $selected = ($medecin_a_modifier && $medecin_a_modifier['id_specialite'] == $id) ? 'selected' : '';
-                        ?>
-                            <option value="<?= $id ?>" <?= $selected ?>><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+    <label class="fw-bold small mb-2">Spécialité</label>
+    <select name="id_specialite" class="form-control-custom" required>
+        <option value="">-- Sélectionner --</option>
+        <?php 
+        // On boucle sur les spécialités récupérées en BDD
+        foreach($all_specialities as $spec): 
+            $id = $spec['id_specialite'];
+            $label = $spec['nom_specialite'];
+            $selected = ($medecin_a_modifier && $medecin_a_modifier['id_specialite'] == $id) ? 'selected' : '';
+        ?>
+            <option value="<?= $id ?>" <?= $selected ?>><?= htmlspecialchars($label) ?></option>
+        <?php endforeach; ?>
+    </select>
+</div>
 
                 <div class="col-12">
                     <label class="fw-bold small mb-2">Mot de passe <?= $medecin_a_modifier ? '(Laissez vide pour ne pas changer)' : '' ?></label>

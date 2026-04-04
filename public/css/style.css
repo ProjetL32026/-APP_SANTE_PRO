@@ -227,29 +227,41 @@ body { font-family: 'Nunito', sans-serif; background-color: var(--bg-color); col
     color: #718096;
 }
 
-/* 6. Boutons d'actions Pastels */
+/* Boutons d'actions Pastels (Modifier & Supprimer) */
+.btn-edit-light, .btn-delete-light {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Couleurs spécifiques Modifier */
 .btn-edit-light {
-    background: #E0F7FA;
+    background: rgba(0, 188, 212, 0.1); /* Aqua très clair */
     color: #00BCD4;
-    border: none;
-    border-radius: 12px;
-    padding: 10px;
-    font-weight: 700;
-    transition: 0.3s;
+}
+.btn-edit-light:hover {
+    background: #00BCD4;
+    color: white;
+    transform: translateY(-2px);
 }
 
+/* Couleurs spécifiques Supprimer */
 .btn-delete-light {
-    background: #FFF5F4;
+    background: #FFF5F4; /* Rouge/Rose très clair */
     color: #EE5D50;
-    border: none;
-    border-radius: 12px;
-    padding: 10px;
-    font-weight: 700;
-    transition: 0.3s;
 }
-
-.btn-edit-light:hover { background: #B2EBF2; }
-.btn-delete-light:hover { background: #FFEBEE; }
+.btn-delete-light:hover {
+    background: #EE5D50;
+    color: white;
+    transform: translateY(-2px);
+}
 
 /* 7. Scroll Area (Pour ne pas déborder du dashboard) */
 .doctors-scroll-area {

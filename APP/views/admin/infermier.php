@@ -16,7 +16,10 @@ $query = "SELECT u.id, u.nom, u.prenom,u.username, u.telephone, u.email, s.nom_s
 $stmt = $db->prepare($query);
 $stmt->execute();
 $infirmiers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+// Récupération dynamique des spécialités pour le select
+$stmt_specs = $db->prepare("SELECT id_specialite, nom_specialite FROM specialite ORDER BY nom_specialite ASC");
+$stmt_specs->execute();
+$all_specialities = $stmt_specs->fetchAll(PDO::FETCH_ASSOC);
 // 2. Ensuite l'affichage du design (Layout)
 include __DIR__ . '/../layout/header.php'; 
 include __DIR__ . '/../layout/sidebar.php'; 
@@ -65,24 +68,27 @@ include __DIR__ . '/../layout/sidebar.php';
     <?php else: ?>
         <?php foreach ($infirmiers as $inf): ?>
             <tr>
-                <td><?= $inf['id'] ?></td>
-                <td><?= htmlspecialchars($inf['nom']) ?></td>
-                <td><?= htmlspecialchars($inf['prenom']) ?></td>
-                <td><span class="badge bg-light text-dark">@<?= htmlspecialchars($inf['username']) ?></span></td>
-                <td><?= htmlspecialchars($inf['nom_specialite']) ?></td>
-                <td><?= htmlspecialchars($inf['telephone']) ?></td>
-                <td><?= htmlspecialchars($inf['email']) ?></td>
+                <td class="fw-bold" style="color: var(--text-gray);">#<?= $inf['id'] ?></td>
+                <td class="fw-bold" style="color: var(--text-dark);"><?= htmlspecialchars($inf['nom']) ?></td>
+                <td class="fw-bold" style="color: var(--text-dark);"><?= htmlspecialchars($inf['prenom']) ?></td>
+                <td><span class="fw-bold" style="font-weight: 500;">@<?= htmlspecialchars($inf['username']) ?></span></td>
                 <td class="text-center">
-                <button class="btn btn-sm text-primary" onclick='editInfirmier(<?= htmlspecialchars(json_encode($inf), ENT_QUOTES, 'UTF-8') ?>)'>
-    <i class="fas fa-edit"></i>
-</button>
-    
-    <a href="../APP/controllers/InfirmierController.php?action=delete&id=<?= $inf['id'] ?>" 
-       class="btn btn-sm text-danger" 
-       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet infirmier ?');">
-        <i class="fas fa-trash"></i>
-    </a>
-</td>
+                                <span class="badge" style="background: rgba(0, 188, 212, 0.1); color: var(--teal); border-radius: 8px; padding: 8px 12px;">
+                                    <?= $inf['nom_specialite'] ?>
+                                </span>
+                            </td>
+                <td class="fw-bold" style=" color: var(--text-dark);"><?= htmlspecialchars($inf['telephone']) ?></td>
+                <td  class="fw-bold" style="color: var(--text-dark);"><?= htmlspecialchars($inf['email']) ?></td>
+                <td class="text-center">
+                    <button class="btn-edit-light " onclick='editInfirmier(<?= htmlspecialchars(json_encode($inf), ENT_QUOTES, 'UTF-8') ?>)'>
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <a href="../APP/controllers/InfirmierController.php?action=delete&id=<?= $inf['id'] ?>" 
+                    class="btn-delete-light text-decoration-none"
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet infirmier ?');">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
             </tr>
         <?php endforeach; ?>
     <?php endif; ?>
@@ -115,11 +121,13 @@ include __DIR__ . '/../layout/sidebar.php';
         </div>
         <div class="col-6">
     <label class="fw-bold small mb-2">Service (Spécialité)</label>
-    <select name="service" class="form-control-custom" required>
+    <select name="service" class="form-control-custom" id="edit_service" required>
         <option value="">-- Sélectionner --</option>
-        <option value="1">Urgences</option>
-        <option value="2">Pédiatrie</option>
-        <option value="3">Radiologie</option>
+        <?php foreach($all_specialities as $spec): ?>
+            <option value="<?= $spec['id_specialite'] ?>">
+                <?= htmlspecialchars($spec['nom_specialite']) ?>
+            </option>
+        <?php endforeach; ?>
     </select>
 </div>
     </div>

@@ -6,25 +6,37 @@ $database = new Database();
 $db = $database->getConnection();
 $medecin = new Medecin($db);
 
-// --- 1. TRAITEMENT DE LA SUPPRESSION (GET) ---
+// --- 1. TRAITEMENT DE LA SUPPRESSION ---
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     $id_a_supprimer = $_GET['id'];
     try {
-        $queryMed = "DELETE FROM medecin WHERE id_medecin = :id";
-        $stmtMed = $db->prepare($queryMed);
-        $stmtMed->execute([':id' => $id_a_supprimer]);
+        $db->beginTransaction(); 
 
-        $queryUser = "DELETE FROM utilisateur WHERE id = :id";
-        $stmtUser = $db->prepare($queryUser);
-        $stmtUser->execute([':id' => $id_a_supprimer]);
+        // 1. On supprime le profil spécifique (médecin)
+        $stmtMed = $db->prepare("DELETE FROM medecin WHERE id_medecin = ?");
+        $stmtMed->execute([$id_a_supprimer]);
 
+        // 2. On supprime le compte général (utilisateur)
+        $stmtUser = $db->prepare("DELETE FROM utilisateur WHERE id = ?");
+        $stmtUser->execute([$id_a_supprimer]);
+
+        $db->commit();
+        
+        // Redirection avec succès
         header("Location: /SANTE_PRO/public/index.php?page=medcin&delete=success");
         exit();
+
     } catch (PDOException $e) {
-        die("Erreur de suppression : " . $e->getMessage());
+        // En cas d'erreur, on annule tout pour ne pas corrompre la base
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        // Log de l'erreur pour le développeur
+        error_log("Erreur suppression médecin ID $id_a_supprimer : " . $e->getMessage());
+        header("Location: /SANTE_PRO/public/index.php?page=medcin&status=error");
+        exit();
     }
 }
-
 // --- 2. TRAITEMENT POST (AJOUT OU MODIFICATION) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? 'add'; // On récupère l'action (add par défaut)

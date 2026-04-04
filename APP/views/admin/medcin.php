@@ -69,7 +69,22 @@ include '../APP/views/layout/sidebar.php';
         <?php else: ?>
             <?php foreach ($medecins as $m): ?>
                 <div class="doctor-card">
-    <span class="status-badge"><?= htmlspecialchars($m['status'] ?? 'ACTIF') ?></span>
+                <?php 
+    $status = strtoupper($m['status'] ?? 'NON DÉFINI'); 
+    $badgeStyle = "";
+    
+    // Définition des couleurs selon le statut
+    if ($status == 'ACTIF' || $status == 'PRÉSENT') {
+        $badgeStyle = "background: #E6FAF5; color: #05CD99;"; // Vert
+    } elseif ($status == 'ABSENT') {
+        $badgeStyle = "background: #FFF5F4; color: #EE5D50;"; // Rouge
+    } else {
+        $badgeStyle = "background: #F4F7FE; color: #A3AED0;"; // Gris (par défaut)
+    }
+?>
+<span class="status-badge" style="<?= $badgeStyle ?> border-radius: 12px; padding: 5px 15px; font-weight: 700;">
+    <?= htmlspecialchars($status) ?>
+</span>
     
     <div class="doc-header">
         <div class="doc-avatar-square"><i class="fas fa-user-md"></i></div>

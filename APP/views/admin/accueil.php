@@ -12,13 +12,52 @@ $stmtInf->execute();
 $dataInf = $stmtInf->fetch(PDO::FETCH_ASSOC);
 $totalInfirmiers = $dataInf['total'];
 
-// 3. (Optionnel) Tu peux faire pareil pour les médecins
-$queryMedecins = "SELECT COUNT(*) as total FROM utilisateur WHERE role = 'medecin'";
-$stmtMed = $db->prepare($queryMedecins);
+// Requête pour compter uniquement les médecins dont le statut est 'ACTIF'
+$queryMedecinsActifs = "SELECT COUNT(*) as total 
+                        FROM utilisateur u 
+                        JOIN medecin m ON u.id = m.id_medecin 
+                        WHERE u.role = 'medecin' 
+                        AND m.status = 'ACTIF'";
+
+$stmtMed = $db->prepare($queryMedecinsActifs);
 $stmtMed->execute();
 $dataMed = $stmtMed->fetch(PDO::FETCH_ASSOC);
-$totalMedecins = $dataMed['total'];
 
+$totalMedecinsActifs = $dataMed['total'];
+// 3. Nombre de patients aujourd'hui (Rendez-vous à la date du jour)
+$queryPatientsJour = "SELECT COUNT(*) as total FROM rendez_vous WHERE DATE(date) = CURDATE()";
+$stmtPat = $db->prepare($queryPatientsJour);
+$stmtPat->execute();
+$dataPat = $stmtPat->fetch(PDO::FETCH_ASSOC);
+$totalPatientsJour = $dataPat['total'];
+
+// 4. Nombre d'absences aujourd'hui
+// On considère qu'un médecin est absent SI son statut est 'ABSENT' en base de données
+$queryAbsencesJour = "SELECT COUNT(*) as total FROM medecin WHERE status = 'ABSENT'";
+$stmtAbs = $db->prepare($queryAbsencesJour);
+$stmtAbs->execute();
+$dataAbs = $stmtAbs->fetch(PDO::FETCH_ASSOC);
+$totalAbsencesJour = $dataAbs['total'];
+// Requête pour le Top Médecins (Classement décroissant)
+$queryTopMedecins = "SELECT 
+                        u.nom, 
+                        u.prenom, 
+                        m.type,
+                        s.nom_specialite, 
+                        m.status,
+                        COUNT(r.id_rdv) as nb_consultations
+                     FROM utilisateur u
+                     JOIN medecin m ON u.id = m.id_medecin
+                     JOIN specialite s ON m.id_specialite = s.id_specialite
+                     LEFT JOIN rendez_vous r ON m.id_medecin = r.id_medecin
+                     WHERE u.role = 'medecin'
+                     GROUP BY m.id_medecin
+                     ORDER BY nb_consultations DESC
+                     LIMIT 5"; // On affiche les 5 meilleurs
+
+$stmtTop = $db->prepare($queryTopMedecins);
+$stmtTop->execute(); // Correction : utiliser la flèche ->
+$topMedecins = $stmtTop->fetchAll(PDO::FETCH_ASSOC);
 // Ensuite tes inclusions de layout
 include '../APP/views/layout/header.php'; 
 include '../APP/views/layout/sidebar.php'; 
@@ -34,14 +73,14 @@ include '../APP/views/layout/sidebar.php';
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #E0F7FA; color: #00BCD4;"><i class="fas fa-hospital-user"></i></div>
                 <div class="text-muted small fw-bold">PATIENTS AUJOURD'HUI</div>
-                <div class="h3 fw-bold m-0">en attente</div>
+                <div class="h3 fw-bold m-0"><?= $totalPatientsJour ?></div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #E8F5E9; color: #4CAF50;"><i class="fas fa-user-check"></i></div>
                 <div class="text-muted small fw-bold">MÉDECINS ACTIFS</div>
-                <div class="h3 fw-bold m-0"><?= $totalMedecins ?></div>
+                <div class="h3 fw-bold m-0"><?= $totalMedecinsActifs ?></div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
@@ -55,7 +94,7 @@ include '../APP/views/layout/sidebar.php';
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #FFEBEE; color: #F44336;"><i class="fas fa-user-times"></i></div>
                 <div class="text-muted small fw-bold">TAUX D'ABSENCE</div>
-                <div class="h3 fw-bold m-0">en attente</div>
+                <div class="h3 fw-bold m-0"><?= $totalAbsencesJour ?></div>
             </div>
         </div>
     </div>
@@ -66,7 +105,7 @@ include '../APP/views/layout/sidebar.php';
                 <h5>Top Médecins les plus consultés</h5>
             </div>
             <div class="table-container">
-                <div class="table-scroll-area">
+            <div class="table-scroll-area" style="max-height: 250px !important; overflow-y: scroll !important;">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -77,7 +116,38 @@ include '../APP/views/layout/sidebar.php';
                             </tr>
                         </thead>
                         <tbody>
-                            </tbody>
+    <?php foreach ($topMedecins as $row): ?>
+    <tr>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm me-2" style="background: #F4F7FE; border-radius: 8px; padding: 5px 10px;">
+                    <i class="fas fa-user-md text-primary"></i>
+                </div>
+                <div>
+                    <span class="fw-bold"><?= htmlspecialchars($row['type'] . ' ' . $row['nom'] . ' ' . $row['prenom']) ?></span>
+                </div>
+            </div>
+        </td>
+        <td>
+            <span class="badge bg-light text-primary text-uppercase" style="font-size: 0.75rem;">
+                <?= htmlspecialchars($row['nom_specialite']) ?>
+            </span>
+        </td>
+        <td class="text-center">
+            <span class="fw-bold"><?= $row['nb_consultations'] ?></span>
+        </td>
+        <td class="text-end">
+            <?php 
+                $st = strtoupper($row['status'] ?? 'NON DÉFINI');
+                $color = ($st == 'ACTIF') ? '#05CD99' : (($st == 'ABSENT') ? '#EE5D50' : '#A3AED0');
+            ?>
+            <span style="color: <?= $color ?>; font-size: 0.85rem; fw-bold">
+                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> <?= $st ?>
+            </span>
+        </td>
+    </tr>
+    <?php endforeach; ?>
+</tbody>
                     </table>
                 </div>
             </div>

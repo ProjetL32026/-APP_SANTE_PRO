@@ -27,23 +27,22 @@ class Medecin {
 
             $userId = $this->db->lastInsertId();
 
-            // 2. Insertion dans la table 'medecin'
-            $jours_str = is_array($jours) ? implode(', ', $jours) : $jours;
+         // 2. Insertion dans la table 'medecin'
+$jours_str = is_array($jours) ? implode(', ', $jours) : $jours;
 
-            // MODIFICATION : On retire 'mot_de_passe' d'ici car il est déjà dans 'utilisateur'
-            $sqlMed = "INSERT INTO medecin (id_medecin, type, status, heure_debut, heure_fin, jour_travail, id_specialite) 
-                       VALUES (:id, :type, :status, :h_debut, :h_fin, :jours, :id_spec)";
-            
-            $stmtMed = $this->db->prepare($sqlMed);
-            $stmtMed->execute([
-                ':id'        => $userId,
-                ':type'      => $type,
-                ':status'    => 'ACTIF',
-                ':h_debut'   => $h_debut,
-                ':h_fin'     => $h_fin,
-                ':jours'     => $jours_str,
-                ':id_spec'   => $id_spec
-            ]);
+// On retire 'status' de la liste des colonnes pour laisser la BDD gérer sa valeur initiale
+$sqlMed = "INSERT INTO medecin (id_medecin, type, heure_debut, heure_fin, jour_travail, id_specialite) 
+           VALUES (:id, :type, :h_debut, :h_fin, :jours, :id_spec)";
+
+$stmtMed = $this->db->prepare($sqlMed);
+$stmtMed->execute([
+    ':id'        => $userId,
+    ':type'      => $type,
+    ':h_debut'   => $h_debut,
+    ':h_fin'     => $h_fin,
+    ':jours'     => $jours_str,
+    ':id_spec'   => $id_spec
+]);
 
             $this->db->commit();
             return true;

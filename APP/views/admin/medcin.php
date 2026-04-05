@@ -1,46 +1,8 @@
 <?php 
-// Connexion à la base de données
-require_once __DIR__ . '/../../../config/db.php'; 
-$database = new Database();
-$db = $database->getConnection();
-
-// Requête pour récupérer les médecins et leurs noms de spécialités 
-$query = "SELECT u.nom, u.prenom, u.email, u.telephone, 
-                 s.nom_specialite, m.status, m.id_medecin,
-                 m.type, -- On utilise 'type' ici car c'est le nom dans ta BDD
-                 m.heure_debut, m.heure_fin, m.jour_travail 
-          FROM utilisateur u 
-          JOIN medecin m ON u.id = m.id_medecin 
-          JOIN specialite s ON m.id_specialite = s.id_specialite
-          WHERE u.role = 'medecin'";
-
-$stmt = $db->prepare($query);
-$stmt->execute();
-$medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
-//Requête pour récupérer les spécialité a la liste déroulante
-$stmt_specs = $db->prepare("SELECT id_specialite, nom_specialite FROM specialite ORDER BY nom_specialite ASC");
-$stmt_specs->execute();
-$all_specialities = $stmt_specs->fetchAll(PDO::FETCH_ASSOC);
-$medecin_a_modifier = null;
-
-// Cas 1 : On veut MODIFIER (on charge les données)
-if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['id'])) {
-    $stmt = $db->prepare("SELECT u.*, m.* FROM utilisateur u JOIN medecin m ON u.id = m.id_medecin WHERE m.id_medecin = ?");
-    $stmt->execute([$_GET['id']]);
-    $medecin_a_modifier = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($medecin_a_modifier) {
-        echo "<script>window.onload = function() { openModal(); }</script>";
-    }
-} 
-// Cas 2 : On veut AJOUTER (formulaire vide)
-elseif (isset($_GET['action']) && $_GET['action'] == 'add') {
-    echo "<script>window.onload = function() { openModal(); }</script>";
-}
+// Pas de logique ici ! Le Contrôleur a déjà créé $medecins et $all_specialities
 include '../APP/views/layout/header.php'; 
 include '../APP/views/layout/sidebar.php';
 ?>
-
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
     <div class="header-section border-0 p-0">
         <div class="section-header">
@@ -114,15 +76,17 @@ include '../APP/views/layout/sidebar.php';
     </div>
 
     <div class="d-flex gap-2 mt-3">
-    <a href="?page=medcin&action=edit&id=<?= $m['id_medecin'] ?>" class="btn-edit-light w-100 text-center text-decoration-none">
-    Modifier
-</a>
-        <a href="/SANTE_PRO/APP/controllers/MedcinController.php?action=delete&id=<?= $m['id_medecin'] ?>" 
-           class="btn-delete-light w-100 text-center text-decoration-none" 
-           onclick="return confirm('Supprimer ce médecin ?');">
-           Supprimer
-           </a>
-    </div> 
+    <a href="index.php?page=medcin&action=edit&id=<?= $m['id_medecin'] ?>" 
+       class="btn-edit-light w-100 text-center text-decoration-none">
+       Modifier
+    </a>
+
+    <a href="index.php?page=medcin&action=delete&id=<?= $m['id_medecin'] ?>" 
+       class="btn-delete-light w-100 text-center text-decoration-none" 
+       onclick="return confirm('Supprimer ce médecin ?');">
+       Supprimer
+    </a>
+</div>
 </div> <?php endforeach; ?> </div> </div> <?php endif; ?>
 </main>
 
@@ -132,7 +96,7 @@ include '../APP/views/layout/sidebar.php';
             <?= $medecin_a_modifier ? 'Modifier le Médecin' : 'Informations du Médecin' ?>
         </h3>
         
-        <form action="/SANTE_PRO/APP/controllers/MedcinController.php" method="POST">
+        <form action="index.php?page=medcin" method="POST">
             <input type="hidden" name="action" value="<?= $medecin_a_modifier ? 'update' : 'add' ?>">
             <input type="hidden" name="id_medecin" value="<?= $medecin_a_modifier['id_medecin'] ?? '' ?>">
             <div class="col-md-12">
@@ -229,72 +193,59 @@ include '../APP/views/layout/sidebar.php';
 </div>
 
 <script>
+    // Fonctions de la Modal
     function openModal() { document.getElementById('modal-medecin').classList.add('open'); }
     function closeModal() { document.getElementById('modal-medecin').classList.remove('open'); }
 
-    // On récupère le formulaire par son ID ou sa balise
+    // Validation du formulaire avant envoi
     const formMedecin = document.querySelector('#modal-medecin form');
-
     formMedecin.onsubmit = function(event) {
-        // 1. Récupérer toutes les checkboxes des jours
         const checkboxes = document.querySelectorAll('.day-checkbox');
         let isOneChecked = false;
-
-        // 2. Vérifier si au moins une est cochée
         checkboxes.forEach(function(checkbox) {
-            if (checkbox.checked) {
-                isOneChecked = true;
-            }
+            if (checkbox.checked) isOneChecked = true;
         });
 
-        // 3. Si aucune n'est cochée, on bloque tout
         if (!isOneChecked) {
-            event.preventDefault(); // Empêche l'envoi du formulaire au PHP
-            alert("Erreur : Vous devez sélectionner au moins un jour de travail pour ce médecin.");
-            return false;
-        }
-
-        // Optionnel : Vérifier aussi que les heures ne sont pas vides
-        const hDebut = document.querySelector('input[name="heure_debut"]').value;
-        const hFin = document.querySelector('input[name="heure_fin"]').value;
-        if (!hDebut || !hFin) {
             event.preventDefault();
-            alert("Veuillez renseigner les horaires (Début et Fin).");
+            alert("Erreur : Sélectionnez au moins un jour de travail.");
             return false;
         }
-        
         return true;
     };
 
+    // Fermer la modal en cliquant à côté
     window.onclick = function(event) {
         if (event.target == document.getElementById('modal-medecin')) { closeModal(); }
     }
+
+    // Fonction de recherche en temps réel
     function filterDoctors() {
-    let input = document.getElementById("searchInput");
-    let filter = input.value.toLowerCase().trim();
-    let cards = document.querySelectorAll(".doctor-card");
+        let input = document.getElementById("searchInput");
+        let filter = input.value.toLowerCase().trim();
+        let cards = document.querySelectorAll(".doctor-card");
 
-    cards.forEach(card => {
-        // On récupère le titre h3 (Ex: Dr. Noha)
-        let h3 = card.querySelector("h3");
-        // On récupère la spécialité (Ex: Urgences)
-        let spec = card.querySelector(".doc-spec");
-
-        if (h3 && spec) {
-            let nameText = h3.textContent.toLowerCase();
-            let specText = spec.textContent.toLowerCase();
-
-            // DEBUG : Affiche dans la console F12 pour vérifier
-            console.log("Recherche de : " + filter + " dans : " + nameText);
-
-            if (nameText.includes(filter) || specText.includes(filter)) {
-                card.style.display = ""; // On affiche
-            } else {
-                card.style.display = "none"; // On cache
+        cards.forEach(card => {
+            let h3 = card.querySelector("h3");
+            let spec = card.querySelector(".doc-spec");
+            if (h3 && spec) {
+                let nameText = h3.textContent.toLowerCase();
+                let specText = spec.textContent.toLowerCase();
+                if (nameText.includes(filter) || specText.includes(filter)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
             }
-        }
-    });
-}
+        });
+    }
+
+    // --- AUTO-OPEN MODAL (SORTI DE LA FONCTION FILTER) ---
+    <?php if (isset($_GET['action']) && ($_GET['action'] == 'add' || $_GET['action'] == 'edit')): ?>
+        window.onload = function() {
+            openModal(); 
+        };
+    <?php endif; ?>
 </script>
 
 <?php include '../APP/views/layout/footer.php'; ?>

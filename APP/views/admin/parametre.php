@@ -65,13 +65,13 @@ include '../APP/views/layout/sidebar.php';
                     <input type="password" name="new_password" class="form-control-custom" placeholder="Laissez vide pour ne pas changer">
                 </div>
             </div>
-
+            
             <div class="text-end mt-4">
                 <button type="submit" class="btn-save">
                     <i class="fas fa-check-circle me-2"></i>Enregistrer les changements
                 </button>
             </div>
         </form>
-    </div></div> </main>
+    </div> </div></main>
 
 <?php include '../APP/views/layout/footer.php'; ?>

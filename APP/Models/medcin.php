@@ -52,4 +52,33 @@ $stmtMed->execute([
             return false;
         }
     }
+    // --- AJOUTE CECI DANS LA CLASSE MEDECIN ---
+
+// Pour afficher la grille des médecins
+public function getAllMedecins() {
+    $query = "SELECT u.nom, u.prenom, u.email, u.telephone, 
+                     s.nom_specialite, m.status, m.id_medecin,
+                     m.type, m.heure_debut, m.heure_fin, m.jour_travail 
+              FROM utilisateur u 
+              JOIN medecin m ON u.id = m.id_medecin 
+              JOIN specialite s ON m.id_specialite = s.id_specialite
+              WHERE u.role = 'medecin'";
+    $stmt = $this->db->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Pour remplir la liste déroulante des spécialités
+public function getAllSpecialities() {
+    $stmt = $this->db->prepare("SELECT id_specialite, nom_specialite FROM specialite ORDER BY nom_specialite ASC");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Pour charger les données d'UN médecin lors de la modification (Edit)
+public function getMedecinById($id) {
+    $stmt = $this->db->prepare("SELECT u.*, m.* FROM utilisateur u JOIN medecin m ON u.id = m.id_medecin WHERE m.id_medecin = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 }

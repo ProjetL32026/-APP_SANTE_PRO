@@ -29,14 +29,25 @@ switch($page) {
         break;
     
     case 'medcin':
-        include '../APP/views/admin/medcin.php';
+        require_once '../APP/controllers/MedcinController.php';
         break;
 
-    case 'infirmier':
-        // Correction : Vérifie bien si ton fichier est 'infermier.php' ou 'infirmier.php'
-        include '../APP/views/admin/infermier.php'; 
-        break;
+    // public/index.php (exemple)
+case 'infirmier':
+    require_once '../config/db.php';
+    require_once '../APP/Models/infermier.php';
+    
+    // Dans ton switch ou bloc logique pour la page infirmier
+$database = new Database();
+$db = $database->getConnection();
+$infirmierModel = new Infirmier($db);
 
+// C'est cette ligne qui causait l'erreur
+$infirmiers = $infirmierModel->getAllInfirmiers();
+$all_specialities = $infirmierModel->getAllSpecialities(); // Maintenant elle fonctionnera !
+
+include __DIR__ . '/../APP/views/admin/infermier.php';
+break;
     // --- CETTE PARTIE MANQUAIT ---
     case 'specialite': 
         include '../APP/views/admin/specialite.php';

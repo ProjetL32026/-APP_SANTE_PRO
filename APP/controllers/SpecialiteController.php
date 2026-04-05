@@ -9,12 +9,22 @@ $specialite = new Specialite($db);
 $action = $_REQUEST['action'] ?? '';
 
 // --- ACTION : AJOUTER ---
+// --- ACTION : AJOUTER ---
 if ($action == 'add') {
-    $nom = $_POST['nom_specialite'];
+    $nom = trim($_POST['nom_specialite'] ?? '');
+    
     if (!empty($nom)) {
-        $specialite->create($nom);
+        // Vérification du doublon
+        if ($specialite->exists($nom)) {
+            // Redirection avec un message d'erreur
+            header("Location: ../../public/index.php?page=specialite&error=exists");
+            exit();
+        } else {
+            $specialite->create($nom);
+            header("Location: ../../public/index.php?page=specialite&success=add");
+            exit();
+        }
     }
-    // Redirection vers la liste des spécialités
     header("Location: ../../public/index.php?page=specialite");
     exit();
 }

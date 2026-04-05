@@ -1,26 +1,6 @@
 <?php
-// 1. D'abord le traitement des données (Logique)
-$root = realpath(__DIR__ . '/../../..'); 
-require_once $root . '/config/db.php';
-require_once $root . '/APP/Models/infermier.php'; 
-
-$database = new Database();
-$db = $database->getConnection();
-
-$query = "SELECT u.id, u.nom, u.prenom,u.username, u.telephone, u.email, s.nom_specialite, i.id_specialite 
-          FROM utilisateur u 
-          JOIN infirmier i ON u.id = i.id 
-          JOIN specialite s ON i.id_specialite = s.id_specialite
-          WHERE u.role = 'infirmier'";
-
-$stmt = $db->prepare($query);
-$stmt->execute();
-$infirmiers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// Récupération dynamique des spécialités pour le select
-$stmt_specs = $db->prepare("SELECT id_specialite, nom_specialite FROM specialite ORDER BY nom_specialite ASC");
-$stmt_specs->execute();
-$all_specialities = $stmt_specs->fetchAll(PDO::FETCH_ASSOC);
-// 2. Ensuite l'affichage du design (Layout)
+// On suppose que $infirmiers et $all_specialities 
+// ont été créés juste AVANT d'inclure ce fichier.
 include __DIR__ . '/../layout/header.php'; 
 include __DIR__ . '/../layout/sidebar.php'; 
 ?>
@@ -46,7 +26,7 @@ include __DIR__ . '/../layout/sidebar.php';
         </div>
     </div>
 
-    <div class="data-scroll-area">
+    <div class="table-scroll-area" style="max-height: 488px; overflow-y: auto; overflow-x: hidden; padding: 0 15px;">
         <table class="table">
             <thead>
                 <tr>

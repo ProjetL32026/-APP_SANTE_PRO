@@ -112,4 +112,21 @@ class Infirmier {
             return false;
         }
     }
+    public function getAllInfirmiers() {
+        $query = "SELECT u.id, u.nom, u.prenom, u.username, u.telephone, u.email, s.nom_specialite, i.id_specialite 
+                  FROM utilisateur u 
+                  JOIN infirmier i ON u.id = i.id 
+                  JOIN specialite s ON i.id_specialite = s.id_specialite
+                  WHERE u.role = 'infirmier'";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // À ajouter dans la classe Infirmier
+public function getAllSpecialities() {
+    $stmt = $this->db->prepare("SELECT id_specialite, nom_specialite FROM specialite ORDER BY nom_specialite ASC");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }

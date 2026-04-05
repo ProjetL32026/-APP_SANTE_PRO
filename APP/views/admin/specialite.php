@@ -19,6 +19,21 @@ include '../APP/views/layout/sidebar.php';
 ?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
+<?php if (isset($_GET['error']) && $_GET['error'] == 'exists'): ?>
+    <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #fff3cd; color: #856404; border-radius: 12px;">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Cette spécialité existe déjà dans la base de données.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_GET['success']) && $_GET['success'] == 'add'): ?>
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #d4edda; color: #155724; border-radius: 12px;">
+        <i class="fas fa-check-circle me-2"></i>
+        Spécialité ajoutée avec succès !
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
 <div class="header-section border-0 p-0">
         <div class="section-header">
             <h2>Gestion des Spécialités</h2>
@@ -30,7 +45,7 @@ include '../APP/views/layout/sidebar.php';
     </div>
 
     <div class="table-container mt-4">
-        <div class="table-scroll-area">
+    <div class="table-scroll-area" style="max-height: 488px; overflow-y: auto; overflow-x: hidden; padding: 0 15px;">
             <table class="table align-middle border-0 m-0">
                 <thead>
                     <tr>

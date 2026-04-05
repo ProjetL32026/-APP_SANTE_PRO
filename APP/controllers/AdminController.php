@@ -1,40 +1,34 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../Models/Admin.php'; // 1. On ajoute l'import du Modèle
 
 $database = new Database();
 $db = $database->getConnection();
+$adminModel = new Admin($db); // 2. On crée l'objet Admin
 
-// 1. VERIFICATION DE SECURITE : Est-ce un admin ?
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    // Si c'est un infirmier ou un inconnu, on le rejette
     header("Location: /SANTE_PRO/public/index.php?page=dashboard&error=access_denied");
     exit();
 }
 
-$admin_id = $_SESSION['user_id']; // Ici, on est sûr que c'est l'ID de l'admin
+$admin_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $new_username = $_POST['new_username'] ?? '';
-    $new_password = $_POST['new_password'] ?? '';
+    // 3. On récupère TOUS les champs du formulaire
+    $nom_centre    = $_POST['nom_centre'] ?? '';
+    $email_contact = $_POST['email_contact'] ?? '';
+    $new_username  = $_POST['new_username'] ?? '';
+    $new_password  = $_POST['new_password'] ?? '';
 
-    try {
-        if (!empty($new_password)) {
-            $hashed = password_hash($new_password, PASSWORD_DEFAULT);
-            $sql = "UPDATE utilisateur SET username = ?, mot_de_passe = ? WHERE id = ? AND role = 'admin'";
-            $stmt = $db->prepare($sql);
-            $stmt->execute([$new_username, $hashed, $admin_id]);
-        } else {
-            $sql = "UPDATE utilisateur SET username = ? WHERE id = ? AND role = 'admin'";
-            $stmt = $db->prepare($sql);
-            $stmt->execute([$new_username, $admin_id]);
-        }
+    // 4. ON APPELLE LE MODÈLE (C'est ça le vrai MVC)
+    $success = $adminModel->modifierProfil($admin_id, $nom_centre, $email_contact, $new_username, $new_password);
 
-        $_SESSION['username'] = $new_username;
+    if ($success) {
+        $_SESSION['username'] = $new_username; // On met à jour le nom affiché dans la sidebar
         header("Location: /SANTE_PRO/public/index.php?page=parametre&status=updated");
-        exit();
-
-    } catch (Exception $e) {
-        die("Erreur : " . $e->getMessage());
+    } else {
+        die("Erreur lors de la mise à jour des paramètres.");
     }
+    exit();
 }

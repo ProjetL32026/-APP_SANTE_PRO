@@ -14,7 +14,18 @@ include '../APP/views/layout/header_authen.php';
         <h2 class="fw-bold mb-1 text-cyan">Santé pro</h2>
         <p class="text-muted">Espace administrateur</p>
     </div>
-
+    <?php if (isset($_GET['error'])): ?>
+    <div class="alert alert-danger d-flex align-items-center mb-3" role="alert" style="font-size: 0.85rem; padding: 10px;">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <div>
+            <?php 
+                if ($_GET['error'] == 'invalid') echo "Nom d'utilisateur ou mot de passe incorrect.";
+                elseif ($_GET['error'] == 'empty') echo "Veuillez remplir tous les champs.";
+                else echo "Une erreur est survenue. Veuillez réessayer.";
+            ?>
+        </div>
+    </div>
+<?php endif; ?>
     <form action="/SANTE_PRO/APP/controllers/LoginController.php" method="POST">
         <div class="mb-3">
             <label class="form-label fw-medium">Nom d'utilisateur</label>

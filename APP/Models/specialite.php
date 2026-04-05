@@ -5,7 +5,12 @@ class Specialite {
     public function __construct($db) {
         $this->conn = $db;
     }
-
+    public function exists($nom) {
+        $query = "SELECT COUNT(*) FROM specialite WHERE nom_specialite = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$nom]);
+        return $stmt->fetchColumn() > 0;
+    }
     // Pour l'Ajout
     public function create($nom) {
         $query = "INSERT INTO specialite (nom_specialite) VALUES (?)";

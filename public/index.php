@@ -25,7 +25,7 @@ switch($page) {
         break;
 
     case 'accueil':
-        include '../APP/views/admin/accueil.php';
+        require_once '../APP/controllers/DashboardController.php';
         break;
     
     case 'medcin':

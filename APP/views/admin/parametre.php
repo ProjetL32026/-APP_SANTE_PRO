@@ -22,6 +22,7 @@ include '../APP/views/layout/sidebar.php';
     <?php endif; ?>
 
     <div class="settings-card">
+    <div class="table-scroll-area" style="max-height: 488px; overflow-y: auto; overflow-x: hidden; padding: 0 15px;">
         <form action="/SANTE_PRO/APP/controllers/AdminController.php" method="POST">
             
             <div class="section-title">
@@ -71,6 +72,6 @@ include '../APP/views/layout/sidebar.php';
                 </button>
             </div>
         </form>
-    </div> </main>
+    </div></div> </main>
 
 <?php include '../APP/views/layout/footer.php'; ?>

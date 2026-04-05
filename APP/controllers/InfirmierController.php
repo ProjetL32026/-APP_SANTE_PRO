@@ -6,7 +6,16 @@ $database = new Database();
 $db = $database->getConnection();
 $infirmier = new Infirmier($db);
 
-// --- BLOC DE SUPPRESSION ---
+// --- 1. LOGIQUE D'AFFICHAGE (Si on arrive sur la page normalement) ---
+// On ne traite l'affichage que si aucune action de suppression ou de POST n'est lancée
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
+    $infirmiers = $infirmier->getAllInfirmiers();
+    $all_specialities = $infirmier->getAllSpecialities();
+    include __DIR__ . '/../views/admin/infermier.php';
+    exit();
+}
+
+// --- 2. BLOC DE SUPPRESSION ---
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id_a_supprimer = $_GET['id'];
     if ($infirmier->supprimer($id_a_supprimer)) {
@@ -17,10 +26,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     exit(); 
 }
 
-// --- BLOC D'AJOUT OU DE MODIFICATION ---
+// --- 3. BLOC D'AJOUT OU DE MODIFICATION (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
-    // 1. Récupération des données
     $id       = $_POST['id'] ?? null; 
     $nom      = $_POST['nom'] ?? '';
     $prenom   = $_POST['prenom'] ?? '';
@@ -28,28 +35,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = $_POST['email'] ?? '';
     $tel      = $_POST['telephone'] ?? '';
     $service  = $_POST['service'] ?? '';
-    $mdp      = $_POST['password'] ?? ''; // Récupéré ici
+    $mdp      = $_POST['password'] ?? '';
 
-    // 2. Validation simple
     if (empty($nom) || empty($username) || empty($email) || empty($service)) {
         header("Location: /SANTE_PRO/public/index.php?page=infirmier&error=empty");
         exit();
     }
 
     if (!empty($id)) {
-        // --- ACTION : MODIFIER ---
-        // On passe maintenant le MDP au modèle. 
-        // Le modèle décidera de le mettre à jour seulement s'il n'est pas vide.
+        // ACTION : MODIFIER
         if ($infirmier->modifier($id, $nom, $prenom, $username, $email, $tel, $service, $mdp)) {
             header("Location: /SANTE_PRO/public/index.php?page=infirmier&status=updated");
         } else {
             header("Location: /SANTE_PRO/public/index.php?page=infirmier&error=update_failed");
         }
     } else {
-        // --- ACTION : AJOUTER ---
-        // Si vide à l'ajout, on peut mettre un MDP par défaut ou forcer la saisie
+        // ACTION : AJOUTER
         if (empty($mdp)) { $mdp = '123456'; } 
-
         if ($infirmier->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $service)) {
             header("Location: /SANTE_PRO/public/index.php?page=infirmier&status=success");
         } else {

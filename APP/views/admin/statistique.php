@@ -1,147 +1,165 @@
 <?php 
-// Charger le contrôleur en haut pour avoir les variables $labels et $valeurs
-require_once __DIR__ . '/../../controllers/StatsController.php';
-
-include '../APP/views/layout/header.php'; 
-include '../APP/views/layout/sidebar.php'; 
+// Le contrôleur est chargé par le routeur (index.php)
+include __DIR__ . '/../layout/header.php'; 
+include __DIR__ . '/../layout/sidebar.php'; 
 ?>
 
+<style>
+    /* 1. Stabilisation de la grille et des cartes */
+    .charts-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 10px;
+    }
 
+    .chart-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        min-height: 380px; /* Force la hauteur de la carte */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .chart-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        color: #444;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 2. Le Wrapper : C'est lui qui bloque le "zoom" */
+    .canvas-wrapper {
+        position: relative;
+        height: 280px; /* Hauteur fixe immédiate */
+        width: 100%;
+        overflow: hidden;
+    }
+</style>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
-<div class="header-section border-0 p-0 mb-4">
-    <div class="section-header">
-        <h2>Statistiques détaillées</h2>
+    <div class="header-section border-0 p-0 mb-4">
+        <div class="section-header">
+            <h2>Statistiques détaillées</h2>
+        </div>
     </div>
-   
-</div>
 
-    <div class="charts-grid">
-        <div class="chart-card">
-            <h3><i class="fas fa-clipboard-check"></i> Statut des Consultations</h3>
-            <canvas id="consultationChart"></canvas>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3><i class="fas fa-clipboard-check text-success"></i> Statut des Consultations</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="consultationChart"></canvas>
+                </div>
+            </div>
         </div>
 
-        <div class="chart-card">
-            <h3><i class="fas fa-chart-area"></i> Affluence Hebdomadaire</h3>
-            <canvas id="patientEvolutionChart"></canvas>
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-area text-primary"></i> Affluence Hebdomadaire</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="patientEvolutionChart"></canvas>
+                </div>
+            </div>
         </div>
 
-        <div class="chart-card">
-            <h3><i class="fas fa-star"></i> Performance par spécialité</h3>
-            <canvas id="specialtyChart"></canvas>
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3><i class="fas fa-star text-warning"></i> Performance par spécialité</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="specialtyChart"></canvas>
+                </div>
+            </div>
         </div>
 
-        <div class="chart-card">
-            <h3><i class="fas fa-user-times"></i> Disponibilité des Équipes en Temps Réel</h3>
-            <canvas id="absenceChart"></canvas>
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3><i class="fas fa-user-times text-danger"></i> Disponibilité des Équipes</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="absenceChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </main>
-script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    // 1. Graphique Performance par Spécialité (Bar Chart)
-    const ctxSpec = document.getElementById('specialtyChart').getContext('2d');
-    new Chart(ctxSpec, {
+    // 3. Configuration globale ANTI-ZOOM
+    const globalOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false, // DESACTIVE LE ZOOM (TRÈS IMPORTANT)
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    };
+
+    // --- Graphique 1 : Spécialités (Barres) ---
+    new Chart(document.getElementById('specialtyChart'), {
         type: 'bar',
         data: {
-            labels: <?= $labelsSpec ?>, // Données venant du PHP
+            labels: <?= $labelsSpec ?? '[]' ?>,
             datasets: [{
                 label: 'Nombre de Rendez-vous',
-                data: <?= $valeursSpec ?>,
+                data: <?= $valeursSpec ?? '[]' ?>,
                 backgroundColor: '#00BCD4',
                 borderRadius: 5
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: globalOptions
     });
 
-    // 2. Graphique Statut des Consultations (Pie Chart)
-    const ctxConsul = document.getElementById('consultationChart').getContext('2d');
-    new Chart(ctxConsul, {
+    // --- Graphique 2 : Consultations (Doughnut) ---
+    new Chart(document.getElementById('consultationChart'), {
         type: 'doughnut',
         data: {
-            labels: <?= $labelsConsul ?>,
+            labels: <?= $labelsConsul ?? '[]' ?>,
             datasets: [{
-                data: <?= $valeursConsul ?>,
+                data: <?= $valeursConsul ?? '[]' ?>,
                 backgroundColor: ['#4CAF50', '#FF9800', '#F44336']
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: globalOptions
     });
-    // 3. Graphique Affluence Hebdomadaire (Line Chart)
-const ctxAffluence = document.getElementById('patientEvolutionChart').getContext('2d');
-new Chart(ctxAffluence, {
-    type: 'line',
-    data: {
-        labels: <?= $labelsAffluence ?>, // ['Monday', 'Tuesday', ...]
-        datasets: [{
-            label: 'Nombre de Patients',
-            data: <?= $valeursAffluence ?>,
-            borderColor: '#4CAF50',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-            fill: true,
-            tension: 0.4, // Pour faire une courbe lisse
-            borderWidth: 3,
-            pointBackgroundColor: '#4CAF50'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false }
+
+    // --- Graphique 3 : Affluence (Ligne) ---
+    new Chart(document.getElementById('patientEvolutionChart'), {
+        type: 'line',
+        data: {
+            labels: <?= $labelsAffluence ?? '[]' ?>,
+            datasets: [{
+                label: 'Nombre de Patients',
+                data: <?= $valeursAffluence ?? '[]' ?>,
+                borderColor: '#4CAF50',
+                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
         },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1 }
-            }
+        options: {
+            ...globalOptions,
+            plugins: { legend: { display: false } }
         }
-    }
-});
-// 4. Graphique Disponibilité des Équipes (Doughnut Chart)
-const ctxDispo = document.getElementById('absenceChart').getContext('2d');
-new Chart(ctxDispo, {
-    type: 'doughnut',
-    data: {
-        labels: <?= $labelsDispo ?>, // ['ACTIF', 'ABSENT', ...]
-        datasets: [{
-            data: <?= $valeursDispo ?>,
-            backgroundColor: [
-                '#4CAF50', // Vert pour ACTIF
-                '#F44336', // Rouge pour ABSENT
-                '#FF9800', // Orange pour EN PAUSE/AUTRE
-                '#9E9E9E'  // Gris pour INACTIF
-            ],
-            hoverOffset: 4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
+    });
+
+    // --- Graphique 4 : Disponibilité (Doughnut) ---
+    new Chart(document.getElementById('absenceChart'), {
+        type: 'doughnut',
+        data: {
+            labels: <?= $labelsDispo ?? '[]' ?>,
+            datasets: [{
+                data: <?= $valeursDispo ?? '[]' ?>,
+                backgroundColor: ['#4CAF50', '#F44336', '#FF9800', '#9E9E9E']
+            }]
         },
-        cutout: '70%' // Pour faire un cercle plus fin et moderne
-    }
-});
+        options: { ...globalOptions, cutout: '70%' }
+    });
 </script>
 
-
-<style>
-    /* Styles spécifiques pour que les graphiques ne débordent pas */
-    .chart-card {
-        position: relative;
-        height: 350px;
-        width: 100%;
-    }
-    canvas {
-        max-height: 250px !important;
-        width: 100% !important;
-    }
-</style>
-
-<?php include '../APP/views/layout/footer.php'; ?>
+<?php include __DIR__ . '/../layout/footer.php'; ?>

@@ -33,29 +33,19 @@ switch($page) {
         break;
 
     // public/index.php (exemple)
+// Dans le switch de public/index.php
 case 'infirmier':
-    require_once '../config/db.php';
-    require_once '../APP/Models/infermier.php';
-    
-    // Dans ton switch ou bloc logique pour la page infirmier
-$database = new Database();
-$db = $database->getConnection();
-$infirmierModel = new Infirmier($db);
-
-// C'est cette ligne qui causait l'erreur
-$infirmiers = $infirmierModel->getAllInfirmiers();
-$all_specialities = $infirmierModel->getAllSpecialities(); // Maintenant elle fonctionnera !
-
-include __DIR__ . '/../APP/views/admin/infermier.php';
-break;
+    // Approche identique au Médecin : on délègue tout au contrôleur
+    require_once '../APP/controllers/InfirmierController.php';
+    break;
     // --- CETTE PARTIE MANQUAIT ---
-    case 'specialite': 
-        include '../APP/views/admin/specialite.php';
+    case 'specialite':
+        require_once '../APP/controllers/SpecialiteController.php';
         break;
     // -----------------------------
 
     case 'statistique':
-        include '../APP/views/admin/statistique.php';
+        require_once '../APP/controllers/StatsController.php';
         break;
 
     case 'parametre':

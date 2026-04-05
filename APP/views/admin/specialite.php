@@ -1,43 +1,47 @@
 <?php
-// 1. Initialisation des variables pour le layout
-$current_page = 'specialite'; 
-
-// 2. Connexion et Modèle
-require_once __DIR__ . '/../../../config/db.php'; 
-require_once __DIR__ . '/../../Models/specialite.php';
-
-$database = new Database();
-$db = $database->getConnection();
-
-$specModel = new Specialite($db);
-$stmt = $specModel->readAll();
-$specialites = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// 3. Inclusion des headers
-include '../APP/views/layout/header.php'; 
-include '../APP/views/layout/sidebar.php';
+// On retire tout le bloc de connexion/requête SQL d'ici !
+include __DIR__ . '/../layout/header.php'; 
+include __DIR__ . '/../layout/sidebar.php';
 ?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
-<?php if (isset($_GET['error']) && $_GET['error'] == 'exists'): ?>
-    <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #fff3cd; color: #856404; border-radius: 12px;">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        Cette spécialité existe déjà dans la base de données.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-<?php endif; ?>
+    
+<div class="container-fluid pt-3">
+    <?php if (isset($_GET['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px; background-color: #d4edda; color: #155724;">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Succès !</strong> 
+            <?php 
+                if ($_GET['success'] === 'add') echo "La spécialité a été ajoutée.";
+                if ($_GET['success'] === 'delete') echo "La spécialité a été supprimée avec succès.";
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
 
-<?php if (isset($_GET['success']) && $_GET['success'] == 'add'): ?>
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #d4edda; color: #155724; border-radius: 12px;">
-        <i class="fas fa-check-circle me-2"></i>
-        Spécialité ajoutée avec succès !
+    <?php if (isset($_GET['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" 
+         style="border-radius: 12px; background-color: #FEE2E2; color: #991B1B;">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <strong>Action impossible :</strong> 
+        <?php 
+            if ($_GET['error'] === 'is_used') {
+                echo "Cette spécialité contient encore des médecins ou des infirmiers. 
+                      Veuillez les réaffecter avant de la supprimer.";
+            } elseif ($_GET['error'] === 'exists') {
+                echo "Cette spécialité existe déjà.";
+            } else {
+                echo "Une erreur est survenue lors de la suppression.";
+            }
+        ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
-<div class="header-section border-0 p-0">
+</div>
+
+    <div class="header-section border-0 p-0">
         <div class="section-header">
             <h2>Gestion des Spécialités</h2>
-        
         </div>
         <button class="btn-main" onclick="openModal()">
             <i class="fas fa-plus me-2"></i> Nouvelle Spécialité
@@ -45,7 +49,7 @@ include '../APP/views/layout/sidebar.php';
     </div>
 
     <div class="table-container mt-4">
-    <div class="table-scroll-area" style="max-height: 488px; overflow-y: auto; overflow-x: hidden; padding: 0 15px;">
+        <div class="table-scroll-area" style="max-height: 488px; overflow-y: auto;">
             <table class="table align-middle border-0 m-0">
                 <thead>
                     <tr>
@@ -61,8 +65,8 @@ include '../APP/views/layout/sidebar.php';
                     <?php else: ?>
                         <?php foreach ($specialites as $s): ?>
                         <tr>
-                            <td class="fw-bold" style="color: var(--text-gray);">#<?= $s['id_specialite'] ?></td>
-                            <td class="fw-bold" style="color: var(--text-dark);"><?= htmlspecialchars($s['nom_specialite']) ?></td>
+                            <td class="fw-bold">#<?= $s['id_specialite'] ?></td>
+                            <td class="fw-bold"><?= htmlspecialchars($s['nom_specialite']) ?></td>
                             <td class="text-center">
                                 <span class="badge" style="background: rgba(0, 188, 212, 0.1); color: var(--teal); border-radius: 8px; padding: 8px 12px;">
                                     <?= $s['nb_medecins'] ?> Médecin(s)
@@ -71,8 +75,7 @@ include '../APP/views/layout/sidebar.php';
                             <td class="text-end">
                                 <a href="/SANTE_PRO/APP/controllers/SpecialiteController.php?action=delete&id=<?= $s['id_specialite'] ?>" 
                                    class="btn-delete-light text-decoration-none"
-                                   onclick="return confirm('Voulez-vous supprimer cette spécialité ?');"
-                                   style="padding: 8px 12px; display: inline-block;">
+                                   onclick="return confirm('Voulez-vous supprimer cette spécialité ?');">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
@@ -114,13 +117,35 @@ include '../APP/views/layout/sidebar.php';
 </div>
 
 <script>
-    function openModal() { document.getElementById('modal-specialite').classList.add('open'); }
-    function closeModal() { document.getElementById('modal-specialite').classList.remove('open'); }
+    function openModal() { 
+        const modal = document.getElementById('modal-specialite');
+        if (modal) {
+            modal.classList.add('open'); 
+        }
+    }
+
+    function closeModal() { 
+        const modal = document.getElementById('modal-specialite');
+        if (modal) {
+            modal.classList.remove('open'); 
+        }
+    }
 
     window.onclick = function(event) {
         let modal = document.getElementById('modal-specialite');
-        if (event.target == modal) { closeModal(); }
+        if (event.target == modal) { 
+            closeModal(); 
+        }
     }
+
+    // Auto-fermeture des alertes après 5 secondes
+    setTimeout(function() {
+        let alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            let bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
 </script>
 
-<?php include '../APP/views/layout/footer.php'; ?>
+<?php include __DIR__ . '/../layout/footer.php'; ?>

@@ -4,6 +4,43 @@ include '../APP/views/layout/header.php';
 include '../APP/views/layout/sidebar.php';
 ?>
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
+<?php if (isset($_GET['status'])): ?>
+        <div id="status-alert" class="alert shadow-sm border-0 mb-4 d-flex align-items-center" 
+             style="border-radius: 12px; padding: 15px 20px; 
+             <?php 
+                if($_GET['status'] == 'error') echo 'background: #FFF5F4; color: #EE5D50;';
+                else echo 'background: #E6FAF5; color: #05CD99;'; 
+             ?>">
+            
+            <i class="fas <?php 
+                echo ($_GET['status'] == 'error') ? 'fa-times-circle' : 'fa-check-circle'; 
+            ?> me-3" style="font-size: 1.2rem;"></i>
+            
+            <div class="fw-bold">
+                <?php
+                    switch ($_GET['status']) {
+                        case 'success': echo "Médecin ajouté avec succès !"; break;
+                        case 'updated': echo "Les informations ont été mises à jour."; break;
+                        case 'deleted': echo "Le médecin a été supprimé de l'équipe."; break;
+                        case 'error':   echo "Une erreur est survenue lors de l'opération.(username ou email existe déja ou il a des RDVS )"; break;
+                    }
+                ?>
+            </div>
+            <button type="button" class="btn-close ms-auto" onclick="this.parentElement.remove()" style="font-size: 0.8rem;"></button>
+        </div>
+
+        <script>
+            // Auto-suppression du message après 4 secondes
+            setTimeout(() => {
+                const alert = document.getElementById('status-alert');
+                if (alert) {
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500);
+                }
+            }, 4000);
+        </script>
+    <?php endif; ?>
     <div class="header-section border-0 p-0">
         <div class="section-header">
             <h2>Équipe Médicale</h2>

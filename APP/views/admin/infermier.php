@@ -6,6 +6,53 @@ include __DIR__ . '/../layout/sidebar.php';
 ?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
+<?php 
+    $message = "";
+    $type = "success"; // Par défaut vert
+
+    // 1. On vérifie quel paramètre est présent dans l'URL
+    if (isset($_GET['status'])) {
+        if ($_GET['status'] == 'success') $message = "Infirmier ajouté avec succès !";
+        if ($_GET['status'] == 'updated') $message = "Les modifications ont été enregistrées.";
+    } 
+    elseif (isset($_GET['success'])) {
+        if ($_GET['success'] == 'delete') $message = "L'infirmier a été supprimé avec succès.";
+    } 
+    elseif (isset($_GET['error'])) {
+        $type = "error"; // On passe en rouge
+        if ($_GET['error'] == 'delete') $message = "Erreur : Impossible de supprimer cet infirmier.";
+        if ($_GET['error'] == 'update_failed') $message = "Erreur : La mise à jour a échoué (username ou email existe déja).";
+        if ($_GET['error'] == 'insert_failed') $message = "Erreur : L'ajout a échoué (Email ou Username déjà pris).";
+        if ($_GET['error'] == 'empty') $message = "Erreur : Veuillez remplir tous les champs obligatoires.";
+    }
+
+    // 2. Si un message a été défini, on l'affiche
+    if ($message !== ""): ?>
+        <div id="status-alert" class="alert shadow-sm border-0 mb-4 d-flex align-items-center" 
+             style="border-radius: 12px; padding: 15px 20px; 
+             <?= ($type == 'error') ? 'background: #FFF5F4; color: #EE5D50;' : 'background: #E6FAF5; color: #05CD99;' ?>">
+            
+            <i class="fas <?= ($type == 'error') ? 'fa-exclamation-circle' : 'fa-check-circle' ?> me-3" style="font-size: 1.2rem;"></i>
+            
+            <div class="fw-bold">
+                <?= $message ?>
+            </div>
+            
+            <button type="button" class="btn-close ms-auto" onclick="this.parentElement.remove()" style="font-size: 0.8rem;"></button>
+        </div>
+
+        <script>
+            // Disparition automatique après 4 secondes
+            setTimeout(() => {
+                const alert = document.getElementById('status-alert');
+                if (alert) {
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500);
+                }
+            }, 4000);
+        </script>
+    <?php endif; ?>
     <div class="header-section border-0 p-0">
         <div class="section-header">
             <h2>Gestion des Infirmiers</h2>

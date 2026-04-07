@@ -1,0 +1,193 @@
+/* ============================================================
+   VARIABLES GLOBALES
+   ============================================================ */
+:root {
+    --primary-blue: #0087D1; /* Ton nouveau bleu */
+    --primary-dark: #005fa3;
+    --primary-gradient: linear-gradient(135deg, #0087D1 0%, #005fa3 100%);
+    --bg-color: #F4F7FE;
+    --card-bg: #ffffff;
+    --text-dark: #2c3e50;
+    --text-gray: #7f8c8d;
+    --success: #2ecc71;
+    --white: #ffffff;
+    --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================
+   STRUCTURE (LAYOUT)
+   ============================================================ */
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.main-content {
+    margin-left: 150px; /* Doit être égal à la largeur de la sidebar */
+    padding: 30px 50px; /* On réduit un peu le padding interne */
+    min-height: 100vh;
+    width: calc(100% - 250px); /* On force le contenu à prendre tout l'espace restant */
+    transition: all 0.3s;
+}
+
+.card-container {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: none;
+    width: 100%; /* La carte prend toute la largeur disponible */
+    max-width: 1200px; /* On garde une limite pour que ce soit lisible sur très grand écran */
+    margin-left: 0; /* On s'assure qu'elle n'est pas centrée de force avec des marges auto */
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    background: var(--primary-gradient) !important;
+    z-index: 1000;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    padding: 12px 15px;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    transform: translateX(5px);
+}
+
+.nav-link.active {
+    background-color: var(--white) !important;
+    color: var(--primary-blue) !important;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logout-link {
+    margin-top: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.logout-link:hover {
+    background: #e74c3c !important;
+    border-color: #e74c3c;
+    color: white !important;
+}
+
+
+
+.section-header h2 {
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.section-header h5 {
+    color: var(--primary-blue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* ============================================================
+   TABLEAUX
+   ============================================================ */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #edf2f7;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+}
+
+.table tbody td {
+    padding: 18px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.text-teal {
+    color: var(--primary-blue) !important;
+}
+
+/* ============================================================
+   FORMULAIRES (CONSULTATION)
+   ============================================================ */
+.form-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #edf2f7;
+    border-radius: 15px;
+    background-color: #f8f9fa;
+    transition: 0.3s;
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(0, 135, 209, 0.1);
+}
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+.btn-main, .btn-save {
+    background: var(--primary-gradient);
+    color: white !important;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 135, 209, 0.3);
+}
+
+.btn-main:hover, .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 135, 209, 0.4);
+    filter: brightness(1.1);
+}
+
+.bg-teal-gradient {
+    background: var(--primary-blue) !important;
+    border: none;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 992px) {
+    .sidebar { width: 80px; }
+    .sidebar h5, .sidebar span, .sidebar small { display: none; }
+    .main-content { margin-left: 80px; }
+    .nav-link i { margin-right: 0 !important; font-size: 1.2rem; }
+}

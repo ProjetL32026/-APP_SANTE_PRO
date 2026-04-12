@@ -1,7 +1,7 @@
 <?php
-session_start();
 require_once __DIR__ . '/../../config/db.php';
-require_once __DIR__ . '/../Models/Admin.php'; // 1. On ajoute l'import du Modèle
+require_once __DIR__ . '/../Models/admin.php';
+
 
 $database = new Database();
 $db = $database->getConnection();
@@ -26,9 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($success) {
         $_SESSION['username'] = $new_username; // On met à jour le nom affiché dans la sidebar
-        header("Location: /SANTE_PRO/public/index.php?page=parametre&status=updated");
+        header("Location: index.php?page=parametre&status=updated");
     } else {
         die("Erreur lors de la mise à jour des paramètres.");
     }
     exit();
 }
+include __DIR__ . '/../views/admin/parametre.php';

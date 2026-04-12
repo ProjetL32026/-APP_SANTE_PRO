@@ -48,9 +48,10 @@ case 'infirmier':
         require_once '../APP/controllers/StatsController.php';
         break;
 
-    case 'parametre':
-        include '../APP/views/admin/parametre.php';
-        break;
+        case 'parametre':
+            // On délègue tout au contrôleur (Affichage ET Traitement)
+            require_once '../APP/controllers/AdminController.php';
+            break;
 
     default:
         if (isset($_SESSION['user_id'])) {

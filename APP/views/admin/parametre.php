@@ -23,7 +23,7 @@ include '../APP/views/layout/sidebar.php';
 
     <div class="settings-card">
     <div class="table-scroll-area" style="max-height: 488px; overflow-y: auto; overflow-x: hidden; padding: 0 15px;">
-        <form action="/SANTE_PRO/APP/controllers/AdminController.php" method="POST">
+    <form action="index.php?page=parametre" method="POST">
             
             <div class="section-title">
                 <i class="fas fa-hospital"></i> Détails de l'établissement

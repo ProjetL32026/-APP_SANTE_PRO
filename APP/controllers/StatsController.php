@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Models/Statistiques.php';
 
 try {
     $database = new Database();
+    $anneeSelectionnee = $_GET['annee'] ?? date('Y');
     $db = $database->getConnection();
     
     if (!$db) {
@@ -13,17 +14,17 @@ try {
     $statsModel = new Statistiques($db);
 
     // --- 1. Performance par Spécialité ---
-    $dataSpec = $statsModel->getRdvParSpecialite() ?: [];
+    $dataSpec = $statsModel->getRdvParSpecialite($anneeSelectionnee) ?: [];
     $labelsSpec = json_encode(array_column($dataSpec, 'label'));
     $valeursSpec = json_encode(array_column($dataSpec, 'valeur'));
 
     // --- 2. Statut des Consultations ---
-    $dataConsul = $statsModel->getStatutConsultations() ?: [];
+    $dataConsul = $statsModel->getStatutConsultations($anneeSelectionnee) ?: [];
     $labelsConsul = json_encode(array_column($dataConsul, 'label'));
     $valeursConsul = json_encode(array_column($dataConsul, 'valeur'));
 
     // --- 3. Affluence Hebdomadaire ---
-    $dataAffluence = $statsModel->getAffluenceHebdomadaire() ?: [];
+    $dataAffluence = $statsModel->getAffluenceHebdomadaire($anneeSelectionnee) ?: [];
     $labelsAffluence = json_encode(array_column($dataAffluence, 'label'));
     $valeursAffluence = json_encode(array_column($dataAffluence, 'valeur'));
 

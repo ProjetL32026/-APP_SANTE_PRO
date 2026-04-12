@@ -47,6 +47,22 @@ include __DIR__ . '/../layout/sidebar.php';
             <h2>Statistiques détaillées</h2>
         </div>
     </div>
+    <div class="mb-4 bg-white p-3 rounded shadow-sm d-flex align-items-center justify-content-between">
+    <h5 class="m-0">Période d'analyse :</h5>
+    <form method="GET" action="index.php" class="d-flex gap-2 align-items-center">
+    <input type="hidden" name="page" value="statistique"> 
+    
+    <select name="annee" class="form-select w-auto" onchange="this.form.submit()">
+        <?php 
+        $y = date('Y');
+        for($i = $y; $i >= $y - 3; $i--): ?>
+            <option value="<?= $i ?>" <?= ($anneeSelectionnee == $i) ? 'selected' : '' ?>>
+                Année <?= $i ?>
+            </option>
+        <?php endfor; ?>
+    </select>
+</form>
+</div>
 
     <div class="row g-4">
         <div class="col-md-6">
@@ -116,17 +132,26 @@ include __DIR__ . '/../layout/sidebar.php';
     });
 
     // --- Graphique 2 : Consultations (Doughnut) ---
-    new Chart(document.getElementById('consultationChart'), {
-        type: 'doughnut',
-        data: {
-            labels: <?= $labelsConsul ?? '[]' ?>,
-            datasets: [{
-                data: <?= $valeursConsul ?? '[]' ?>,
-                backgroundColor: ['#4CAF50', '#FF9800', '#F44336']
-            }]
-        },
-        options: globalOptions
-    });
+const labelsConsul = <?= $labelsConsul ?? '[]' ?>;
+// On génère les couleurs dynamiquement selon le texte
+const colorsConsul = labelsConsul.map(label => {
+    if (label.toLowerCase().includes('confirmé')) return '#4CAF50'; // Vert
+    if (label.toLowerCase().includes('annulé')) return '#F44336';   // Rouge
+    if (label.toLowerCase().includes('attente')) return '#FF9800';  // Orange
+    return '#9E9E9E'; // Gris par défaut
+});
+
+new Chart(document.getElementById('consultationChart'), {
+    type: 'doughnut',
+    data: {
+        labels: labelsConsul,
+        datasets: [{
+            data: <?= $valeursConsul ?? '[]' ?>,
+            backgroundColor: colorsConsul
+        }]
+    },
+    options: globalOptions
+});
 
     // --- Graphique 3 : Affluence (Ligne) ---
     new Chart(document.getElementById('patientEvolutionChart'), {
@@ -149,17 +174,25 @@ include __DIR__ . '/../layout/sidebar.php';
     });
 
     // --- Graphique 4 : Disponibilité (Doughnut) ---
-    new Chart(document.getElementById('absenceChart'), {
-        type: 'doughnut',
-        data: {
-            labels: <?= $labelsDispo ?? '[]' ?>,
-            datasets: [{
-                data: <?= $valeursDispo ?? '[]' ?>,
-                backgroundColor: ['#4CAF50', '#F44336', '#FF9800', '#9E9E9E']
-            }]
-        },
-        options: { ...globalOptions, cutout: '70%' }
-    });
+const labelsDispo = <?= $labelsDispo ?? '[]' ?>;
+const colorsDispo = labelsDispo.map(label => {
+    if (label.toLowerCase().includes('présent')) return '#4CAF50'; // Vert
+    if (label.toLowerCase().includes('absent')) return '#F44336';  // Rouge
+    if (label.toLowerCase().includes('congé')) return '#2196F3';   // Bleu
+    return '#9E9E9E'; // Gris pour "Non défini"
+});
+
+new Chart(document.getElementById('absenceChart'), {
+    type: 'doughnut',
+    data: {
+        labels: labelsDispo,
+        datasets: [{
+            data: <?= $valeursDispo ?? '[]' ?>,
+            backgroundColor: colorsDispo
+        }]
+    },
+    options: { ...globalOptions, cutout: '70%' }
+});
 </script>
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

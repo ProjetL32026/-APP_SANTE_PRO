@@ -73,13 +73,13 @@ include '../APP/views/layout/sidebar.php';
     $badgeStyle = "";
     
     // Définition des couleurs selon le statut
-    if ($status == 'ACTIF' || $status == 'PRÉSENT') {
+    if ($status == 'ACTIF' || $status == 'présent') {
         $badgeStyle = "background: #E6FAF5; color: #05CD99;"; // Vert
     } elseif ($status == 'ABSENT') {
         $badgeStyle = "background: #FFF5F4; color: #EE5D50;"; // Rouge
-    } else {
-        $badgeStyle = "background: #F4F7FE; color: #A3AED0;"; // Gris (par défaut)
-    }
+    }// else {
+       // $badgeStyle = "background: #F4F7FE; color: #A3AED0;"; // Gris (par défaut)
+    //}
 ?>
 <span class="status-badge" style="<?= $badgeStyle ?> border-radius: 12px; padding: 5px 15px; font-weight: 700;">
     <?= htmlspecialchars($status) ?>

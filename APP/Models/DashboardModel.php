@@ -20,7 +20,7 @@ class DashboardModel {
         $query = "SELECT COUNT(*) as total 
                   FROM utilisateur u 
                   JOIN medecin m ON u.id = m.id_medecin 
-                  WHERE u.role = 'medecin' AND m.status = 'présent'";
+                  WHERE u.role = 'medecin' AND m.status = 'Présent'";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -38,7 +38,7 @@ class DashboardModel {
 
     // Nombre d'absences
     public function getTotalAbsencesJour() {
-        $query = "SELECT COUNT(*) as total FROM medecin WHERE status = 'ABSENT'";
+        $query = "SELECT COUNT(*) as total FROM medecin WHERE status = 'Absent'";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);

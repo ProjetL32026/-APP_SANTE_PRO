@@ -67,7 +67,7 @@ include __DIR__ . '/../layout/sidebar.php';
     <div class="row g-4">
         <div class="col-md-6">
             <div class="chart-card">
-                <h3><i class="fas fa-clipboard-check text-success"></i> Statut des Consultations</h3>
+                <h3><i class="fas fa-clipboard-check text-success"></i> Statut des rendez-vous</h3>
                 <div class="canvas-wrapper">
                     <canvas id="consultationChart"></canvas>
                 </div>
@@ -176,9 +176,9 @@ new Chart(document.getElementById('consultationChart'), {
     // --- Graphique 4 : Disponibilité (Doughnut) ---
 const labelsDispo = <?= $labelsDispo ?? '[]' ?>;
 const colorsDispo = labelsDispo.map(label => {
-    if (label.toLowerCase().includes('présent')) return '#4CAF50'; // Vert
-    if (label.toLowerCase().includes('absent')) return '#F44336';  // Rouge
-    if (label.toLowerCase().includes('congé')) return '#2196F3';   // Bleu
+    if (label.includes('Présent')) return '#4CAF50'; // Vert
+    if (label.includes('Absent')) return '#F44336';  // Rouge
+    if (label.includes('Congé')) return '#2196F3';   // Bleu
     return '#9E9E9E'; // Gris pour "Non défini"
 });
 

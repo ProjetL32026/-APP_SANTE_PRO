@@ -1,5 +1,5 @@
 <?php 
-// Pas de logique ici ! Le Contrôleur a déjà créé $medecins et $all_specialities
+
 include '../APP/views/layout/header.php'; 
 include '../APP/views/layout/sidebar.php';
 ?>
@@ -69,19 +69,26 @@ include '../APP/views/layout/sidebar.php';
             <?php foreach ($medecins as $m): ?>
                 <div class="doctor-card">
                 <?php 
-    $status = strtoupper($m['status'] ?? 'NON DÉFINI'); 
-    $badgeStyle = "";
-    
-    // Définition des couleurs selon le statut
-    if ($status == 'ACTIF' || $status == 'présent') {
-        $badgeStyle = "background: #E6FAF5; color: #05CD99;"; // Vert
-    } elseif ($status == 'ABSENT') {
-        $badgeStyle = "background: #FFF5F4; color: #EE5D50;"; // Rouge
-    }// else {
-       // $badgeStyle = "background: #F4F7FE; color: #A3AED0;"; // Gris (par défaut)
-    //}
+    // On récupère la valeur de la base
+    $valeurBase = $m['status'] ?? 'Absent';
+
+    // On prépare les variables EXACTES pour ton design
+    if ($valeurBase === 'Présent') {
+        $badgeStyle = "background: #E6FAF5; color: #05CD99;";
+        $status = "PRÉSENT";
+    } elseif ($valeurBase === 'Absent') {
+        $badgeStyle = "background: #FFF5F4; color: #EE5D50;";
+        $status = "ABSENT";
+    } elseif ($valeurBase === 'Congé') {
+        $badgeStyle = "background: #E7F0FD; color: #2196F3;";
+        $status = "EN CONGÉ";
+    } else {
+        $badgeStyle = "background: #F4F7FE; color: #A3AED0;";
+        $status = strtoupper($valeurBase);
+    }
 ?>
-<span class="status-badge" style="<?= $badgeStyle ?> border-radius: 12px; padding: 5px 15px; font-weight: 700;">
+
+<span class="status-badge" style="<?= $badgeStyle ?> border-radius: 12px; padding: 5px 15px; font-weight: 700; display: inline-block;">
     <?= htmlspecialchars($status) ?>
 </span>
     

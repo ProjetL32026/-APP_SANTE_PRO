@@ -34,7 +34,7 @@ include __DIR__ . '/../layout/sidebar.php';
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #FFEBEE; color: #F44336;"><i class="fas fa-user-times"></i></div>
-                <div class="text-muted small fw-bold">ABSENCES</div>
+                <div class="text-muted small fw-bold">MÉDECINS ABSENT</div>
                 <div class="h3 fw-bold m-0"><?= $totalAbsencesJour ?></div>
             </div>
         </div>
@@ -78,29 +78,23 @@ include __DIR__ . '/../layout/sidebar.php';
                                     <td class="text-center">
                                         <span class="fw-bold"><?= $row['nb_consultations'] ?></span>
                                     </td>
-<td class="text-end">
+                                    <td class="text-end">
     <?php 
-        // 1. On récupère la valeur brute
-        $valeur = $row['status'] ?? 'NON DÉFINI';
+        // On récupère la valeur exacte de la base ("Présent" ou "Absent")
+        $valeur = $row['status'] ?? 'Absent';
 
-        // 2. On force en majuscules sans se soucier des accents pour le test
-        // str_replace permet de nettoyer le 'é' manuellement si besoin
-        $testStatus = strtoupper(str_replace('é', 'e', $valeur));
-
-        // 3. Logique de couleur simple
-        if ($testStatus == 'ACTIF' || $testStatus == 'PRESENT' || $testStatus == 'PRESENTE') {
+        // En PHP, pour comparer une chaîne avec un accent comme "Présent",
+        // il est plus sûr de tester simplement si c'est égal à la chaîne exacte.
+        if ($valeur === 'Présent') {
             $color = '#05CD99'; // Vert
-            $texte = 'PRÉSENT';
-        } elseif ($testStatus == 'ABSENT') {
-            $color = '#EE5D50'; // Rouge
-            $texte = 'ABSENT';
+            $affichage = 'PRÉSENT';
         } else {
-            $color = '#A3AED0'; // Gris
-            $texte = $valeur;
+            $color = '#EE5D50'; // Rouge
+            $affichage = 'ABSENT';
         }
     ?>
     <span style="color: <?= $color ?>; font-size: 0.85rem; font-weight: bold;">
-        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> <?= htmlspecialchars(strtoupper($texte)) ?>
+        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> <?= $affichage ?>
     </span>
 </td>
                                 </tr>

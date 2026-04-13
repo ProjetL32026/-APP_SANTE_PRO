@@ -78,15 +78,31 @@ include __DIR__ . '/../layout/sidebar.php';
                                     <td class="text-center">
                                         <span class="fw-bold"><?= $row['nb_consultations'] ?></span>
                                     </td>
-                                    <td class="text-end">
-                                        <?php 
-                                            $st = strtoupper($row['status'] ?? 'NON DÉFINI');
-                                            $color = ($st == 'ACTIF' || $st == 'PRÉSENT') ? '#05CD99' : (($st == 'ABSENT') ? '#EE5D50' : '#A3AED0');
-                                        ?>
-                                        <span style="color: <?= $color ?>; font-size: 0.85rem; font-weight: bold;">
-                                            <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> <?= $st ?>
-                                        </span>
-                                    </td>
+<td class="text-end">
+    <?php 
+        // 1. On récupère la valeur brute
+        $valeur = $row['status'] ?? 'NON DÉFINI';
+
+        // 2. On force en majuscules sans se soucier des accents pour le test
+        // str_replace permet de nettoyer le 'é' manuellement si besoin
+        $testStatus = strtoupper(str_replace('é', 'e', $valeur));
+
+        // 3. Logique de couleur simple
+        if ($testStatus == 'ACTIF' || $testStatus == 'PRESENT' || $testStatus == 'PRESENTE') {
+            $color = '#05CD99'; // Vert
+            $texte = 'PRÉSENT';
+        } elseif ($testStatus == 'ABSENT') {
+            $color = '#EE5D50'; // Rouge
+            $texte = 'ABSENT';
+        } else {
+            $color = '#A3AED0'; // Gris
+            $texte = $valeur;
+        }
+    ?>
+    <span style="color: <?= $color ?>; font-size: 0.85rem; font-weight: bold;">
+        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> <?= htmlspecialchars(strtoupper($texte)) ?>
+    </span>
+</td>
                                 </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>

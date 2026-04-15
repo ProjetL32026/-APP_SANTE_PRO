@@ -36,13 +36,15 @@ include '../APP/views/layout/header_authen.php';
         </div>
 
         <div class="mb-3">
-            <label class="form-label fw-medium">Mot de passe</label>
-            <div class="input-group">
-                <span class="input-group-text border-end-0"><i class="fas fa-lock text-muted"></i></span>
-                <input type="password" name="password" class="form-control border-start-0" placeholder="••••••••" required>
-            </div>
-        </div>
-
+    <label class="form-label fw-medium">Mot de passe</label>
+    <div class="input-group">
+        <span class="input-group-text border-end-0"><i class="fas fa-lock text-muted"></i></span>
+        <input type="password" name="password" id="password" class="form-control border-start-0 border-end-0" placeholder="••••••••" required>
+        <span class="input-group-text bg-white border-start-0" id="togglePassword" style="cursor: pointer;">
+            <i class="fas fa-eye text-muted" id="eyeIcon"></i>
+        </span>
+    </div>
+</div>
         <div class="d-flex justify-content-between mb-4">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="rem">
@@ -60,6 +62,25 @@ include '../APP/views/layout/header_authen.php';
         </div>
     </form>
 </div>
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const eyeIcon = document.querySelector('#eyeIcon');
 
+    togglePassword.addEventListener('click', function (e) {
+        // Empêche le focus par défaut du navigateur qui crée le carré
+        e.preventDefault();
+
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Change l'icône proprement
+        if (type === 'text') {
+            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    });
+</script>
 </body>
 </html>

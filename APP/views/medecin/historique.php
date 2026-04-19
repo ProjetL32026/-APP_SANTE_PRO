@@ -41,24 +41,57 @@
         </div>
     </div>
     <div class="modal fade" id="modalConsultation" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg shadow">
+        <div class="modal-dialog modal-lg shadow-lg">
             <div class="modal-content border-0">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold" id="nomPatientModal">Détails de la consultation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-teal">Aperçu du document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="mb-4">
-                        <h6 class="text-primary fw-bold text-uppercase small"><i class="bi bi-clipboard-pulse me-2"></i>Diagnostic</h6>
-                        <p id="diagModal" class="p-3 bg-light rounded border"></p>
-                    </div>
-                    <div>
-                        <h6 class="text-primary fw-bold text-uppercase small"><i class="bi bi-capsule me-2"></i>Ordonnance</h6>
-                        <div id="prescModal" class="p-3 bg-light rounded border" style="white-space: pre-line;"></div>
+                <div class="modal-body p-5 bg-gray-100">
+                    <div class="prescription-paper shadow mx-auto bg-white p-5" id="ordonnanceContent">
+
+                        <div class="d-flex justify-content-between pb-3 mb-4 border-bottom">
+                            <div>
+                                <h4 class="fw-bold text-teal mb-0">SANTÉ PRO</h4>
+                                <small class="text-muted">Cabinet Médical Multiservice</small>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0 fw-bold" id="dateModal"></p>
+                                <p class="small text-muted">Béjaïa, Algérie</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 p-3 bg-light rounded shadow-inner">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-0">Patient : <strong id="nomPatientModal" class="fs-5 text-dark"></strong></p>
+                                <span class="badge bg-white text-dark border">Consultation #<?= htmlspecialchars($h['id_rdv'] ?? '...') ?></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 pb-4 border-bottom">
+                            <h6 class="text-teal fw-bold text-uppercase small mb-3">
+                                <i class="bi bi-clipboard2-pulse me-2"></i>Diagnostic
+                            </h6>
+                            <p id="diagModal" class="fst-italic text-dark ps-3 border-start border-4 border-light"></p>
+                        </div>
+
+
+                        <div class="prescription-body">
+                            <h5 class="text-center fw-bold text-uppercase mb-5" style="letter-spacing: 2px;">Ordonnance</h5>
+                            <div id="prescModal" class="ps-4" style="line-height: 2; font-size: 1.1rem;"></div>
+                        </div>
+                        <div class="mt-5 pt-5 text-end">
+                            <div class="d-inline-block text-center" style="border-top: 1px solid #eee; min-width: 250px;">
+                                <p class="small text-muted mb-5">Signature et Cachet du Médecin</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-sm btn-primary px-4" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i>Imprimer
+                    </button>
                 </div>
             </div>
         </div>
@@ -68,17 +101,21 @@
 <script>
     const modalConsultation = document.getElementById('modalConsultation');
     modalConsultation.addEventListener('show.bs.modal', function(event) {
-        // Le bouton qui a déclenché la modale
         const button = event.relatedTarget;
 
-        // Extraction des infos des attributs data-
+        // Extraction des infos
         const patient = button.getAttribute('data-patient');
         const diag = button.getAttribute('data-diag');
         const presc = button.getAttribute('data-presc');
+        // On récupère la date depuis la première colonne de la ligne parente
+        const dateRdv = button.closest('tr').cells[0].textContent;
 
-        // Mise à jour du contenu de la modale
-        document.getElementById('nomPatientModal').textContent = "Consultation : " + patient;
+        // Mise à jour de la modale
+        document.getElementById('nomPatientModal').textContent = patient;
+        document.getElementById('dateModal').textContent = "Le : " + dateRdv;
         document.getElementById('diagModal').textContent = diag;
+
+        // On utilise innerHTML pour conserver les balises <br> injectées par PHP (nl2br)
         document.getElementById('prescModal').innerHTML = presc;
     });
 </script>

@@ -3,74 +3,42 @@
 $action = $_GET['action'] ?? 'liste';
 ?>
 
-<nav class="sidebar vh-100 p-3 text-white shadow" style="width: 250px; position: fixed; left: 0; top: 0; background: linear-gradient(135deg, #0087D1 0%, #005fa3 100%) !important; z-index: 1000;">
-
-    <div class="text-center mb-4 mt-3">
-        <div class="mb-2">
-            <i class="fas fa-user-circle fa-4x text-white"></i>
+<nav class="sidebar shadow d-flex flex-column">
+    <div class="sidebar-brand">
+        <div class="brand-logo-container">
+            <svg class="brand-logo-svg" viewBox="0 0 512 512" style="width: 25px; height: 25px; fill: white;">
+                <path d="M320 32c-8.1 0-15.5 5-18.6 12.5L197.9 334.1 151.3 218c-3.1-7.8-10.7-13-19.1-13H16c-8.8 0-16 7.2-16 16s7.2 16 16 16h104.4l65.6 164c3.1 7.8 10.7 13 19.1 13s16-5.2 19.1-13l103.5-258.7L360.7 294c3.1 7.8 10.7 13 19.1 13H496c8.8 0 16-7.2 16-16s-7.2-16-16-16H391.3l-52.7-131.5C335.5 37 328.1 32 320 32z" />
+            </svg>
         </div>
-        <h5 class="mt-2 fw-bold text-white" style="letter-spacing: 1px;">SANTÉ PRO</h5>
-        <hr class="mx-4 opacity-25">
+        <h5 class="m-0 section-header-title text-white">SANTÉ PRO</h5>
     </div>
 
-    <ul class="nav nav-pills flex-column mb-auto">
+    <hr class="mx-4 opacity-25 text-white">
+
+    <ul class="nav flex-column mb-auto">
         <li class="nav-item">
-            <a href="index.php?action=liste"
-                class="nav-link text-white <?php echo ($action == 'liste' || $action == 'consulter') ? 'active' : ''; ?>">
-                <i class="bi bi-people-fill me-2"></i>
-                <span>File d'attente</span>
+            <a href="index.php?action=liste" class="nav-link <?= ($action == 'liste') ? 'active' : '' ?>">
+                <i class="bi bi-grid-fill me-2"></i>
+                <span>Tableau de bord</span>
             </a>
         </li>
-
         <li class="nav-item">
-            <a href="index.php?action=historique"
-                class="nav-link text-white <?php echo ($action == 'historique') ? 'active' : ''; ?>">
+            <a href="index.php?action=historique" class="nav-link <?= ($action == 'historique') ? 'active' : '' ?>">
                 <i class="bi bi-clock-history me-2"></i>
                 <span>Historique</span>
             </a>
         </li>
-
     </ul>
 
-    <div class="mt-auto">
-        <div class="p-2 mb-3 text-center" style="background: rgba(255,255,255,0.1); border-radius: 10px;">
+    <div class="mt-auto pb-3">
+        <div class="user-info-badge">
             <small class="d-block opacity-75">Connecté en tant que :</small>
-            <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Médecin') ?></span>
+            <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Meziani') ?></span>
         </div>
 
-        <a href="/sante_pro/APP/views/auth/logout.php" class="nav-link logout-link text-white text-center py-2">
+        <a href="/sante_pro/APP/views/auth/logout.php" class="nav-link logout-link text-center mx-3">
             <i class="bi bi-box-arrow-left me-2"></i>
             <span>Déconnexion</span>
         </a>
     </div>
 </nav>
-
-<style>
-    .sidebar .nav-link {
-        transition: all 0.3s ease;
-        border-radius: 10px;
-        margin-bottom: 5px;
-    }
-
-    .sidebar .nav-link:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateX(5px);
-    }
-
-    .sidebar .nav-link.active {
-        background-color: white !important;
-        color: #0087D1 !important;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-
-    .logout-link {
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    }
-
-    .logout-link:hover {
-        background: #e74c3c !important;
-        /* Rouge pour la déconnexion */
-        border-color: #e74c3c !important;
-    }
-</style>

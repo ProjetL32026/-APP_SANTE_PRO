@@ -6,60 +6,64 @@
     <?php endif; ?>
 
     <div class="section-header mb-4">
-        <h5>Tableau de bord</h5>
-        <h2>File d'attente du jour</h2>
+        <h5 class="text-uppercase small fw-bold text-muted">Tableau de bord</h5>
+        <h2 class="fw-bold">Liste des patients</h2>
     </div>
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card-container p-3 border-start border-primary border-4">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="small text-muted fw-bold">EN ATTENTE</div>
-                        <div class="h4 mb-0 fw-bold"><?= count($file_attente) ?></div>
-                    </div>
-                    <i class="bi bi-hourglass-split fs-2 text-primary opacity-25"></i>
+            <div class="stat-card card-waiting d-flex align-items-center justify-content-between p-4 shadow-sm">
+                <div>
+                    <div class="stat-label">EN ATTENTE</div>
+                    <div class="stat-value"><?= count($file_attente) ?></div>
                 </div>
+                <i class="bi bi-hourglass-split stat-icon icon-blue"></i>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="card-container p-3 border-start border-success border-4">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="small text-muted fw-bold">TERMINÉS</div>
-                        <div class="h4 mb-0 fw-bold"><?= $nb_termines ?></div>
-                    </div>
-                    <i class="bi bi-check2-circle fs-2 text-success opacity-25"></i>
+            <div class="stat-card card-finished d-flex align-items-center justify-content-between p-4 shadow-sm">
+                <div>
+                    <div class="stat-label">TERMINÉS (AUJOURD'HUI)</div>
+                    <div class="stat-value"><?= $nb_termines ?></div>
                 </div>
+                <i class="bi bi-check2-circle stat-icon icon-green"></i>
             </div>
         </div>
     </div>
 
-    <div class="card-container shadow-sm">
-        <div class="bg-primary p-3 text-white rounded-top" style="background-color: #0087D1 !important;">
-            <i class="bi bi-people me-2"></i> Liste des patients
+    <div class="card-container shadow-sm mt-4">
+        <div class="p-3 text-white d-flex justify-content-between align-items-center" style="background-color: var(--teal) !important;">
+            <span><i class="bi bi-people me-2"></i> Liste des patients en attente</span>
+            <span class="badge bg-white text-dark rounded-pill"><?= count($file_attente) ?> patients</span>
         </div>
-        <table class="table m-0">
-            <thead class="bg-light">
-                <tr>
-                    <th>NOM DU PATIENT</th>
-                    <th>HEURE DU RDV</th>
-                    <th class="text-center">ACTION</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($file_attente as $p): ?>
-                <tr>
-                    <td class="fw-bold"><?= htmlspecialchars($p['nom'] . ' ' . $p['prenom']) ?></td>
-                    <td class="text-primary fw-bold"><?= htmlspecialchars($p['periode']) ?></td>
-                    <td class="text-center">
-                        <a href="index.php?action=consulter&id_rdv=<?= $p['id_rdv'] ?>" class="btn btn-primary btn-sm px-3 shadow-sm" style="background-color: #0087D1;">
-                            <i class="bi bi-person-plus me-1"></i> Recevoir
-                        </a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+
+        <div class="table-scroll-area">
+            <table class="table m-0 table-hover">
+                <thead class="bg-light sticky-top">
+                    <tr>
+                        <th class="ps-4">NOM DU PATIENT</th>
+                        <th>HEURE / PÉRIODE</th>
+                        <th class="text-center">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($file_attente as $p): ?>
+                        <tr class="align-middle">
+                            <td class="fw-bold ps-4"><?= htmlspecialchars($p['nom'] . ' ' . $p['prenom']) ?></td>
+                            <td>
+                                <span class="badge bg-light text-primary border border-primary px-3">
+                                    <?= htmlspecialchars($p['periode']) ?>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="index.php?action=consulter&id_rdv=<?= $p['id_rdv'] ?>" class="btn btn-primary btn-sm px-4 shadow-sm">
+                                    Ouvrire
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>

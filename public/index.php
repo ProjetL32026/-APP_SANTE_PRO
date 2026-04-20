@@ -21,7 +21,7 @@ if (!isset($_SESSION['user_id']) && $page !== 'log') {
 
 switch($page) {
     case 'log':
-        include '../APP/views/admin/log.php';
+        require_once '../APP/controllers/LoginController.php';
         break;
 
     case 'accueil':

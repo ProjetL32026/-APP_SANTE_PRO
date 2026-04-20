@@ -26,7 +26,7 @@ include '../APP/views/layout/header_authen.php';
         </div>
     </div>
 <?php endif; ?>
-    <form action="/SANTE_PRO/APP/controllers/LoginController.php" method="POST">
+    <form action="index.php?page=log" method="POST">
         <div class="mb-3">
             <label class="form-label fw-medium">Nom d'utilisateur</label>
             <div class="input-group">

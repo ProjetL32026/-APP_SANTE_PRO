@@ -129,4 +129,15 @@ public function getAllSpecialities() {
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+public function getById($id) {
+    $query = "SELECT u.*, i.id_specialite 
+              FROM utilisateur u 
+              JOIN infirmier i ON u.id = i.id 
+              WHERE u.id = ?";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->execute([$id]);
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 }

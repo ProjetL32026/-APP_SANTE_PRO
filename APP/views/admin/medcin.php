@@ -17,15 +17,27 @@ include '../APP/views/layout/sidebar.php';
             ?> me-3" style="font-size: 1.2rem;"></i>
             
             <div class="fw-bold">
-                <?php
-                    switch ($_GET['status']) {
-                        case 'success': echo "Médecin ajouté avec succès !"; break;
-                        case 'updated': echo "Les informations ont été mises à jour."; break;
-                        case 'deleted': echo "Le médecin a été supprimé de l'équipe."; break;
-                        case 'error':   echo "Une erreur est survenue lors de l'opération.(username ou email existe déja ou il a des RDVS )"; break;
-                    }
-                ?>
-            </div>
+    <?php
+   if (isset($_GET['status']) && $_GET['status'] == 'error') {
+    // On récupère le type, ou on met 'default' s'il n'existe pas
+    $type = $_GET['type'] ?? 'default';
+        switch ($_GET['type']) {
+           
+            case 'has_appointments': echo "Impossible : ce médecin a des rendez-vous en cours."; break;
+            default: echo "Une erreur inconnue est survenue."; break;
+            case 'db_error': 
+                echo "Une erreur technique est survenue dans la base de données."; 
+                break;
+        }
+    } else {
+        switch ($_GET['status']) {
+            case 'success': echo "Médecin ajouté avec succès !"; break;
+            case 'updated': echo "Les informations ont été mises à jour."; break;
+            case 'deleted': echo "Le médecin a été supprimé."; break;
+        }
+    }
+    ?>
+</div>
             <button type="button" class="btn-close ms-auto" onclick="this.parentElement.remove()" style="font-size: 0.8rem;"></button>
         </div>
 
@@ -153,76 +165,102 @@ include '../APP/views/layout/sidebar.php';
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="fw-bold small mb-2">Nom</label>
-                    <input type="text" name="nom" class="form-control-custom" placeholder="nom" value="<?= htmlspecialchars($medecin_a_modifier['nom'] ?? '') ?>" required>
+                    <input type="text" name="nom" class="form-control-custom" placeholder="nom" value="<?=$_GET['old_nom'] ?? htmlspecialchars($medecin_a_modifier['nom'] ?? '') ?>" required>
                 </div>
                 <div class="col-md-6">
                     <label class="fw-bold small mb-2">Prénom</label>
-                    <input type="text" name="prenom" class="form-control-custom" placeholder="Prénom" value="<?= htmlspecialchars($medecin_a_modifier['prenom'] ?? '') ?>" required>
+                    <input type="text" name="prenom" class="form-control-custom" placeholder="Prénom" value="<?= htmlspecialchars($_GET['old_prenom'] ?? $medecin_a_modifier['prenom'] ?? '') ?>" required>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-bold small mb-2">Nom d'utilisateur</label>
-                    <input type="text" name="username" class="form-control-custom" placeholder="ex: dr_ahmed06" value="<?= htmlspecialchars($medecin_a_modifier['username'] ?? '') ?>" required>
-                </div>
+    <label class="fw-bold small mb-2">Nom d'utilisateur</label>
+    <input type="text" name="username" 
+           class="form-control-custom <?php echo (isset($_GET['type']) && $_GET['type'] == 'user_exists') ? 'input-error-border' : ''; ?>" 
+           placeholder="amine12"  value="<?php echo htmlspecialchars($_GET['old_user'] ?? $medecin_a_modifier['username'] ?? ''); ?>" required>
+    
+    <?php if (isset($_GET['type']) && $_GET['type'] == 'user_exists'): ?>
+        <div class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
+            <i class="fas fa-exclamation-circle"></i> Ce nom d'utilisateur est déjà pris.
+        </div>
+    <?php endif; ?>
+</div>
                 <div class="col-md-6">
                     <label class="fw-bold small mb-2">Téléphone</label>
-                    <input type="tel" name="telephone" class="form-control-custom" placeholder="05XX XX XX XX" value="<?= htmlspecialchars($medecin_a_modifier['telephone'] ?? '') ?>" required>
+                    <input type="tel" name="telephone" class="form-control-custom" placeholder="05XX XX XX XX" value="<?=$_GET['old_tel'] ?? htmlspecialchars($medecin_a_modifier['telephone'] ?? '') ?>" required>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-bold small mb-2">Email professionnel</label>
-                    <input type="email" name="email" class="form-control-custom" placeholder="nom@centre.dz" value="<?= htmlspecialchars($medecin_a_modifier['email'] ?? '') ?>" required>
-                </div>
+    <label class="fw-bold small mb-2">Email professionnel</label>
+    <input type="email" name="email" 
+           class="form-control-custom <?php echo (isset($_GET['type']) && $_GET['type'] == 'email_exists') ? 'input-error-border' : ''; ?>" 
+           placeholder="xxx@xxx" value="<?php echo htmlspecialchars($_GET['old_email'] ?? $medecin_a_modifier['email'] ?? ''); ?>" required>
+    
+    <?php if (isset($_GET['type']) && $_GET['type'] == 'email_exists'): ?>
+        <div class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;" >
+            <i class="fas fa-exclamation-circle" ></i> Cet email est déjà utilisé.
+        </div>
+    <?php endif; ?>
+</div>
 
                 <div class="col-md-6">
     <label class="fw-bold small mb-2">Spécialité</label>
     <select name="id_specialite" class="form-control-custom" required>
-        <option value="">-- Sélectionner --</option>
-        <?php 
-        // On boucle sur les spécialités récupérées en BDD
-        foreach($all_specialities as $spec): 
-            $id = $spec['id_specialite'];
-            $label = $spec['nom_specialite'];
-            $selected = ($medecin_a_modifier && $medecin_a_modifier['id_specialite'] == $id) ? 'selected' : '';
-        ?>
-            <option value="<?= $id ?>" <?= $selected ?>><?= htmlspecialchars($label) ?></option>
-        <?php endforeach; ?>
-    </select>
+    <option value="">-- Sélectionner --</option> <?php foreach($all_specialities as $spec): 
+        $id = $spec['id_specialite'];
+        // On vérifie l'URL (old_spec), sinon la BDD
+        $selected_id = $_GET['old_id_spec'] ?? $medecin_a_modifier['id_specialite'] ?? '';
+        $is_selected = ($selected_id == $id) ? 'selected' : '';
+    ?>
+        <option value="<?= $id ?>" <?= $is_selected ?>><?= htmlspecialchars($spec['nom_specialite']) ?></option>
+    <?php endforeach; ?>
+</select>
 </div>
 
                 <div class="col-12">
-                    <label class="fw-bold small mb-2">Mot de passe <?= $medecin_a_modifier ? '(Laissez vide pour ne pas changer)' : '' ?></label>
+                    <label class="fw-bold small mb-2">Mot de passe <?= $medecin_a_modifier ? '(Laissez vide pour ne pas changer)' : '' ?>
+                    <?php if (!$medecin_a_modifier && isset($_GET['status']) && $_GET['status'] == 'error'): ?>
+            <span class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
+                <i class="fas fa-shield-alt"></i> (Par sécurité, veuillez le saisir à nouveau)
+            </span>
+        <?php endif; ?>
+    </label>
                     <input type="password" name="password"  placeholder="••••••••" class="form-control-custom" <?= $medecin_a_modifier ? '' : 'required' ?>>
                 </div>
 
                 <div class="col-12">
                     <label class="fw-bold small mb-2 d-block">Jours de travail</label>
                     <div class="d-flex flex-wrap gap-2">
-                        <?php 
-                        $jours_liste = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-                        // On transforme la chaîne "Dim, Lun" en tableau pour vérifier les cases
-                        $jours_coches = $medecin_a_modifier ? explode(', ', $medecin_a_modifier['jour_travail']) : [];
-                        
-                        foreach($jours_liste as $j): 
-                            $is_checked = in_array($j, $jours_coches) ? 'checked' : '';
-                        ?>
-                            <div class="form-check border p-2 rounded text-center" style="min-width: 60px; background: #F8FAFD;">
-                                <input class="form-check-input ms-0 mb-1 d-block mx-auto day-checkbox" 
-                                       type="checkbox" name="jours_travail[]" value="<?= $j ?>" 
-                                       id="check-<?= $j ?>" <?= $is_checked ?>>
-                                <label class="form-check-label small fw-bold" for="check-<?= $j ?>"><?= $j ?></label>
-                            </div>
-                        <?php endforeach; ?>
+                    <?php 
+$jours_liste = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+// 1. On récupère les jours cochés avant l'erreur (depuis l'URL)
+$old_jours_str = $_GET['old_jours'] ?? ''; 
+$old_jours_array = !empty($old_jours_str) ? explode(',', $old_jours_str) : [];
+
+// 2. On récupère les jours en BDD si on est en modification
+$jours_bdd = $medecin_a_modifier ? explode(', ', $medecin_a_modifier['jour_travail']) : [];
+
+foreach($jours_liste as $j): 
+    // On coche si présent dans l'URL OU en BDD
+    $is_checked = (in_array($j, $old_jours_array) || in_array($j, $jours_bdd)) ? 'checked' : '';
+?>
+    <div class="form-check border p-2 rounded text-center" style="min-width: 60px; background: #F8FAFD;">
+        <input class="form-check-input ms-0 mb-1 d-block mx-auto day-checkbox" 
+               type="checkbox" name="jours_travail[]" value="<?= $j ?>" 
+               id="check-<?= $j ?>" <?= $is_checked ?>>
+        <label class="form-check-label small fw-bold" for="check-<?= $j ?>"><?= $j ?></label>
+    </div>
+<?php endforeach; ?>
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="fw-bold small mb-2">Heure début</label>
-                    <input type="time" name="heure_debut" class="form-control-custom" value="<?= $medecin_a_modifier['heure_debut'] ?? '' ?>" required>
+                    <input type="time" name="heure_debut" class="form-control-custom" value="<?=$_GET['old_h_debut'] ?? $medecin_a_modifier['heure_debut'] ?? '' ?>" required>
                 </div>
                 <div class="col-md-6">
                     <label class="fw-bold small mb-2">Heure fin</label>
-                    <input type="time" name="heure_fin" class="form-control-custom" value="<?= $medecin_a_modifier['heure_fin'] ?? '' ?>" required>
+                    <input type="time" name="heure_fin" class="form-control-custom" value="<?=$_GET['old_h_fin'] ?? $medecin_a_modifier['heure_fin'] ?? '' ?>" required>
                 </div>
             </div>
 

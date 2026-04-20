@@ -8,21 +8,24 @@ include __DIR__ . '/../layout/sidebar.php';
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
 <?php 
     $message = "";
-    $type = "success"; // Par défaut vert
+    $type = "success"; 
 
-    // 1. On vérifie quel paramètre est présent dans l'URL
+    // 1. Gestion des succès (Status)
     if (isset($_GET['status'])) {
         if ($_GET['status'] == 'success') $message = "Infirmier ajouté avec succès !";
         if ($_GET['status'] == 'updated') $message = "Les modifications ont été enregistrées.";
+        if ($_GET['status'] == 'deleted') $message = "L'infirmier a été supprimé avec succès."; // AJOUTE CETTE LIGNE
     } 
+    // 2. Garder success=delete au cas où (Sécurité)
     elseif (isset($_GET['success'])) {
         if ($_GET['success'] == 'delete') $message = "L'infirmier a été supprimé avec succès.";
     } 
+    // 3. Gestion des erreurs
     elseif (isset($_GET['error'])) {
-        $type = "error"; // On passe en rouge
-        if ($_GET['error'] == 'delete') $message = "Erreur : Impossible de supprimer cet infirmier.";
-        if ($_GET['error'] == 'update_failed') $message = "Erreur : La mise à jour a échoué (username ou email existe déja).";
-        if ($_GET['error'] == 'insert_failed') $message = "Erreur : L'ajout a échoué (Email ou Username déjà pris).";
+        $type = "error"; 
+        if ($_GET['error'] == 'delete' || $_GET['error'] == 'delete_failed') $message = "Erreur : Impossible de supprimer cet infirmier.";
+        if ($_GET['error'] == 'update_failed') $message = "Erreur : La mise à jour a échoué.";
+        if ($_GET['error'] == 'insert_failed') $message = "Erreur : L'ajout a échoué.";
         if ($_GET['error'] == 'empty') $message = "Erreur : Veuillez remplir tous les champs obligatoires.";
     }
 
@@ -132,26 +135,40 @@ include __DIR__ . '/../layout/sidebar.php';
     <div class="row">
         <div class="col-6">
             <label class="fw-bold small mb-2">Nom</label>
-            <input type="text" name="nom" class="form-control-custom" placeholder="Nom" 
+            <input type="text" name="nom" class="form-control-custom" placeholder="Nom" value="<?php echo htmlspecialchars($_GET['old_nom'] ?? $infirmier_a_modifier['nom'] ?? ''); ?>"
                    required pattern="[A-Za-zÀ-ÿ\s\-]+" title="Le nom ne doit contenir que des lettres">
         </div>
         <div class="col-6">
             <label class="fw-bold small mb-2">Prénom</label>
-            <input type="text" name="prenom" class="form-control-custom" placeholder="Prénom" 
+            <input type="text" name="prenom" class="form-control-custom" placeholder="Prénom" value="<?php echo htmlspecialchars($_GET['old_prenom'] ?? $infirmier_a_modifier['prenom'] ?? ''); ?>"
                    required pattern="[A-Za-zÀ-ÿ\s\-]+" title="Le prénom ne doit contenir que des lettres">
         </div>
     </div>
     <div class="row">
-        <div class="col-6">
-            <label class="fw-bold small mb-2">Nom d'utilisateur</label>
-            <input type="text" name="username" class="form-control-custom" placeholder="ex: inf_karima" required>
+    <div class="col-6">
+    <label class="fw-bold small mb-2">Nom d'utilisateur</label>
+    <input type="text" name="username" 
+           placeholder="ex: inf_karima" 
+           class="form-control-custom <?php echo (isset($_GET['type']) && $_GET['type'] == 'user_exists') ? 'input-error-border' : ''; ?>" 
+           value="<?php echo htmlspecialchars($_GET['old_user'] ?? $infirmier_a_modifier['username'] ?? ''); ?>" 
+           required>
+    
+    <?php if (isset($_GET['type']) && $_GET['type'] == 'user_exists'): ?>
+        <div class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
+            <i class="fas fa-exclamation-circle"></i> Ce nom d'utilisateur est déjà utilisé.
         </div>
-        <div class="col-6">
+    <?php endif; ?>
+</div>
+<div class="col-6">
     <label class="fw-bold small mb-2">Service (Spécialité)</label>
     <select name="service" class="form-control-custom" id="edit_service" required>
         <option value="">-- Sélectionner --</option>
-        <?php foreach($all_specialities as $spec): ?>
-            <option value="<?= $spec['id_specialite'] ?>">
+        <?php foreach($all_specialities as $spec): 
+            // On détermine si cette option doit être sélectionnée
+            $selected_id = $_GET['old_service'] ?? $infirmier_a_modifier['id_specialite'] ?? '';
+            $is_selected = ($spec['id_specialite'] == $selected_id) ? 'selected' : '';
+        ?>
+            <option value="<?= $spec['id_specialite'] ?>" <?= $is_selected ?>>
                 <?= htmlspecialchars($spec['nom_specialite']) ?>
             </option>
         <?php endforeach; ?>
@@ -162,15 +179,41 @@ include __DIR__ . '/../layout/sidebar.php';
         <div class="col-6">
             <label class="fw-bold small mb-2">Téléphone</label>
             <input type="tel" name="telephone" class="form-control-custom" placeholder="05XX XX XX XX" 
-                   required pattern="[0-9]+" minlength="10" maxlength="14" title="Veuillez entrer un numéro de téléphone valide (chiffres uniquement)">
+            value="<?php echo htmlspecialchars($_GET['old_tel'] ?? $infirmier_a_modifier['tel'] ?? ''); ?>"       required pattern="[0-9]+" minlength="10" maxlength="14" title="Veuillez entrer un numéro de téléphone valide (chiffres uniquement)">
         </div>
         <div class="col-6">
-            <label class="fw-bold small mb-2">Email</label>
-            <input type="email" name="email" class="form-control-custom" placeholder="email@centre.dz" required>
+    <label class="fw-bold small mb-2">Email</label>
+    <input type="email" name="email" 
+           placeholder="email@centre.dz" 
+           class="form-control-custom <?php echo (isset($_GET['type']) && $_GET['type'] == 'email_exists') ? 'input-error-border' : ''; ?>" 
+           value="<?php echo htmlspecialchars($_GET['old_email'] ?? $infirmier_a_modifier['email'] ?? ''); ?>" 
+           required>
+    
+    <?php if (isset($_GET['type']) && $_GET['type'] == 'email_exists'): ?>
+        <div class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
+            <i class="fas fa-exclamation-circle"></i> Cet email est déjà utilisé par un autre compte.
         </div>
+    <?php endif; ?>
+</div>
     </div>
-    <label class="fw-bold small mb-2">Mot de passe</label>
-    <input type="password" name="password" class="form-control-custom" placeholder="••••••••" required minlength="6">
+    <div class="col-6">
+    <label class="fw-bold small mb-2">
+        Mot de passe
+        <?= isset($infirmier_a_modifier) ? '<span class="text-muted" style="font-weight:normal;">(Laissez vide pour ne pas changer)</span>' : '' ?>
+        
+        <?php if (!isset($infirmier_a_modifier) && isset($_GET['status']) && $_GET['status'] == 'error'): ?>
+            <span class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
+                <i class="fas fa-shield-alt"></i> (À saisir à nouveau par sécurité)
+            </span>
+        <?php endif; ?>
+    </label>
+
+    <input type="password" name="password" 
+           class="form-control-custom <?php echo (isset($_GET['status']) && $_GET['status'] == 'error' && !isset($infirmier_a_modifier)) ? 'input-error-border' : ''; ?>" 
+           placeholder="••••••••" 
+           <?= isset($infirmier_a_modifier) ? '' : 'required' ?> 
+           minlength="6">
+</div>
     
     <div class="d-flex justify-content-end gap-2 mt-3">
         <button type="button" class="btn btn-light rounded-pill px-4" onclick="closeModal()">Annuler</button>
@@ -189,22 +232,20 @@ include __DIR__ . '/../layout/sidebar.php';
     const modal = document.getElementById('modal-infirmier');
     modal.classList.remove('open'); 
     
-    const form = modal.querySelector('form');
-    form.reset();
-    
-    // On remet le titre par défaut
-    modal.querySelector('h3').innerText = "Ajouter un Infirmier";
-    
-    // On vide l'ID caché au lieu de le supprimer
-    const inputId = document.getElementById('edit_id');
-    if(inputId) inputId.value = ""; 
-    
-    // On remet le mot de passe obligatoire
-    const mdpInput = form.querySelector('[name="password"]');
-    mdpInput.required = true;
-    mdpInput.placeholder = "••••••••";
+    // On vérifie si l'URL contient une erreur ou un succès
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('status') || urlParams.has('error')) {
+        // On recharge la page sans les paramètres d'erreur pour "nettoyer" l'interface
+        window.location.href = "index.php?page=infirmier";
+    } else {
+        // Sinon, on fait juste le reset classique
+        const form = modal.querySelector('form');
+        form.reset();
+        modal.querySelector('h3').innerText = "Ajouter un Infirmier";
+        const inputId = document.getElementById('edit_id');
+        if(inputId) inputId.value = ""; 
+    }
 }
-
     function editInfirmier(inf) {
     document.querySelector('.custom-modal h3').innerText = "Modifier l'infirmier";
     let form = document.querySelector('#modal-infirmier form');
@@ -254,6 +295,29 @@ include __DIR__ . '/../layout/sidebar.php';
         }
     }
 }
+// --- AUTO-OUVERTURE EN CAS D'ERREUR ---
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Si l'URL contient "status=error", cela signifie que PHP nous a renvoyés ici
+    if (urlParams.has('status') && urlParams.get('status') === 'error') {
+        
+        // Si c'était une modification, on change le titre du formulaire
+        if (urlParams.get('action') === 'edit') {
+            document.querySelector('.custom-modal h3').innerText = "Modifier l'infirmier";
+            
+            // On désactive le requis sur le mot de passe pour la modif
+            let mdpInput = document.querySelector('#modal-infirmier form [name="password"]');
+            if(mdpInput) {
+                mdpInput.required = false;
+                mdpInput.placeholder = "(Laisser vide pour garder l'actuel)";
+            }
+        }
+        
+        // On appelle ta fonction existante pour ouvrir la modale
+        openModal();
+    }
+});
 </script>
 
 <?php include '../APP/views/layout/footer.php'; ?>

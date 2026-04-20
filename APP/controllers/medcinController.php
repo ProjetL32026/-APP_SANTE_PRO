@@ -8,8 +8,18 @@ $db = $database->getConnection();
 $medecinModel = new Medecin($db); 
 
 // --- 1. TRAITEMENT DE LA SUPPRESSION ---
+// --- 1. TRAITEMENT DE LA SUPPRESSION ---
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     $id_a_supprimer = $_GET['id'];
+    
+    // VERIFICATION : Est-ce que le médecin a des rendez-vous ?
+    $checkRDV = $db->prepare("SELECT COUNT(*) FROM rendez_vous WHERE id_medecin = ?");
+    $checkRDV->execute([$id_a_supprimer]);
+    if ($checkRDV->fetchColumn() > 0) {
+        header("Location: index.php?page=medcin&status=error&type=has_appointments");
+        exit();
+    }
+
     try {
         $db->beginTransaction(); 
         $stmtMed = $db->prepare("DELETE FROM medecin WHERE id_medecin = ?");
@@ -21,7 +31,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
         exit();
     } catch (PDOException $e) {
         if ($db->inTransaction()) { $db->rollBack(); }
-        header("Location: index.php?page=medcin&status=error");
+        header("Location: index.php?page=medcin&status=error&type=db_error");
         exit();
     }
 }
@@ -40,7 +50,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $h_debut = $_POST['heure_debut'] ?? null;
     $h_fin = $_POST['heure_fin'] ?? null;
     $jours = isset($_POST['jours_travail']) ? implode(', ', $_POST['jours_travail']) : '';
+    $oldData = "&old_nom=" . urlencode($nom) . 
+           "&old_prenom=" . urlencode($prenom) . 
+           "&old_user=" . urlencode($username) . 
+           "&old_email=" . urlencode($email) . 
+           "&old_tel=" . urlencode($tel).
+           "&old_type=" . urlencode($type).
+           "&old_h_debut=" . urlencode($h_debut).
+           "&old_h_fin=" . urlencode($h_fin).
+           "&old_jours=" . urlencode( $jours).
+           "&old_id_spec=" . urlencode($id_spec);
 
+// VERIFICATION DES DOUBLONS
+// 1. Test de l'Email
+$checkEmail = $db->prepare("SELECT id FROM utilisateur WHERE email = ? " . ($id ? "AND id != ?" : ""));
+$paramsEmail = $id ? [$email, $id] : [$email];
+$checkEmail->execute($paramsEmail);
+
+if ($checkEmail->fetch()) {
+    $redir = ($action === 'update') ? "action=edit&id=$id" : "action=add";
+    $params = "&old_nom=$nom&old_prenom=$prenom&old_user=$username&old_email=$email&old_tel=$tel";
+    header("Location: index.php?page=medcin&$redir&status=error&type=email_exists" . $oldData);
+    exit();
+}
+
+// 2. Test du Username
+$checkUser = $db->prepare("SELECT id FROM utilisateur WHERE username = ? " . ($id ? "AND id != ?" : ""));
+$paramsUser = $id ? [$username, $id] : [$username];
+$checkUser->execute($paramsUser);
+
+if ($checkUser->fetch()) {
+    $redir = ($action === 'update') ? "action=edit&id=$id" : "action=add";
+    $params = "&old_nom=$nom&old_prenom=$prenom&old_user=$username&old_email=$email&old_tel=$tel";
+    header("Location: index.php?page=medcin&$redir&status=error&type=user_exists" . $oldData);
+    exit();
+}
     if ($action === 'update' && $id) {
         try {
             $db->beginTransaction();

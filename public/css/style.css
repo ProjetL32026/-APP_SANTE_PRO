@@ -432,6 +432,9 @@ body { font-family: 'Nunito', sans-serif; background-color: var(--bg-color); col
         box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3);
     }
 
+    
+
+
 /* Personnalisation de la barre de défilement */
 .table-scroll-area::-webkit-scrollbar { width: 6px; }
 .table-scroll-area::-webkit-scrollbar-track { background: #f1f1f1; }

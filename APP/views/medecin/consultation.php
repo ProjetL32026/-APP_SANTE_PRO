@@ -31,7 +31,7 @@ $id_rdv = $_GET['id_rdv'] ?? null;
                 <div class="mb-4">
                     <label class="form-label d-flex justify-content-between align-items-center fw-bold">
                         <span><i class="bi bi-capsule me-2 text-teal"></i>Prescription Médicale (Ordonnance)</span>
-                        <button type="button" class="btn btn-sm btn-outline-aqua" onclick="ajouterLigne()">
+                        <button type="button" class="btn btn-sm btn-outline-aqua" onclick="ajouterLigne()"> ... </button>
                             <i class="bi bi-plus-lg"></i> Ajouter un médicament
                         </button>
                     </label>
@@ -72,22 +72,3 @@ $id_rdv = $_GET['id_rdv'] ?? null;
         </div>
     </div>
 </div>
-
-<script>
-    function ajouterLigne() {
-        const table = document.getElementById('corpsOrdonnance');
-        const nouvelleLigne = document.createElement('tr');
-
-        nouvelleLigne.innerHTML = `
-        <td><input type="text" name="medoc[]" class="form-control form-control-sm" placeholder="Nom du médicament" required></td>
-        <td><input type="text" name="poso[]" class="form-control form-control-sm" placeholder="Posologie"></td>
-        <td><input type="text" name="duree[]" class="form-control form-control-sm" placeholder="Durée"></td>
-        <td class="text-end">
-            <button type="button" class="btn btn-link text-danger btn-sm p-0" onclick="this.parentElement.parentElement.remove()">
-                <i class="bi bi-trash"></i>
-            </button>
-        </td>
-    `;
-        table.appendChild(nouvelleLigne);
-    }
-</script>

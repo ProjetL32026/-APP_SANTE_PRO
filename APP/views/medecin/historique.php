@@ -5,9 +5,7 @@
     </div>
 
     <div class="card-container shadow-sm">
-        <div class="card-header bg-teal-gradient py-3">
-            <h5 class="mb-0 text-white"><i class="bi bi-archive me-2"></i>Consultations passées</h5>
-        </div>
+        
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -97,25 +95,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    const modalConsultation = document.getElementById('modalConsultation');
-    modalConsultation.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-
-        // Extraction des infos
-        const patient = button.getAttribute('data-patient');
-        const diag = button.getAttribute('data-diag');
-        const presc = button.getAttribute('data-presc');
-        // On récupère la date depuis la première colonne de la ligne parente
-        const dateRdv = button.closest('tr').cells[0].textContent;
-
-        // Mise à jour de la modale
-        document.getElementById('nomPatientModal').textContent = patient;
-        document.getElementById('dateModal').textContent = "Le : " + dateRdv;
-        document.getElementById('diagModal').textContent = diag;
-
-        // On utilise innerHTML pour conserver les balises <br> injectées par PHP (nl2br)
-        document.getElementById('prescModal').innerHTML = presc;
-    });
-</script>

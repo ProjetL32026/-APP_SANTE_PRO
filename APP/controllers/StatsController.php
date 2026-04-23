@@ -14,24 +14,24 @@ try {
     $statsModel = new Statistiques($db);
 
     // --- 1. Performance par Spécialité ---
-    $dataSpec = $statsModel->getRdvParSpecialite($anneeSelectionnee) ?: [];
-    $labelsSpec = json_encode(array_column($dataSpec, 'label'));
-    $valeursSpec = json_encode(array_column($dataSpec, 'valeur'));
+$dataSpec = $statsModel->getRdvParSpecialite($anneeSelectionnee) ?: [];
+$labelsSpec = array_column($dataSpec, 'label');   // Modifié : PHP pur
+$valeursSpec = array_column($dataSpec, 'valeur'); // Modifié : PHP pur
 
-    // --- 2. Statut des Consultations ---
-    $dataConsul = $statsModel->getStatutConsultations($anneeSelectionnee) ?: [];
-    $labelsConsul = json_encode(array_column($dataConsul, 'label'));
-    $valeursConsul = json_encode(array_column($dataConsul, 'valeur'));
+// --- 2. Statut des Consultations ---
+$dataConsul = $statsModel->getStatutConsultations($anneeSelectionnee) ?: [];
+$labelsConsul = array_column($dataConsul, 'label');
+$valeursConsul = array_column($dataConsul, 'valeur');
 
-    // --- 3. Affluence Hebdomadaire ---
-    $dataAffluence = $statsModel->getAffluenceHebdomadaire($anneeSelectionnee) ?: [];
-    $labelsAffluence = json_encode(array_column($dataAffluence, 'label'));
-    $valeursAffluence = json_encode(array_column($dataAffluence, 'valeur'));
+// --- 3. Affluence Hebdomadaire ---
+$dataAffluence = $statsModel->getAffluenceHebdomadaire($anneeSelectionnee) ?: [];
+$labelsAffluence = array_column($dataAffluence, 'label');
+$valeursAffluence = array_column($dataAffluence, 'valeur');
 
-    // --- 4. Disponibilité des Équipes ---
-    $dataDispo = $statsModel->getDisponibiliteEquipes() ?: [];
-    $labelsDispo = json_encode(array_column($dataDispo, 'label'));
-    $valeursDispo = json_encode(array_column($dataDispo, 'valeur'));
+// --- 4. Disponibilité des Équipes ---
+$dataDispo = $statsModel->getDisponibiliteEquipes() ?: [];
+$labelsDispo = array_column($dataDispo, 'label');
+$valeursDispo = array_column($dataDispo, 'valeur');
 
     // Une fois les données prêtes, on charge la vue
     include __DIR__ . '/../views/admin/statistique.php';

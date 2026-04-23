@@ -1,24 +1,18 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const data = window.statsData; // On récupère les données de la vue
+    const data = window.statsData; // Récupération des données
     if (!data) return;
 
-    const globalOptions = { responsive: true, maintainAspectRatio: false };
-
-    new Chart(document.getElementById('specialtyChart'), {
-        type: 'bar',
-        data: {
-            labels: data.labelsSpec, // Utilisation propre des données
-            datasets: [{
-                data: data.valeursSpec,
-                backgroundColor: '#00BCD4'
-            }]
-        },
-        options: globalOptions
-    });
+    const globalOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: { legend: { position: 'bottom' } }
+    };
 
     // --- Graphique 1 : Spécialités ---
-    if (document.getElementById('specialtyChart')) {
-        new Chart(document.getElementById('specialtyChart'), {
+    const ctxSpec = document.getElementById('specialtyChart');
+    if (ctxSpec) {
+        new Chart(ctxSpec, {
             type: 'bar',
             data: {
                 labels: data.labelsSpec,
@@ -34,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // --- Graphique 2 : Consultations ---
-    // CORRECTION : On utilise data.labelsConsul au lieu de window.labelsConsul
     const labelsConsul = data.labelsConsul || [];
     const colorsConsul = labelsConsul.map(label => {
         if (label.toLowerCase().includes('confirmé')) return '#4CAF50';
@@ -43,8 +36,9 @@ document.addEventListener("DOMContentLoaded", function() {
         return '#9E9E9E';
     });
 
-    if (document.getElementById('consultationChart')) {
-        new Chart(document.getElementById('consultationChart'), {
+    const ctxConsul = document.getElementById('consultationChart');
+    if (ctxConsul) {
+        new Chart(ctxConsul, {
             type: 'doughnut',
             data: {
                 labels: labelsConsul,
@@ -58,8 +52,9 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // --- Graphique 3 : Affluence ---
-    if (document.getElementById('patientEvolutionChart')) {
-        new Chart(document.getElementById('patientEvolutionChart'), {
+    const ctxAffluence = document.getElementById('patientEvolutionChart');
+    if (ctxAffluence) {
+        new Chart(ctxAffluence, {
             type: 'line',
             data: {
                 labels: data.labelsAffluence,
@@ -72,10 +67,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     tension: 0.4
                 }]
             },
-            options: {
-                ...globalOptions,
-                plugins: { legend: { display: false } }
-            }
+            options: { ...globalOptions, plugins: { legend: { display: false } } }
         });
     }
 
@@ -88,8 +80,9 @@ document.addEventListener("DOMContentLoaded", function() {
         return '#9E9E9E';
     });
 
-    if (document.getElementById('absenceChart')) {
-        new Chart(document.getElementById('absenceChart'), {
+    const ctxDispo = document.getElementById('absenceChart');
+    if (ctxDispo) {
+        new Chart(ctxDispo, {
             type: 'doughnut',
             data: {
                 labels: labelsDispo,
@@ -101,18 +94,4 @@ document.addEventListener("DOMContentLoaded", function() {
             options: { ...globalOptions, cutout: '70%' }
         });
     }
-
-    // LOGIQUE D'OUVERTURE DE LA MODALE
-    const trigger = document.getElementById('trigger-modal-stats');
-    if (trigger && trigger.value === "true") {
-        openModal(); 
-    }
 });
-
-// FONCTION MODALE
-function openModal() {
-    const modal = document.getElementById('maModale');
-    if (modal) {
-        modal.style.display = 'block';
-    }
-}

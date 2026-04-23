@@ -105,94 +105,23 @@ include __DIR__ . '/../layout/sidebar.php';
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+
 <script>
-    // 3. Configuration globale ANTI-ZOOM
-    const globalOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false, // DESACTIVE LE ZOOM (TRÈS IMPORTANT)
-        plugins: {
-            legend: { position: 'bottom' }
-        }
+    // La Vue prépare les données pour le JavaScript externe
+    window.statsData = {
+        labelsSpec: <?= json_encode($labelsSpec ?? []) ?>,
+        valeursSpec: <?= json_encode($valeursSpec ?? []) ?>,
+        labelsConsul: <?= json_encode($labelsConsul ?? []) ?>,
+        valeursConsul: <?= json_encode($valeursConsul ?? []) ?>,
+        labelsAffluence: <?= json_encode($labelsAffluence ?? []) ?>,
+        valeursAffluence: <?= json_encode($valeursAffluence ?? []) ?>,
+        labelsDispo: <?= json_encode($labelsDispo ?? []) ?>,
+        valeursDispo: <?= json_encode($valeursDispo ?? []) ?>
     };
-
-    // --- Graphique 1 : Spécialités (Barres) ---
-    new Chart(document.getElementById('specialtyChart'), {
-        type: 'bar',
-        data: {
-            labels: <?= $labelsSpec ?? '[]' ?>,
-            datasets: [{
-                label: 'Nombre de Rendez-vous',
-                data: <?= $valeursSpec ?? '[]' ?>,
-                backgroundColor: '#00BCD4',
-                borderRadius: 5
-            }]
-        },
-        options: globalOptions
-    });
-
-    // --- Graphique 2 : Consultations (Doughnut) ---
-const labelsConsul = <?= $labelsConsul ?? '[]' ?>;
-// On génère les couleurs dynamiquement selon le texte
-const colorsConsul = labelsConsul.map(label => {
-    if (label.toLowerCase().includes('confirmé')) return '#4CAF50'; // Vert
-    if (label.toLowerCase().includes('annulé')) return '#F44336';   // Rouge
-    if (label.toLowerCase().includes('attente')) return '#FF9800';  // Orange
-    return '#9E9E9E'; // Gris par défaut
-});
-
-new Chart(document.getElementById('consultationChart'), {
-    type: 'doughnut',
-    data: {
-        labels: labelsConsul,
-        datasets: [{
-            data: <?= $valeursConsul ?? '[]' ?>,
-            backgroundColor: colorsConsul
-        }]
-    },
-    options: globalOptions
-});
-
-    // --- Graphique 3 : Affluence (Ligne) ---
-    new Chart(document.getElementById('patientEvolutionChart'), {
-        type: 'line',
-        data: {
-            labels: <?= $labelsAffluence ?? '[]' ?>,
-            datasets: [{
-                label: 'Nombre de Patients',
-                data: <?= $valeursAffluence ?? '[]' ?>,
-                borderColor: '#4CAF50',
-                backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            ...globalOptions,
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // --- Graphique 4 : Disponibilité (Doughnut) ---
-const labelsDispo = <?= $labelsDispo ?? '[]' ?>;
-const colorsDispo = labelsDispo.map(label => {
-    if (label.includes('Présent')) return '#4CAF50'; // Vert
-    if (label.includes('Absent')) return '#F44336';  // Rouge
-    if (label.includes('Congé')) return '#2196F3';   // Bleu
-    return '#9E9E9E'; // Gris pour "Non défini"
-});
-
-new Chart(document.getElementById('absenceChart'), {
-    type: 'doughnut',
-    data: {
-        labels: labelsDispo,
-        datasets: [{
-            data: <?= $valeursDispo ?? '[]' ?>,
-            backgroundColor: colorsDispo
-        }]
-    },
-    options: { ...globalOptions, cutout: '70%' }
-});
 </script>
+
+<script src="assets/js/jsnoha/admin_statistique.js"></script>
+
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

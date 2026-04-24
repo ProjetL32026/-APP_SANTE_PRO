@@ -1,4 +1,8 @@
 <?php 
+// 1. Définition des variables pour le Header global
+$pageTitle = "Admin | log"; 
+$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
+$pageScript = "js/jsnoha/admin_log.js";
 // 1. On appelle ton header spécial authentification
 include '../APP/views/layout/header_authen.php'; 
 ?>
@@ -62,6 +66,6 @@ include '../APP/views/layout/header_authen.php';
         </div>
     </form>
 </div>
-<script src="js/jsnoha/admin_log.js"></script>
+
 </body>
 </html>

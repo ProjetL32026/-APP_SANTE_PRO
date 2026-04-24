@@ -3,6 +3,9 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); 
 }
+// 1. Définition des variables pour le Header global
+$pageTitle = "Admin | parametre"; 
+$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
 
 include __DIR__ . '/../layout/header.php';
 include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';

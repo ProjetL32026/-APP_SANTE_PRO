@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../../config/db.php';
-require_once __DIR__ . '/../Models/Statistiques.php';
+require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../../Models/admin_models/Statistiques.php';
+
 
 try {
     $database = new Database();
@@ -34,7 +35,8 @@ $labelsDispo = array_column($dataDispo, 'label');
 $valeursDispo = array_column($dataDispo, 'valeur');
 
     // Une fois les données prêtes, on charge la vue
-    include __DIR__ . '/../views/admin/statistique.php';
+   // include __DIR__ . '/../views/admin/statistique.php';
+    require_once __DIR__ . '/../../views/admin/statistique.php';
 
 } catch (Exception $e) {
     // En cas d'erreur, on affiche un message propre au lieu d'une page blanche

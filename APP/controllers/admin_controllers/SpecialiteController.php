@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../../config/db.php';
-require_once __DIR__ . '/../Models/specialite.php';
+require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../../Models/admin_models/specialite.php';
+
 
 $database = new Database();
 $db = $database->getConnection();
@@ -11,7 +12,8 @@ $action = $_REQUEST['action'] ?? '';
 // --- LOGIQUE D'AFFICHAGE (GET par défaut) ---
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($action)) {
     $specialites = $specialiteModel->readAll();
-    include __DIR__ . '/../views/admin/specialite.php';
+    //include __DIR__ . '/../views/admin/specialite.php';
+    require_once __DIR__ . '/../../views/admin/specialite.php';
     exit();
 }
 

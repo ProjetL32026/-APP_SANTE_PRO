@@ -1,7 +1,8 @@
 <?php
 // --- 1. INITIALISATION & CHEMINS (Correction des erreurs orange) ---
-require_once __DIR__ . '/../../config/db.php'; 
-require_once __DIR__ . '/../Models/infermier.php'; // Vérifie bien l'orthographe (infermier ou Infirmier)
+require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../../Models/admin_models/infermier.php';
+
 
 $database = new Database();
 $db = $database->getConnection();
@@ -83,4 +84,5 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
 }
 
 // Inclusion de la vue avec le bon chemin
-include __DIR__ . '/../views/admin/infermier.php';
+//include __DIR__ . '/../views/admin/infermier.php';
+require_once __DIR__ . '/../../views/admin/infermier.php';

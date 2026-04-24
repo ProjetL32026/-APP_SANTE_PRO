@@ -1,7 +1,7 @@
 <?php
 // On retire tout le bloc de connexion/requête SQL d'ici !
-include __DIR__ . '/../layout/header.php'; 
-include __DIR__ . '/../layout/sidebar.php';
+include __DIR__ . '/../layout/header.php';
+include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 ?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
@@ -116,6 +116,6 @@ include __DIR__ . '/../layout/sidebar.php';
     </div>
 </div>
 
-<script src="assets/js/jsnoha/admin_specialite.js"></script>
+<script src="js/jsnoha/admin_specialite.js"></script>
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

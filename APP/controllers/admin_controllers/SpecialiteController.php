@@ -22,13 +22,13 @@ if ($action == 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = trim($_POST['nom_specialite'] ?? '');
     if (!empty($nom)) {
         if ($specialiteModel->exists($nom)) {
-            header("Location: /SANTE_PRO/public/index.php?page=specialite&error=exists");
+            header("Location: /santepro/public/index.php?page=specialite&error=exists");
         } else {
             $specialiteModel->create($nom);
-            header("Location: /SANTE_PRO/public/index.php?page=specialite&success=add");
+            header("Location: /santepro/public/index.php?page=specialite&success=add");
         }
     } else {
-        header("Location: /SANTE_PRO/public/index.php?page=specialite");
+        header("Location: /santepro/public/index.php?page=specialite");
     }
     exit();
 }
@@ -40,13 +40,13 @@ if ($action == 'delete' && isset($_GET['id'])) {
     // 1. On vérifie d'abord si elle est utilisée
     if ($specialiteModel->isUsed($id)) {
         // Si oui, on redirige avec l'erreur "is_used"
-        header("Location: /SANTE_PRO/public/index.php?page=specialite&error=is_used");
+        header("Location: /santepro/public/index.php?page=specialite&error=is_used");
     } else {
         // Si non, on tente la suppression
         if ($specialiteModel->delete($id)) {
-            header("Location: /SANTE_PRO/public/index.php?page=specialite&success=delete");
+            header("Location: /santepro/public/index.php?page=specialite&success=delete");
         } else {
-            header("Location: /SANTE_PRO/public/index.php?page=specialite&error=db");
+            header("Location: /santepro/public/index.php?page=specialite&error=db");
         }
     }
     exit();

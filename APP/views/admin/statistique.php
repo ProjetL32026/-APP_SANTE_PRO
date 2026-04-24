@@ -1,7 +1,7 @@
 <?php 
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | statistique"; 
-$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
+$pageCSS = "/santepro/public/css/style_admin.css";
 $pageScript = "js/jsnoha/admin_statistique.js";
 // Le contrôleur est chargé par le routeur (index.php)
 include __DIR__ . '/../layout/header.php';
@@ -126,6 +126,6 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 </script>
 
 
-
+<script src="js/jsnoha/admin_statistique.js"></script>
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

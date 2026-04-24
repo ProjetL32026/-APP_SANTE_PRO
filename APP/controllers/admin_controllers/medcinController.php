@@ -104,20 +104,20 @@ if ($checkUser->fetch()) {
             $db->prepare($sqlM)->execute([$type, $id_spec, $h_debut, $h_fin, $jours, $id]);
             
             $db->commit();
-            header("Location: /SANTE_PRO/public/index.php?page=medcin&status=updated");
+            header("Location: /santepro/public/index.php?page=medcin&status=updated");
             exit();
         } catch (Exception $e) {
             $db->rollBack();
-            header("Location: /SANTE_PRO/public/index.php?page=medcin&status=error");
+            header("Location: /santepro/public/index.php?page=medcin&status=error");
             exit();
         }
     } else {
         $mdp = $_POST['password'] ?? '123456'; 
         $jours_array = $_POST['jours_travail'] ?? [];
         if ($medecinModel->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_spec, $h_debut, $h_fin, $jours_array, $type)) {
-            header("Location: /SANTE_PRO/public/index.php?page=medcin&status=success");
+            header("Location: /santepro/public/index.php?page=medcin&status=success");
         } else {
-            header("Location: /SANTE_PRO/public/index.php?page=medcin&status=error");
+            header("Location: /santepro/public/index.php?page=medcin&status=error");
         }
         exit();
     }

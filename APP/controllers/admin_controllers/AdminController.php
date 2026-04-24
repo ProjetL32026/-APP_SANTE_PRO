@@ -9,7 +9,7 @@ $db = $database->getConnection();
 $adminModel = new Admin($db); // 2. On crée l'objet Admin
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: /SANTE_PRO/public/index.php?page=dashboard&error=access_denied");
+    header("Location: /santepro/public/index.php?page=dashboard&error=access_denied");
     exit();
 }
 

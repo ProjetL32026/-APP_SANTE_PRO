@@ -1,7 +1,7 @@
 <?php
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | infermier"; 
-$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
+$pageCSS = "/santepro/public/css/style_admin.css";
 $pageScript = "js/jsnoha/admin_infirmier.js";
 // On suppose que $infirmiers et $all_specialities 
 // ont été créés juste AVANT d'inclure ce fichier.
@@ -117,7 +117,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
                     <button class="btn-edit-light " onclick='editInfirmier(<?= htmlspecialchars(json_encode($inf), ENT_QUOTES, 'UTF-8') ?>)'>
                         <i class="fas fa-edit"></i>
                     </button>
-                    <a href="../APP/controllers/InfirmierController.php?action=delete&id=<?= $inf['id'] ?>" 
+                    <a href="../APP/controllers/admin_controllers/InfirmierController.php?action=delete&id=<?= $inf['id'] ?>" 
                     class="btn-delete-light text-decoration-none"
                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet infirmier ?');">
                         <i class="fas fa-trash"></i>
@@ -134,7 +134,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 <div class="modal-overlay" id="modal-infirmier">
     <div class="custom-modal">
         <h3 class="fw-bold mb-4" style="font-family: 'Poppins'; color: var(--teal);">Ajouter un Infirmier</h3>
-        <form action="/SANTE_PRO/APP/controllers/InfirmierController.php" method="POST">
+        <form action="/santepro/APP/controllers/admin_controllers/InfirmierController.php" method="POST">
         <input type="hidden" name="id" id="edit_id">
     <div class="row">
         <div class="col-6">
@@ -226,5 +226,5 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 </form>
     </div>
 </div>
-
+<script src="js/jsnoha/admin_infirmier.js"></script>
 <?php include '../APP/views/layout/footer.php'; ?>

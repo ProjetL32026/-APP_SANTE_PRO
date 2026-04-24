@@ -1,7 +1,7 @@
 <?php
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | specialite"; 
-$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
+$pageCSS = "/santepro/public/css/style_admin.css";
 $pageScript = "js/jsnoha/admin_specialite.js";
 // On retire tout le bloc de connexion/requête SQL d'ici !
 include __DIR__ . '/../layout/header.php';
@@ -77,7 +77,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
                                 </span>
                             </td>
                             <td class="text-end">
-                                <a href="/SANTE_PRO/APP/controllers/SpecialiteController.php?action=delete&id=<?= $s['id_specialite'] ?>" 
+                                <a href="/santepro/APP/controllers/admin_controllers/SpecialiteController.php?action=delete&id=<?= $s['id_specialite'] ?>" 
                                    class="btn-delete-light text-decoration-none"
                                    onclick="return confirm('Voulez-vous supprimer cette spécialité ?');">
                                     <i class="fas fa-trash"></i>
@@ -99,7 +99,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
             <div style="height: 3px; width: 40px; background: var(--teal); margin: -15px auto 25px; border-radius: 10px;"></div>
         </div>
         
-        <form action="/SANTE_PRO/APP/controllers/SpecialiteController.php" method="POST">
+        <form action="/santepro/APP/controllers/admin_controllers/SpecialiteController.php" method="POST">
             <input type="hidden" name="action" value="add">
             
             <div class="mb-4 text-start">
@@ -120,6 +120,6 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
     </div>
 </div>
 
-
+<script src="js/jsnoha/admin_specialite.js"></script>
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

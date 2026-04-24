@@ -1,4 +1,8 @@
 <?php 
+// 1. Définition des variables pour le Header global
+$pageTitle = "Admin | medcin"; 
+$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
+$pageScript = "js/jsnoha/admin_medecin.js";
 include __DIR__ . '/../layout/header.php';
 include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 ?>
@@ -277,5 +281,5 @@ foreach($jours_liste as $j):
     <input type="hidden" id="trigger-modal" value="true">
 <?php endif; ?>
 
-<script src="js/jsnoha/admin_medecin.js"></script>
+
 <?php include '../APP/views/layout/footer.php'; ?>

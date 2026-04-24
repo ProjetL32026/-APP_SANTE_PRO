@@ -1,4 +1,8 @@
 <?php
+// 1. Définition des variables pour le Header global
+$pageTitle = "Admin | infermier"; 
+$pageCSS = "/SANTE_PRO/public/css/style_admin.css";
+$pageScript = "js/jsnoha/admin_infirmier.js";
 // On suppose que $infirmiers et $all_specialities 
 // ont été créés juste AVANT d'inclure ce fichier.
 include __DIR__ . '/../layout/header.php';
@@ -223,5 +227,4 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
     </div>
 </div>
 
-<script src="js/jsnoha/admin_infirmier.js"></script>
 <?php include '../APP/views/layout/footer.php'; ?>

@@ -1,7 +1,7 @@
 <?php 
 // On remonte d'un dossier avec /../ pour trouver 'layout'
-include __DIR__ . '/../layout/header.php'; 
-include __DIR__ . '/../layout/sidebar.php'; 
+include __DIR__ . '/../layout/header.php';
+include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 ?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">

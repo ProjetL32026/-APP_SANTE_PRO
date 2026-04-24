@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../../config/db.php';
-require_once __DIR__ . '/../Models/admin.php';
+require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../../Models/admin_models/admin.php';
+
 
 
 $database = new Database();
@@ -32,4 +33,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     exit();
 }
-include __DIR__ . '/../views/admin/parametre.php';
+require_once __DIR__ . '/../../views/admin/parametre.php';

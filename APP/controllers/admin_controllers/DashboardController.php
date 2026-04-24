@@ -1,7 +1,8 @@
 <?php
 // 1. Inclure la configuration de la base de données et le Modèle
-require_once __DIR__ . '/../../config/db.php';
-require_once __DIR__ . '/../Models/DashboardModel.php';
+require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../../Models/admin_models/DashboardModel.php';
+
 
 class DashboardController {
     private $db;
@@ -28,7 +29,8 @@ class DashboardController {
 
         // 3. Inclusion de la Vue (C'est ici que l'affichage HTML se produit)
         // Note : Les variables ci-dessus seront directement accessibles dans accueil.php
-        include '../APP/views/admin/accueil.php';
+       // include '../APP/views/admin/accueil.php';
+        require_once __DIR__ . '/../../views/admin/accueil.php';
     }
 }
 

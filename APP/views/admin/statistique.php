@@ -1,7 +1,7 @@
 <?php 
 // Le contrôleur est chargé par le routeur (index.php)
-include __DIR__ . '/../layout/header.php'; 
-include __DIR__ . '/../layout/sidebar.php'; 
+include __DIR__ . '/../layout/header.php';
+include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 ?>
 
 <style>
@@ -121,7 +121,7 @@ include __DIR__ . '/../layout/sidebar.php';
     };
 </script>
 
-<script src="assets/js/jsnoha/admin_statistique.js"></script>
+<script src="js/jsnoha/admin_statistique.js"></script>
 
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

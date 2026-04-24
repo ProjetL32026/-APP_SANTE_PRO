@@ -21,36 +21,36 @@ if (!isset($_SESSION['user_id']) && $page !== 'log') {
 
 switch($page) {
     case 'log':
-        require_once '../APP/controllers/LoginController.php';
+        require_once '../APP/controllers/admin_controllers/LoginController.php';
         break;
 
     case 'accueil':
-        require_once '../APP/controllers/DashboardController.php';
+        require_once '../APP/controllers/admin_controllers/DashboardController.php';
         break;
     
     case 'medcin':
-        require_once '../APP/controllers/MedcinController.php';
+        require_once '../APP/controllers/admin_controllers/MedcinController.php';
         break;
 
     // public/index.php (exemple)
 // Dans le switch de public/index.php
 case 'infirmier':
     // Approche identique au Médecin : on délègue tout au contrôleur
-    require_once '../APP/controllers/InfirmierController.php';
+    require_once '../APP/controllers/admin_controllers/InfirmierController.php';
     break;
     // --- CETTE PARTIE MANQUAIT ---
     case 'specialite':
-        require_once '../APP/controllers/SpecialiteController.php';
+        require_once '../APP/controllers/admin_controllers/SpecialiteController.php';
         break;
     // -----------------------------
 
     case 'statistique':
-        require_once '../APP/controllers/StatsController.php';
+        require_once '../APP/controllers/admin_controllers/StatsController.php';
         break;
 
         case 'parametre':
             // On délègue tout au contrôleur (Affichage ET Traitement)
-            require_once '../APP/controllers/AdminController.php';
+            require_once '../APP/controllers/admin_controllers/AdminController.php';
             break;
 
     default:

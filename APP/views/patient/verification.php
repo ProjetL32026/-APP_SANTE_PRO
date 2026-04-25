@@ -1,5 +1,6 @@
 <?php
 $pageTitle = "Vérification du compte";
+$pageCSS ='styleP'
 include ROOT . '/APP/views/layout/header.php';
 ?>
 

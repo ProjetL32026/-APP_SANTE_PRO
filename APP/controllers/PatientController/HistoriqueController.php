@@ -1,5 +1,6 @@
 <?php
 // controllers/HistoriqueController.php
+require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 
 // On vérifie si l'utilisateur est connecté, sinon on le redirige
 if (!isset($_SESSION['patient_id'])) {

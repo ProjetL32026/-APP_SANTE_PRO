@@ -1,6 +1,6 @@
 <?php
 // controllers/AuthController.php
-require_once ROOT . '/APP/models/PatientModel.php';
+require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 
 $action = $_GET['action'] ?? '';
 

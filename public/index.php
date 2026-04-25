@@ -31,49 +31,37 @@ if ($page === 'connexion' || (isset($_GET['action']) && $_GET['action'] === 'log
 // 3. ROUTAGE DES ACTIONS (AuthController)
 // Si l'URL contient ?controller=auth, on appelle le cerveau de l'authentification
 if ($controller === 'auth') {
-    require_once ROOT . '/APP/controllers/AuthController.php';
+    require_once ROOT . '/APP/controllers/PatientController/AuthController.php';
     exit(); // On arrête ici après le traitement (le contrôleur fera ses redirections)
 }
 
 // 4. ROUTAGE DES PAGES (Affichage)
 switch ($page) {
     case 'accueil':
-        require_once ROOT . '/APP/controllers/AccueilController.php';
+        require_once ROOT . '/APP/controllers/PatientController/AccueilController.php';
         break;
 
     case 'connexion':
         require_once ROOT . '/APP/views/patient/inscription.php'; // Ou ton contrôleur de connexion
         break;
         
+    // Dans ton switch de l'index.php
     case 'rdv':
-    if (!isset($_SESSION['patient_id'])) {
-        header("Location: index.php?page=inscription");
-        exit();
-    }
-
-    require_once ROOT . '/APP/models/PatientModel.php';
-    $patient = recupererPatientParId($_SESSION['patient_id']);
-
-    // Si le patient existe mais que is_verified est à 0 (comme sur ta photo)
-    if ($patient && $patient['is_verified'] == 0) {
-        header("Location: index.php?page=verification");
-        exit();
-    }
-
-    require_once ROOT . '/APP/views/patient/rdv.php';
+    // On appelle UNIQUEMENT le contrôleur. C'est lui le cerveau.
+    require_once ROOT . '/APP/controllers/PatientController/RdvController.php';
     break;
-        
+
     case 'historique':
-        require_once ROOT . '/APP/controllers/HistoriqueController.php';
+        require_once ROOT . '/APP/controllers/PatientController/HistoriqueController.php';
         break;
         
     case 'inscription':
         // Affiche le formulaire d'inscription vide
         // Utilise ROOT pour éviter que PHP ne se perde dans les dossiers
-    if (file_exists(ROOT . '/APP/controllers/InscriptionController.php')) {
-        require_once ROOT . '/APP/controllers/InscriptionController.php';
+    if (file_exists(ROOT . '/APP/controllers/PatientController/InscriptionController.php')) {
+        require_once ROOT . '/APP/controllers/PatientController/InscriptionController.php';
     } else {
-        die("Erreur : Le fichier APP/controllers/InscriptionController.php est introuvable.");
+        die("Erreur : Le fichier APP/controllers/PatientController/InscriptionController.php est introuvable.");
     }
     break;
 
@@ -84,6 +72,6 @@ switch ($page) {
     
 
     default:
-        require_once ROOT . '/APP/controllers/AccueilController.php';
+        require_once ROOT . '/APP/controllers/PatientController/AccueilController.php';
         break;
 }

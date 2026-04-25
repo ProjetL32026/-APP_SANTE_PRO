@@ -2,7 +2,7 @@
 //Ce fichier fait le pont : il récupère les données et charge la page.
 // controllers/AccueilController.php
 
-require_once ROOT . '/APP/models/PatientModel.php';
+require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 
 // --- PARTIE STATISTIQUES (Point 3) ---
 // On récupère la connexion PDO globale
@@ -27,4 +27,5 @@ if ($specSelectionnee) {
 
 // 2. On charge la vue Accueil.php
 // Comme $specialites est définie ici, elle sera accessible directement dans le fichier Accueil.php
+
 require_once ROOT . '/APP/views/patient/Accueil.php';

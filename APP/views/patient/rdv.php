@@ -1,16 +1,30 @@
 <?php
 // 1. Vérification de sécurité
 require_once ROOT . '/config/connexion.php';
-$pageTitle  = 'Santé Pro - Accueil';
-$pageScript = 'accueil.js';
+$pageTitle  = 'Prendre Rendez-vous';
+$pageScript = 'rdv.js';
+$joursChiffres = [];
+$map = ['Lun' => 1, 'Mar' => 2, 'Mer' => 3, 'Jeu' => 4, 'Ven' => 5, 'Sam' => 6, 'Dim' => 0];
 
+// On vérifie que $medecin n'est pas null ET qu'il a la clé jour_travail
+if ($medecin && isset($medecin['jour_travail'])) {
+    $joursBase = explode(',', $medecin['jour_travail']);
+    foreach ($joursBase as $j) {
+        $cle = trim($j); // Enlève les espaces
+        if (isset($map[$cle])) {
+            $joursChiffres[] = $map[$cle];
+        }
+    }
+}
+// Pour déboguer côté PHP, tu peux décommenter la ligne suivante :
+ 
 if (!empty($erreur)): ?>
     <div class="alert alert-danger"><?php echo $erreur; ?></div>
 <?php endif; ?>
 <?php
 
 // 2. Inclusion du header (qui inclut déjà la navbar dynamique)
-$pageTitle  = 'Prendre Rendez-vous';
+
 include ROOT . '/APP/views/layout/header.php';
 ?>
 <!-- ══════════════════════════════════════
@@ -89,13 +103,13 @@ include ROOT . '/APP/views/layout/header.php';
             <div class="info">
                 <div class="name" id="doc-name">
                     <?php 
-        // isset() vérifie si la variable existe pour éviter le Warning orange
-        if (isset($medecin) && $medecin) {
-            echo htmlspecialchars($medecin['type'] ?? 'Dr.') . " " . htmlspecialchars($medecin['nom'] ?? '');
-        } else {
-            echo "Médecin non sélectionné";
-        }
-    ?>
+    if (isset($medecin) && $medecin) {
+        // Cela affichera "Dr. Benali" par exemple
+        echo htmlspecialchars($medecin['type'] ?? 'Dr.') . " " . htmlspecialchars($medecin['nom'] ?? '');
+    } else {
+        echo "Médecin non sélectionné";
+    }
+?>
                 </div>
                 
             </div>
@@ -177,15 +191,16 @@ include ROOT . '/APP/views/layout/header.php';
 
     <form method="POST" action="index.php?page=rdv&idMedecin=<?php echo $idMedecin ?? ''; ?>" id="rdv-form">
       <input type="hidden" name="id_medecin" value="<?php echo $idMedecin ?? ''; ?>">
-      <input type="hidden" name="date" id="hidden-date">
+      <input type="hidden" name="date_rdv" id="hidden-date">
       <input type="hidden" name="periode" id="hidden-periode">
 
       <div class="row g-3">
-        <div class="col-12">
-          <p class="text-muted small">
-            <i class="fas fa-info-circle me-1"></i> 
-            Vous pouvez prendre rendez-vous pour vous-même ou pour un membre de votre famille.
-          </p>
+        <div class="col-12 mb-2">
+          <label class="form-label fw-bold">Le rendez-vous est pour :</label>
+          <select name="choix_patient" id="choix_patient" class="form-select border-aqua">
+            <option value="moi">Moi-même (Titulaire du compte)</option>
+            <option value="proche">Un proche (Enfant, Parent...)</option>
+          </select>
         </div>
 
         <div class="col-sm-6">
@@ -212,7 +227,6 @@ include ROOT . '/APP/views/layout/header.php';
           </div>
         </div>
       </div>
-   
   </div>
 </div>
  
@@ -265,7 +279,7 @@ include ROOT . '/APP/views/layout/header.php';
       </div>
  
       <div class="text-center">
-       <button  type="submit" class="btn-confirm" id="btn-confirmer" onclick="soumettreRDV()" >
+       <button  type="button" class="btn-confirm" id="btn-confirmer" onclick="soumettreRDV()" >
             <i class="fas fa-check-circle me-2"></i>Confirmer le rendez-vous
        </button>
         </form>
@@ -278,12 +292,73 @@ include ROOT . '/APP/views/layout/header.php';
   </div>
  
 </div>
+
+
+
+
+
+
+
  
  
-<script src="js/rdv.js"></script>
+
+<script>
+
  
-</body>
-</html>
+
+  
+
+
+document.getElementById('choix_patient').addEventListener('change', function() {
+    const inpNom = document.getElementById('inp-nom');
+    const inpPrenom = document.getElementById('inp-prenom');
+    const inpDdn = document.getElementById('inp-ddn');
+
+    if (this.value === 'moi') {
+        // Remplissage automatique
+        inpNom.value = parentInfos.nom;
+        inpPrenom.value = parentInfos.prenom;
+        inpDdn.value = parentInfos.ddn;
+        // Optionnel : mettre en lecture seule pour éviter les erreurs
+        inpNom.readOnly = true;
+        inpPrenom.readOnly = true;
+        inpDdn.readOnly = true;
+    } else {
+        // On vide les champs pour laisser l'utilisateur saisir les infos du fils
+        inpNom.value = "";
+        inpPrenom.value = "";
+        inpDdn.value = "";
+        inpNom.readOnly = false;
+        inpPrenom.readOnly = false;
+        inpDdn.readOnly = false;
+    }
+});
+
+// Initialiser au chargement si "Moi-même" est sélectionné par défaut
+window.addEventListener('DOMContentLoaded', () => {
+    if(document.getElementById('choix_patient').value === 'moi') {
+        document.getElementById('inp-nom').value = parentInfos.nom;
+        document.getElementById('inp-prenom').value = parentInfos.prenom;
+        document.getElementById('inp-ddn').value = parentInfos.ddn;
+    }
+});
+
+
+
+    // On passe les données PHP au JavaScript
+   window.joursPermis = <?php echo json_encode($joursChiffres); ?>;
+    window.RDV_EXISTANTS = <?php echo json_encode($rdvDejaExistants ?? []); ?>;
+    window.selectedDate = null;
+    window.selectedCreneau = null;
+    window.parentInfos = {
+        nom: "<?php echo addslashes($patient['nom'] ?? ''); ?>",
+        prenom: "<?php echo addslashes($patient['prenom'] ?? ''); ?>",
+        ddn: "<?php echo $patient['date_naissance'] ?? ''; ?>"
+    };
+</script>
+
+ 
+
 
 <?php include ROOT . '/APP/views/layout/footer.php'; ?>
  

@@ -1,3 +1,4 @@
+<body class="bg-light">
 <nav class="navbar navbar-expand-lg bg-aqua-grad navbar-dark shadow-sm sticky-top">
   <div class="container-xl px-4">
     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="index.php">

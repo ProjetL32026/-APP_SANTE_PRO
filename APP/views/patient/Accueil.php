@@ -187,9 +187,5 @@ include ROOT . '/APP/views/layout/header.php';
     </div>
   </section>
  
-  <script src="<?php echo BASE_URL; ?>js/accueil.js"></script>
-</body>
-</html>
-
-
+ 
 <?php include ROOT . '/APP/views/layout/footer.php'; ?>

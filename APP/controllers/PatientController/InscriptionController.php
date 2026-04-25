@@ -4,6 +4,7 @@ le formulaire vide quand on clique sur "S'inscrire".
 2-AuthController.php pour toutes les actions (login, inscription, logout).
 -->
 <?php
+require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 // controllers/InscriptionController.php
 
 // 1. On peut récupérer l'idMedecin depuis l'URL si besoin

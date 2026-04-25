@@ -1,7 +1,8 @@
 <?php
 require_once ROOT . '/config/connexion.php';
 $pageTitle  = 'Santé Pro - Accueil';
-$pageScript = 'accueil.js';
+
+$pageScript = 'Historique.js';
 include ROOT . '/APP/views/layout/header.php';
 ?>
 
@@ -231,8 +232,6 @@ PHP met à jour la BDD-->
  <script> let rendezVous = <?php echo $rdvJson; ?>;</script>
 
 <script src="js/Historique.js"></script>
-</body>
-</html>
 
 <?php include ROOT . '/APP/views/layout/footer.php'; ?>
  

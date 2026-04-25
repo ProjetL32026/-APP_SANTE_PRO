@@ -31,61 +31,7 @@ function getMedecinsBySpec($id_spec) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-/**
- * 3. Enregistrer un nouveau rendez-vous
- * Cette fonction crée le patient ET son rendez-vous (Transaction)
- */
-function saveRendezVousAndPatient($data) {
-    global $pdo;
-    try {
-        $pdo->beginTransaction();
-         // AJOUTE CETTE LIGNE POUR HACHER LE MOT DE PASSE
-        $mdp_hash = password_hash($data['mdp'], PASSWORD_DEFAULT);
-        // 1. Insertion dans 'utilisateur' (Infos communes)
-        $sqlUser = "INSERT INTO utilisateur (nom, prenom, username, email, role, telephone, mot_de_passe) 
-                    VALUES (:nom, :prenom, :username, :email, 'patient', :tel, :mdp)";
-        
-        $stmtUser = $pdo->prepare($sqlUser);
-        $stmtUser->execute([
-            'nom'      => $data['nom'],
-            'prenom'   => $data['prenom'],
-            'username' => $data['username'],
-            'email'    => $data['email'],
-            'tel'      => $data['telephone'],
-            'mdp'      => $mdp_hash
-        ]);
-        
-        $id_new_user = $pdo->lastInsertId();
 
-        // 2. Insertion dans 'patient' avec la DATE DE NAISSANCE
-        // C'est ici qu'on met l'info spécifique au patient
-        $sqlPat = "INSERT INTO patient (id_patient, date_naissance) VALUES (:id, :ddn)";
-        $stmtPat = $pdo->prepare($sqlPat);
-        $stmtPat->execute([
-            'id'  => $id_new_user,
-            'ddn' => $data['date_naissance']
-        ]);
-
-        // 3. Insertion du rendez-vous
-        $sqlRdv = "INSERT INTO rendez_vous (id_patient, id_medecin, date, periode, statut) 
-                    VALUES (:id_p, :id_m, :date, :periode, 'attente')";
-        
-        $stmtRdv = $pdo->prepare($sqlRdv);
-        $stmtRdv->execute([
-            'id_p'    => $id_new_user,
-            'id_m'    => $data['id_medecin'],
-            'date'    => $data['date'],
-            'periode' => $data['periode']
-        ]);
-
-        $pdo->commit();
-        return true;
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        return false;
-    }
-
-}
 
 /**
  * Enregistre un rendez-vous pour un bénéficiaire (ex: fils) 
@@ -93,17 +39,24 @@ function saveRendezVousAndPatient($data) {
  */
 function saveSimpleRendezVous($data) {
     global $pdo;
-    // ICI : Pas de création de compte ! 
-    // On prend juste l'ID du père (id_patient) et on crée le RDV.
-    $sql = "INSERT INTO rendez_vous (id_patient, id_medecin, date, periode, statut) 
-            VALUES (:id_p, :id_m, :date, :periode, 'attente')";
+
+    // Sécurité technique : si l'ID médecin est vide, on arrête tout
+    if (empty($data['id_medecin'])) return false;
+
+    $sql = "INSERT INTO rendez_vous 
+            (id_patient, id_medecin, date, periode, statut, nom_patient, prenom_patient, ddn_patient) 
+            VALUES 
+            (:id_p, :id_m, :date, :periode, 'En attente', :nom_p, :prenom_p, :ddn_p)";
     
     $stmt = $pdo->prepare($sql);
     return $stmt->execute([
-        'id_p'    => $data['id_parent'], // ID récupéré de $_SESSION['patient_id']
-        'id_m'    => $data['id_medecin'],
-        'date'    => $data['date_rdv'],
-        'periode' => $data['periode']
+        'id_p'     => $data['id_parent'],
+        'id_m'     => $data['id_medecin'],
+        'date'     => $data['date_rdv'],
+        'periode'  => $data['periode'],
+        'nom_p'    => $data['nom_patient'],
+        'prenom_p' => $data['prenom_patient'],
+        'ddn_p'    => $data['ddn_patient']
     ]);
 }
 
@@ -112,12 +65,24 @@ function saveSimpleRendezVous($data) {
  * (Utilisé pour afficher le nom du médecin sur le formulaire de RDV)
  */
 function getMedecinById($id) {
-    global $pdo;
-    // Vérifie bien que les colonnes s'appellent exactement 'nom' et 'type' dans ta base
-    $sql = "SELECT nom, type, specialite FROM medecin WHERE id_medecin = ?"; 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC); // Doit retourner un tableau
+    global $pdo; // Assure-toi que c'est bien $pdo ici
+    try {
+        // IMPORTANT : On ajoute m.jour_travail dans le SELECT
+        $sql = "SELECT u.nom, u.prenom, m.type, m.jour_travail 
+                FROM medecin m
+                JOIN utilisateur u ON m.id_medecin = u.id 
+                WHERE m.id_medecin = ?"; 
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id]);
+        $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $resultat ?: null;
+
+    } catch (PDOException $e) {
+        error_log("Erreur SQL : " . $e->getMessage());
+        return null;
+    }
 }
 
 
@@ -272,4 +237,34 @@ function recupererPatientParId($id) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC); // Retourne un tableau
+}
+
+
+function countRdvByMedecin($id_medecin) {
+    global $pdo; // On utilise bien $pdo comme dans tout ton fichier
+
+    $sql = "SELECT date, periode, COUNT(*) as total 
+            FROM rendez_vous 
+            WHERE id_medecin = :id 
+            GROUP BY date, periode";
+            
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['id' => $id_medecin]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $rdvData = [];
+        foreach ($results as $row) {
+            $date = $row['date'];
+            $periode = $row['periode'];
+            if (!isset($rdvData[$date])) {
+                $rdvData[$date] = ['matin' => 0, 'aprem' => 0];
+            }
+            $rdvData[$date][$periode] = (int)$row['total'];
+        }
+        return $rdvData;
+    } catch (PDOException $e) {
+        return [];
+    }
+
 }

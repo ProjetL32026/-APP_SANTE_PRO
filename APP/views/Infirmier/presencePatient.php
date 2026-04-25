@@ -1,8 +1,10 @@
 <?php 
-// 1. DÉFINITION DES VARIABLES (Identité de la page)
+
+define('BASE_URL', '/santepro');
 $pageTitle  = "infirmier | Présence Patients"; 
-$pageCSS    = "/santepro/public/css/style_infirmier.css"; // Chemin vers votre CSS global
-$pageScript = "/santepro/public/js/script_infirmier/presencePatient.js"; 
+$pageCSS   = "style_infirmier.css";   
+$bodyClass = "bg-light";
+$pageScript = "/script_infirmier/presencePatient.js"; 
 
 // 2. INCLUSION DES COMPOSANTS DE STRUCTURE
 require_once __DIR__ . '/../layout/header.php'; 

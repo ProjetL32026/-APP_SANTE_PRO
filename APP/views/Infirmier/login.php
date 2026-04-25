@@ -1,10 +1,12 @@
 <?php 
-// 1. DÉFINITION DES VARIABLES (Identité de la page de connexion)
-$pageTitle  = "infirmier | Connexion Infirmier"; 
-$pageCSS    = "/santepro/public/css/style_login.css"; // Votre CSS spécifique au login
 
-// 2. INCLUSION DU HEADER SPÉCIFIQUE AUTHEN
-// On garde votre require_once avec __DIR__ pour la sécurité
+define('BASE_URL', '/santepro');
+$pageTitle  = "infirmier | Connexion Infirmier"; 
+$pageCSS   = "style_infirmier.css"; 
+$bodyClass = "bg-light"; 
+
+
+
 require_once __DIR__ . '/../layout/header_authen.php'; 
 ?>
 <body class="login-page">

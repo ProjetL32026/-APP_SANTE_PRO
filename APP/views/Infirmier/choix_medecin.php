@@ -1,7 +1,9 @@
 <?php 
 // 1. DÉFINITION DES VARIABLES
+define('BASE_URL', '/santepro');
 $pageTitle  = "infirmier | Sélection du Médecin"; 
-$pageCSS    = "/santepro/public/css/style_infirmier.css"; 
+$pageCSS   = "style_infirmier.css";   
+$bodyClass = "bg-light"; 
 
 // 2. INCLUSION DES COMPOSANTS
 require_once __DIR__ . '/../layout/header.php'; 

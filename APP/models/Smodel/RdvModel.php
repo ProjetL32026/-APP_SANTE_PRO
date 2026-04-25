@@ -1,6 +1,6 @@
 <?php
 // On remonte de Smodel (..), puis de MODEL (..), puis on va dans config
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../config/db.php';
 
 class RdvModel
 {

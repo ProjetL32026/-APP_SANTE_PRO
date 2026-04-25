@@ -1,5 +1,6 @@
 <?php
-require_once dirname(__DIR__, 2) . '/config/Database.php';
+// CORRECTION : Le dossier config est à la racine, pas dans APP
+require_once ROOT . '/config/db.php';
 
 class TicketModel
 {

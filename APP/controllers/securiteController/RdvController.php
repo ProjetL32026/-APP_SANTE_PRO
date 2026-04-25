@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/MODEL/Smodel/RdvModel.php';
+require_once dirname(__DIR__, 2) . '/models/Smodel/RdvModel.php';
 require_once __DIR__ . '/MailController.php';
 
 class RdvController

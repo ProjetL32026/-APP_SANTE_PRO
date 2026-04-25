@@ -1,6 +1,6 @@
 <?php
 /**
- * INDEX GLOBAL - SANTE_PRO
+ * INDEX PARTIE SÉCURITÉ - SANTE_PRO
  * Localisation : /public/index.php
  */
 
@@ -8,97 +8,46 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. Définition de la racine du projet (__DIR__ est /public, donc on remonte d'un cran)
+// 1. Définition de la racine du projet
+// On remonte d'un niveau depuis /public pour atteindre la racine
 define('ROOT', dirname(__DIR__));
 
 // 2. Inclusion de la connexion à la base de données
-// On suppose que config est à la racine, au même niveau que APP et public
-if (file_exists(ROOT . '/config/Database.php')) {
-    require_once ROOT . '/config/Database.php';
+// Assure-toi que le dossier 'config' est bien à la racine
+if (file_exists(ROOT . '/config/db.php')) {
+    require_once ROOT . '/config/db.php';
 } else {
-    die("Erreur critique : Le fichier " . ROOT . "/config/Database.php est introuvable.");
+    die("Erreur : Le fichier " . ROOT . "/config/db.php est introuvable.");
 }
 
-// 3. Récupération de la page et du rôle
-$page = $_GET['page'] ?? 'accueil_patient';
-$role = $_SESSION['role'] ?? 'visiteur';
+// 3. Récupération de l'action pour ta partie Ticket
+// Par défaut, on affiche la saisie du ticket
+$action = $_GET['action'] ?? 'saisie';
 
-// 4. Gestion de la déconnexion
-if ($page === 'deconnexion') {
-    session_destroy();
-    header("Location: index.php?page=accueil_patient");
-    exit();
-}
+// 4. Inclusion de ton contrôleur (Partie Sécurité)
+// Vérifie bien si ton dossier est 'controllers' ou 'Controller' (avec ou sans s)
+require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
+
+$ticketCtrl = new TicketController();
 
 /**
- * 5. ROUTAGE VERS LE DOSSIER /APP
+ * 5. ROUTAGE DE TA PARTIE
  */
-
-// Cas A : Connexion
-if ($page === 'log') {
-    require_once ROOT . '/APP/controllers/admin_controllers/LoginController.php';
-    exit();
-}
-
-// Cas B : Accès par Rôle
-switch ($role) {
-    case 'admin':
-        switch ($page) {
-            case 'medcin':
-                require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php';
-                break;
-            case 'infirmier':
-                require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';
-                break;
-            case 'specialite':
-                require_once ROOT . '/APP/controllers/admin_controllers/SpecialiteController.php';
-                break;
-            case 'statistique':
-                require_once ROOT . '/APP/controllers/admin_controllers/StatsController.php';
-                break;
-            case 'parametre':
-                require_once ROOT . '/APP/controllers/admin_controllers/AdminController.php';
-                break;
-            default:
-                require_once ROOT . '/APP/controllers/admin_controllers/DashboardController.php';
-                break;
-        }
+switch ($action) {
+    case 'valider':
+        // Valide le formulaire et affiche le ticket généré
+        $ticketCtrl->validerEtAfficher();
         break;
 
-    case 'infirmier':
-        switch ($page) {
-            case 'choix_medecin':
-                require_once ROOT . '/APP/controllers/InfirmierController/ChoixMedecinController.php';
-                break;
-            case 'presencePatient':
-                require_once ROOT . '/APP/controllers/InfirmierController/RendezVousController.php';
-                break;
-            default:
-                require_once ROOT . '/APP/controllers/InfirmierController/DashboardController.php';
-                break;
-        }
+    case 'live':
+    case 'voir_file':
+        // Affiche la file d'attente en direct (Monitor)
+        $ticketCtrl->voirFile();
         break;
 
-    case 'medecin':
-        require_once ROOT . '/APP/controllers/MedecinController.php';
-        break;
-
-    case 'patient':
-        require_once ROOT . '/APP/controllers/PatientController.php';
-        break;
-
+    case 'saisie':
     default:
-        // Espace Public / Visiteur
-        if ($page === 'accueil_patient') {
-            // Ici on pointe vers le dossier APP/views
-            if (file_exists(ROOT . '/APP/views/patient/accueil.php')) {
-                include ROOT . '/APP/views/patient/accueil.php';
-            } else {
-                echo "Erreur : La vue accueil.php est introuvable dans APP/views/patient/";
-            }
-        } else {
-            header("Location: index.php?page=log");
-            exit();
-        }
+        // Affiche le formulaire de saisie de ticket
+        $ticketCtrl->showSaisie();
         break;
 }

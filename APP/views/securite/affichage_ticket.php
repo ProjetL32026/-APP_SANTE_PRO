@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/santepro/public/styleSecurite.css?v=<?= time(); ?>">
+    <link rel="stylesheet" href="/santepro/public/css/style_Securite.css?v=<?= time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Mon Ticket - SANTE PRO</title>
 </head>

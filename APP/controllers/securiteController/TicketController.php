@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/MODEL/Smodel/TicketModel.php';
+require_once dirname(__DIR__, 2) . '/models/Smodel/TicketModel.php';
 
 class TicketController
 {
@@ -9,7 +9,7 @@ class TicketController
     public function showSaisie($erreur = null)
     {
         $msg_erreur = $erreur;
-        include dirname(__DIR__, 2) . '/VUE/securite/saisie_ticket.php';
+        include dirname(__DIR__, 2) . '/views/securite/saisie_ticket.php';
     }
 
     /**
@@ -38,7 +38,7 @@ class TicketController
             // On s'assure que 'code_ticket' existe pour la vue (ton SQL utilise 'code')
             $ticket['code_ticket'] = $ticket['code'];
 
-            include dirname(__DIR__, 2) . '/VUE/securite/affichage_ticket.php';
+            include dirname(__DIR__, 2) . '/views/securite/affichage_ticket.php';
         }
     }
 
@@ -81,7 +81,7 @@ class TicketController
 
             $resteAvantMoi = ($rangAppele > 0) ? max(0, $maPos - $rangAppele) : ($maPos - 1);
 
-            include dirname(__DIR__, 2) . '/VUE/securite/file_attente_live.php';
+            include dirname(__DIR__, 2) . '/views/securite/file_attente_live.php';
         } else {
             $this->showSaisie("Ticket introuvable pour le mode Live.");
         }

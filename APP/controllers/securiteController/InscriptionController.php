@@ -1,6 +1,6 @@
 <?php
-require_once 'MODEL/Smodel/PatientModel.php';
-require_once 'CONTROLLER/MailController.php';
+require_once 'models/Smodel/PatientModel.php';
+require_once 'controllers/MailController.php';
 
 class InscriptionController
 {

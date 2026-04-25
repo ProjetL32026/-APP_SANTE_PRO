@@ -1,29 +1,48 @@
 <?php
 session_start();
-require_once '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
-// 1. Sécurité
+// 1. Déterminer l'action et le rôle
+$action = $_GET['action'] ?? 'login';
+$role = $_SESSION['role'] ?? null;
+
+// 2. Gestion de l'authentification
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../APP/views/auth/log.php');
+    if ($action === 'login') {
+        require_once __DIR__ . '/../APP/controllers/process_login.php';
+        // Tu dois créer l'objet ici !
+        $auth = new AuthController($pdo);
+        $auth->login();
+        exit();
+    } else {
+        include __DIR__ . '/../APP/views/auth/log.php';
+        exit();
+    }
+}
+
+if ($action === 'logout') {
+    require_once __DIR__ . '/../APP/controllers/process_login.php';
+    $auth = new AuthController($pdo);
+    $auth->logout(); // Appelle la méthode de déconnexion
     exit();
 }
 
-$role = $_SESSION['role'];
-$action = $_GET['action'] ?? 'liste';
-
-// 2. Définition du contrôleur selon le rôle
+// 3. Définition du contrôleur pour les utilisateurs connectés
 $controllerPath = "";
 if ($role === 'medecin') {
-    $controllerPath = '../APP/controllers/MedecinController.php';
+    $controllerPath = __DIR__ . '/../APP/controllers/MedecinController.php';
+    if (file_exists($controllerPath)) {
+        require_once $controllerPath;
+    }
 } elseif ($role === 'patient') {
-    $controllerPath = '../APP/controllers/PatientController.php';
+    $controllerPath = __DIR__ . '/../APP/controllers/PatientController.php';
+} elseif ($role === 'infirmier') {
+    $controllerPath = __DIR__ . '/../APP/controllers/InfirmierController.php';
 }
 
-// 3. Lancement de la logique
+// 4. Lancement de la logique
 if (!empty($controllerPath) && file_exists($controllerPath)) {
-    // On inclut le contrôleur qui va traiter l'action
-    // C'est le contrôleur qui décidera ensuite d'inclure le header/footer et la vue
     require_once $controllerPath;
 } else {
-    echo "Erreur : Contrôleur introuvable.";
+    echo "Erreur : Contrôleur introuvable ou rôle inconnu.";
 }

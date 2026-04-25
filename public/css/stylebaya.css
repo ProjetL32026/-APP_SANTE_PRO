@@ -78,13 +78,14 @@ body {
    3. STRUCTURE DU CONTENU (Main Content)
    ============================================================ */
 .main-content {
-    margin-left: 100px; /* Doit être égal à la largeur de la sidebar */
-    padding: 30px 50px; /* On réduit un peu le padding interne */
+    /* La sidebar fait 250px, donc on pousse le contenu de 250px */
+    margin-left: 250px !important; 
+    padding: 30px 40px; 
+    background-color: var(--bg-color);
     min-height: 100vh;
-    width: calc(100% - 250px); /* On force le contenu à prendre tout l'espace restant */
-    transition: all 0.3s;
+    /* On s'assure que la largeur s'adapte sans dépasser l'écran */
+    width: calc(100% - 250px);
 }
-
 
 /* ============================================================
    4. TOP NAVBAR (Bandeau de recherche flottant)
@@ -176,12 +177,16 @@ body {
 .card-container {
     background: var(--white);
     border-radius: 20px;
+    padding: 0; /* Pour que le header bleu du tableau colle aux bords */
     overflow: hidden;
-    box-shadow: var(--shadow);
-    border: none;
-    width: 150%; /* La carte prend toute la largeur disponible */
-    max-width: 900px; /* On garde une limite pour que ce soit lisible sur très grand écran */
-    margin-left: 0; /* On s'assure qu'elle n'est pas centrée de force avec des marges auto */
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Assure que le tableau ne dépasse pas */
+.table-responsive {
+    width: 100%;
 }
 
 .btn-primary {
@@ -207,14 +212,12 @@ body {
     padding: 15px 20px;
 }
 
-/* Conteneur avec défilement */
 .table-scroll-area {
-    max-height: 500px; /* Environ 10-12 patients visibles avant de scroller */
+    max-height: 500px; 
     overflow-y: auto;
     width: 100%;
 }
 
-/* Personnalisation de la barre de défilement pour coller au design Aqua */
 .table-scroll-area::-webkit-scrollbar {
     width: 6px;
 }
@@ -227,6 +230,7 @@ body {
     background: var(--teal);
     border-radius: 10px;
 }
+
 .form-control-custom {
     width: 100% !important;
     border: 1px solid var(--border);
@@ -235,7 +239,7 @@ body {
     background-color: #f8f9fa;
     font-family: inherit;
     font-size: 1rem;
-    resize: vertical; /* Permet d'étirer vers le bas mais garde la largeur fixe à 100% */
+    resize: vertical; 
     transition: all 0.2s ease-in-out;
 }
 
@@ -246,22 +250,20 @@ body {
     box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.1);
 }
 
-/* Couleurs personnalisées */
 .text-teal { color: var(--teal) !important; }
 
-/* Bouton Ajouter (Contour Aqua) */
 .btn-outline-aqua {
     color: var(--teal);
     border: 1px solid var(--teal);
     font-size: 0.8rem;
     font-weight: 600;
 }
+
 .btn-outline-aqua:hover {
     background-color: var(--teal);
     color: white;
 }
 
-/* Bouton Enregistrer (Plein Aqua) */
 .btn-save {
     background-color: var(--teal) !important;
     color: white !important;
@@ -269,23 +271,21 @@ body {
     font-weight: 700;
     transition: 0.3s;
 }
+
 .btn-save:hover {
     background-color: var(--teal-dark) !important;
     transform: translateY(-1px);
 }
 
-/* Champs de saisie plus petits */
 .form-control-sm {
     border-radius: 6px;
     border: 1px solid var(--border);
 }
 
-/* Effet sur le lien retour */
 .hover-teal:hover {
     color: var(--teal) !important;
 }
 
-/* Badge clair pour l'info patient */
 .bg-aqua-light {
     background-color: rgba(0, 188, 212, 0.1);
     font-size: 0.8rem;
@@ -293,18 +293,9 @@ body {
     border-radius: 20px;
 }
 
-/* Ajustement pour que le contenu ne soit pas trop collé à la sidebar */
-.main-content {
-    padding-right: 30px;
-}
-
-/* Style spécifique pour la colonne de droite */
-.col-md-4 .card {
-    position: sticky;
-    top: 20px; /* La carte reste visible quand on scrolle */
-}
-
-/* Style de la feuille d'ordonnance */
+/* ============================================================
+   7. STYLE DE L'ORDONNANCE
+   ============================================================ */
 .prescription-paper {
     max-width: 700px;
     min-height: 800px;
@@ -314,8 +305,38 @@ body {
     position: relative;
 }
 
-.bg-gray-100 {
-    background-color: #f8f9fa;
+
+.prescription-paper::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    height: 350px;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZjhmOWZhIj48cGF0aCBkPSJNMzIwIDMyYy04LjEgMC0xNS41IDUtMTguNiAxMi41TDE5Ny45IDMzNC4xIDE1MS4zIDIxOGMtMy4xLTcuOC0xMC43LTEzLTE5LjEtMTNIMTZjLTguOCAwLTE2IDcuMi0xNiAxNnM3LjIgMTYgMTYgMTZoMTA0LjRsNjUuNiAxNjRjMy4xIDcuOCAxMC43IDEzIDE5LjEgMTNzMTYtNS4yIDE5LjEtMTNsMTAzLjUtMjU4LjcgTDQ5NiAyOTRjOC44IDAgMTYtNy4yIDE2LTE2cy03LjItMTYtMTYtMTZIMzIwWiIvPjwvc3ZnPg==');
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.6;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.prescription-paper > div {
+    position: relative;
+    z-index: 1;
+}
+
+.prescription-body {
+    min-height: 400px;
+}
+
+.prescription-content {
+    padding-left: 1.5rem;
+    margin-top: 1.5rem;
+    line-height: 2;
+    font-size: 1.1rem;
+    color: #212529;
 }
 
 /* Style spécifique pour l'impression */
@@ -334,49 +355,6 @@ body {
         border: none;
         box-shadow: none;
     }
-    .modal-footer, .modal-header, .btn-close {
-        display: none !important;
-    }
-}
-/* Style du papier de l'ordonnance */
-.prescription-paper {
-    border: 1px solid #e2e8f0;
-    font-family: 'Poppins', sans-serif;
-    color: #333;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    min-height: 800px;
-    max-width: 700px; /* Taille optimale pour la modale */
-    transition: margin-left 0.3s;
-}
-
-.text-gray-small {
-    font-size: 0.7rem;
-    color: #A3AED0;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.shadow-inner {
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-}
-
-/* Gérer l'impression - Imprimer uniquement l'ordonnanceContent */
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    #ordonnanceContent, #ordonnanceContent * {
-        visibility: visible;
-    }
-    #ordonnanceContent {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        border: none;
-        box-shadow: none;
-    }
-    /* Masquer les éléments Bootstrap spécifiques pendant l'impression */
     .modal-backdrop, .modal-footer, .modal-header, .btn-close {
         display: none !important;
     }

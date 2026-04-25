@@ -10,6 +10,7 @@ switch ($action) {
     case 'liste':
         $file_attente = $model->getFileAttente($id_medecin);
         $nb_termines = $model->getCountTermines($id_medecin);
+        $is_en_conge = $model->getStatutConge($id_medecin);
 
         // --- AFFICHAGE COMPLET ---
         require_once '../APP/views/layout/header.php';    // Affiche la sidebar et le début du HTML
@@ -22,6 +23,7 @@ switch ($action) {
         if ($id_rdv) {
             $model->updateStatutEnConsultation($id_rdv);
             $patient = $model->getPatientDetails($id_rdv);
+            $is_en_conge = $model->getStatutConge($id_medecin);
 
             // --- AFFICHAGE COMPLET ---
             require_once '../APP/views/layout/header.php';
@@ -72,12 +74,37 @@ switch ($action) {
         break;
 
     case 'historique':
-    $id_medecin = $_SESSION['user_id'];
-    $historique = $model->getHistorique($id_medecin);
+        $id_medecin = $_SESSION['user_id'];
+        $historique = $model->getHistorique($id_medecin);
+        $is_en_conge = $model->getStatutConge($id_medecin);
 
-    // C'est ICI qu'on répare l'affichage
-    require_once '../APP/views/layout/header.php';    // Pour avoir la sidebar et le CSS
-    require_once '../APP/views/medecin/historique.php'; // La vue elle-même
-    require_once '../APP/views/layout/footer.php';    // Pour fermer le HTML
-    break;
+        // C'est ICI qu'on répare l'affichage
+        require_once '../APP/views/layout/header.php';    // Pour avoir la sidebar et le CSS
+        require_once '../APP/views/medecin/historique.php'; // La vue elle-même
+        require_once '../APP/views/layout/footer.php';    // Pour fermer le HTML
+        break;
+    // Dans ton switch ($action)
+    case 'get_ordonnance':
+        $id_rdv = $_GET['id_rdv'] ?? null;
+        if ($id_rdv) {
+            $cons = $model->getConsultationById($id_rdv);
+            if ($cons) {
+                // Cette ligne est CRUCIALE pour envoyer le HTML au JavaScript
+                require_once '../APP/views/medecin/ordonnance.php';
+            } else {
+                echo "Détails introuvables.";
+            }
+        }
+        exit(); // Arrête tout ici pour ne pas charger le reste de la page
+        break;
+
+    case 'toggle_conge':
+        $nouveauStatus = $_POST['status'] ?? 'actif'; // Récupère "en congé" ou "actif"
+        $id_medecin = $_SESSION['user_id'];
+
+        $success = $model->updateStatusConge($id_medecin, $nouveauStatus);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $success]);
+        exit();
 }

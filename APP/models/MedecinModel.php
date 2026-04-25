@@ -10,10 +10,10 @@ class MedecinModel
 
     // Récupérer la file d'attente (Patients non consultés)
     public function getFileAttente($id_medecin)
-{
-    // On utilise une jointure gauche (LEFT JOIN) avec la table consultation
-    // et on ne garde que les lignes où aucune consultation n'existe (c.id_rdv IS NULL)
-    $sql = "SELECT u.nom, u.prenom, r.id_rdv, r.periode, r.statut
+    {
+        // On utilise une jointure gauche (LEFT JOIN) avec la table consultation
+        // et on ne garde que les lignes où aucune consultation n'existe (c.id_rdv IS NULL)
+        $sql = "SELECT u.nom, u.prenom, r.id_rdv, r.periode, r.statut
         FROM utilisateur u
         JOIN prendre p ON u.id = p.id_patient
         JOIN rendez_vous r ON p.id_rdv = r.id_rdv
@@ -23,10 +23,10 @@ class MedecinModel
         AND c.id_rdv IS NULL -- C'est cette ligne qui 'supprime' le patient de la liste--
         ORDER BY r.periode ASC";
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute(['id_m' => $id_medecin]);
-    return $stmt->fetchAll();
-}
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_m' => $id_medecin]);
+        return $stmt->fetchAll();
+    }
 
     public function updateStatutEnConsultation($id_rdv)
     {
@@ -96,5 +96,43 @@ class MedecinModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id_medecin' => $id_medecin]);
         return $stmt->fetchAll();
+    }
+    public function getConsultationById($id_rdv)
+    {
+        $sql = "SELECT c.*, u.nom, u.prenom 
+            FROM consultation c
+            JOIN rendez_vous r ON c.id_rdv = r.id_rdv
+            JOIN prendre p ON r.id_rdv = p.id_rdv
+            JOIN utilisateur u ON p.id_patient = u.id
+            WHERE c.id_rdv = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id_rdv]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère l'état actuel du médecin
+     */
+    public function getStatutConge($id_medecin)
+    {
+        $sql = "SELECT status FROM medecin WHERE id_medecin = :id_m";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_m' => $id_medecin]);
+        return $stmt->fetchColumn();
+    }
+
+    public function updateStatusConge($id_medecin, $nouveauStatus)
+    {
+        try {
+            // "status" est le nom réel de votre colonne SQL
+            $sql = "UPDATE medecin SET status = :s WHERE id_medecin = :id_m";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                's'    => $nouveauStatus,
+                'id_m' => $id_medecin
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 }

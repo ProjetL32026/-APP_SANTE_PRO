@@ -1,6 +1,7 @@
 <?php
 // On récupère l'action pour mettre en évidence le menu actif
 $action = $_GET['action'] ?? 'liste';
+$pageScript = 'status.js';
 ?>
 
 <nav class="sidebar shadow d-flex flex-column">
@@ -30,15 +31,38 @@ $action = $_GET['action'] ?? 'liste';
         </li>
     </ul>
 
-    <div class="mt-auto pb-3">
-        <div class="user-info-badge">
-            <small class="d-block opacity-75">Connecté en tant que :</small>
-            <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Meziani') ?></span>
+    <div class="status-section p-3 mt-auto border-top border-light">
+        <div class="d-flex align-items-center justify-content-between bg-dark bg-opacity-25 p-2 rounded-3">
+            <span class="small fw-bold text-white-50">Mode Congé</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input custom-switch" type="checkbox" id="btnConge"
+                    <?= ($is_en_conge === 'en congé') ? 'checked' : '' ?>>
+            </div>
         </div>
 
-        <a href="/sante_pro/APP/views/auth/logout.php" class="nav-link logout-link text-center mx-3">
-            <i class="bi bi-box-arrow-left me-2"></i>
-            <span>Déconnexion</span>
-        </a>
-    </div>
+        <style>
+            /* Style pour rendre le switch plus "Santé Pro" */
+            .custom-switch {
+                cursor: pointer;
+                width: 2.5em !important;
+                height: 1.25em !important;
+            }
+
+            .custom-switch:checked {
+                background-color: #ffc107 !important;
+                border-color: #ffc107 !important;
+            }
+        </style>
+
+        <div class="mt-auto pb-3">
+            <div class="user-info-badge">
+                <small class="d-block opacity-75">Connecté en tant que :</small>
+                <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Meziani') ?></span>
+            </div>
+
+            <a href="index.php?action=logout" class="nav-link logout-link text-center mx-3">
+                <i class="bi bi-box-arrow-left me-2"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
 </nav>

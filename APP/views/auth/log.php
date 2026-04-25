@@ -1,13 +1,12 @@
-<?php 
-include dirname(__DIR__) . '/layout/header_authen.php'; 
+<?php
+include dirname(__DIR__) . '/layout/header_authen.php';
 
 // On vérifie si l'erreur est présente dans l'URL
 $error = isset($_GET['error']) && $_GET['error'] == '1';
 ?>
-
 <div class="login-container d-flex align-items-center justify-content-center vh-100" style="background: linear-gradient(135deg, #a7d9f5 0%, #3498db 100%); font-family: 'Poppins', sans-serif;">
     <div class="card p-5 shadow border-0" style="width: 100%; max-width: 420px; border-radius: 20px;">
-        
+
         <div class="text-center mb-4">
             <div class="mb-4">
                 <i class="fas fa-user-circle fa-4x" style="color: #3498db;"></i>
@@ -23,7 +22,7 @@ $error = isset($_GET['error']) && $_GET['error'] == '1';
             </div>
         <?php endif; ?>
 
-        <form action="../../../authen/process_login.php" method="POST">
+        <form action="/santepro/public/index.php?action=login" method="POST">
             <div class="mb-4">
                 <label class="form-label small fw-bold text-muted">Nom d'utilisateur</label>
                 <div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
@@ -47,15 +46,8 @@ $error = isset($_GET['error']) && $_GET['error'] == '1';
     </div>
 </div>
 
-<script>
-    // Cache l'erreur dès que l'utilisateur commence à corriger ses champs
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.addEventListener('input', () => {
-            const alert = document.getElementById('error-alert');
-            if (alert) alert.style.display = 'none';
-        });
-    });
-</script>
+<script src="/santepro/public/jsbaya/log.js"></script>
+
 </body>
+
 </html>

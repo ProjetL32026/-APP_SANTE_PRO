@@ -3,8 +3,8 @@
 $id_rdv = $_GET['id_rdv'] ?? null;
 ?>
 <?php 
-$pageScript = 'consultation.js';
-$pageScript = 'status.js';
+$pageScript = 'jsbaya/consultation.js';
+$pageScript = 'jsbaya/status.js';
 $pageCSS = 'stylebaya.css';
 include __DIR__ . '/../layout/header.php';
 ?>

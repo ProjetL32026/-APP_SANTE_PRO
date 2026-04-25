@@ -1,8 +1,8 @@
 <?php 
 $pageCSS = 'stylebaya.css'; // Nom du fichier CSS à charger dans le header
 include __DIR__ . '/../layout/header.php'; 
-$pageScript = 'historique.js';
-$pageScript = 'status.js';
+$pageScript = 'jsbaya/historique.js';
+$pageScript = 'jsbaya/status.js';
 ?>
 
 <div class="main-content">

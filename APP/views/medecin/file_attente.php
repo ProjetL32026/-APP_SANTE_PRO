@@ -1,6 +1,6 @@
 <?php
 include __DIR__ . '/../layout/header.php';
-$pageScript = 'status.js';
+$pageScript = 'jsbaya/status.js';
 $pageCSS = 'stylebaya.css';
 ?>
 

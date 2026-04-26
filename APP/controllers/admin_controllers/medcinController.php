@@ -1,11 +1,6 @@
 <?php
-require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../models/admin_models/medcin.php';
-
-
-$database = new Database();
-$db = $database->getConnection();
-// On garde le nom $medecinModel pour être cohérent
+// On utilise ROOT pour charger le modèle
+require_once ROOT . '/APP/models/admin_models/medcin.php';
 $medecinModel = new Medecin($db); 
 
 // --- 1. TRAITEMENT DE LA SUPPRESSION ---
@@ -17,7 +12,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
     $checkRDV = $db->prepare("SELECT COUNT(*) FROM rendez_vous WHERE id_medecin = ?");
     $checkRDV->execute([$id_a_supprimer]);
     if ($checkRDV->fetchColumn() > 0) {
-        header("Location: index.php?page=medcin&status=error&type=has_appointments");
+        header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=error&type=has_appointments");
         exit();
     }
 
@@ -28,11 +23,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
         $stmtUser = $db->prepare("DELETE FROM utilisateur WHERE id = ?");
         $stmtUser->execute([$id_a_supprimer]);
         $db->commit();
-        header("Location: index.php?page=medcin&status=deleted");
+        header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=deleted");
         exit();
     } catch (PDOException $e) {
         if ($db->inTransaction()) { $db->rollBack(); }
-        header("Location: index.php?page=medcin&status=error&type=db_error");
+        header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=error&type=db_error");
         exit();
     }
 }
@@ -71,7 +66,7 @@ $checkEmail->execute($paramsEmail);
 if ($checkEmail->fetch()) {
     $redir = ($action === 'update') ? "action=edit&id=$id" : "action=add";
     $params = "&old_nom=$nom&old_prenom=$prenom&old_user=$username&old_email=$email&old_tel=$tel";
-    header("Location: index.php?page=medcin&$redir&status=error&type=email_exists" . $oldData);
+    header("Location: " . BASE_URL . "/public/index.php?page=medcin&$redir&status=error&type=email_exists" . $oldData);
     exit();
 }
 
@@ -83,7 +78,7 @@ $checkUser->execute($paramsUser);
 if ($checkUser->fetch()) {
     $redir = ($action === 'update') ? "action=edit&id=$id" : "action=add";
     $params = "&old_nom=$nom&old_prenom=$prenom&old_user=$username&old_email=$email&old_tel=$tel";
-    header("Location: index.php?page=medcin&$redir&status=error&type=user_exists" . $oldData);
+    header("Location: " . BASE_URL . "/public/index.php?page=medcin&" . $redir . "&status=error&type=user_exists" . $oldData);
     exit();
 }
     if ($action === 'update' && $id) {
@@ -104,20 +99,20 @@ if ($checkUser->fetch()) {
             $db->prepare($sqlM)->execute([$type, $id_spec, $h_debut, $h_fin, $jours, $id]);
             
             $db->commit();
-            header("Location: /santepro/public/index.php?page=medcin&status=updated");
+            header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=updated");
             exit();
         } catch (Exception $e) {
             $db->rollBack();
-            header("Location: /santepro/public/index.php?page=medcin&status=error");
+            header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=error");
             exit();
         }
     } else {
         $mdp = $_POST['password'] ?? '123456'; 
         $jours_array = $_POST['jours_travail'] ?? [];
         if ($medecinModel->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_spec, $h_debut, $h_fin, $jours_array, $type)) {
-            header("Location: /santepro/public/index.php?page=medcin&status=success");
+            header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=success");
         } else {
-            header("Location: /santepro/public/index.php?page=medcin&status=error");
+            header("Location: " . BASE_URL . "/public/index.php?page=medcin&status=error");
         }
         exit();
     }
@@ -135,6 +130,5 @@ if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['id'])) {
     $medecin_a_modifier = $medecinModel->getMedecinById($_GET['id']);
 }
 
-// On appelle enfin la vue
-
-require_once __DIR__ . '/../../views/admin/medcin.php';
+// Appel de la vue via ROOT
+require_once ROOT . '/APP/views/admin/medcin.php';

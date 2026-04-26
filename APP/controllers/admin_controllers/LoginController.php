@@ -1,10 +1,6 @@
 <?php
-// On n'a plus besoin de session_start() ici car il est dans public/index.php
-require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../models/admin_models/Utilisateur.php';
-
-$database = new Database();
-$db = $database->getConnection();
+// On utilise ROOT pour charger le modèle (ROOT est défini dans index.php)
+require_once ROOT . '/APP/models/admin_models/Utilisateur.php';
 
 // On instancie le modèle (La Relation !)
 $userModel = new Utilisateur($db);
@@ -51,7 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// --- LOGIQUE D'AFFICHAGE ---
-// Si on n'est PAS en POST, on ne redirige pas, on CHARGE la vue.
-// C'est ici que la boucle infinie s'arrête !
-require_once __DIR__ . '/../../views/admin/log.php';
+
+// Fin de LoginController.php
+require_once ROOT . '/APP/views/admin/log.php';
+
+// AJOUTEZ CETTE LIGNE :
+require_once ROOT . '/APP/views/layout/footer.php';

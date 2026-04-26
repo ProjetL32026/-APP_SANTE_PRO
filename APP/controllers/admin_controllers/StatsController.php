@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../models/admin_models/Statistiques.php';
-
+// --- 1. INITIALISATION ---
+// On utilise ROOT pour charger le modèle (ROOT est défini dans index.php)
+require_once ROOT . '/APP/models/admin_models/Statistiques.php';
 
 try {
     $database = new Database();
@@ -34,9 +34,9 @@ $dataDispo = $statsModel->getDisponibiliteEquipes() ?: [];
 $labelsDispo = array_column($dataDispo, 'label');
 $valeursDispo = array_column($dataDispo, 'valeur');
 
-    // Une fois les données prêtes, on charge la vue
-   // include __DIR__ . '/../views/admin/statistique.php';
-    require_once __DIR__ . '/../../views/admin/statistique.php';
+    // --- 3. APPEL DE LA VUE (AFFICHAGE) ---
+    // On utilise ROOT pour garantir le bon chemin vers la vue
+    require_once ROOT . '/APP/views/admin/statistique.php';
 
 } catch (Exception $e) {
     // En cas d'erreur, on affiche un message propre au lieu d'une page blanche

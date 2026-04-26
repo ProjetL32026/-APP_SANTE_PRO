@@ -1,15 +1,10 @@
 <?php
-require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../models/admin_models/admin.php';
-
-
-
-$database = new Database();
-$db = $database->getConnection();
+// 1. Chargement du modèle via la constante ROOT
+require_once ROOT . '/APP/models/admin_models/admin.php';
 $adminModel = new Admin($db); // 2. On crée l'objet Admin
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: /santepro/public/index.php?page=dashboard&error=access_denied");
+    header("Location: " . BASE_URL . "/public/index.php?page=dashboard&error=access_denied");
     exit();
 }
 
@@ -27,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($success) {
         $_SESSION['username'] = $new_username; // On met à jour le nom affiché dans la sidebar
-        header("Location: index.php?page=parametre&status=updated");
+        header("Location: " . BASE_URL . "/public/index.php?page=parametre&status=updated");
     } else {
-        die("Erreur lors de la mise à jour des paramètres.");
+        header("Location: " . BASE_URL . "/public/index.php?page=parametre&error=update_failed");
     }
     exit();
 }
-require_once __DIR__ . '/../../views/admin/parametre.php';
+require_once ROOT . '/APP/views/admin/parametre.php';

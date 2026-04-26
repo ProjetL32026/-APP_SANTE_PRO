@@ -229,5 +229,5 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 </form>
     </div>
 </div>
-<script src="js/jsnoha/admin_infirmier.js"></script>
+
 <?php include '../APP/views/layout/footer.php'; ?>

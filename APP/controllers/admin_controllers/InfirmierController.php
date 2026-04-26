@@ -1,19 +1,16 @@
 <?php
 // --- 1. INITIALISATION & CHEMINS (Correction des erreurs orange) ---
-require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../models/admin_models/infermier.php';
-
-
-$database = new Database();
-$db = $database->getConnection();
+// À AJOUTER
+require_once ROOT . '/APP/models/admin_models/infermier.php';
 $infirmier = new Infirmier($db);
 
 // --- 2. BLOC DE SUPPRESSION ---
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     if ($infirmier->supprimer($_GET['id'])) {
-        header("Location: /santepro/public/index.php?page=infirmier&status=deleted");
+        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&status=deleted");
     } else {
-        header("Location: /santepro/public/index.php?page=infirmier&error=delete_failed");
+        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&error=delete_failed");
+      
     }
     exit(); 
 }
@@ -43,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmtEmail = $db->prepare("SELECT id FROM utilisateur WHERE email = ? " . ($id ? "AND id != ?" : ""));
     $stmtEmail->execute($id ? [$email, $id] : [$email]);
     if ($stmtEmail->fetch()) {
-        header("Location: /santepro/public/index.php?page=infirmier&" . $redir . "&status=error&type=email_exists" . $oldData);
+        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&" . $redir . "&status=error&type=email_exists" . $oldData);
         exit();
     }
 
@@ -51,23 +48,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmtUser = $db->prepare("SELECT id FROM utilisateur WHERE username = ? " . ($id ? "AND id != ?" : ""));
     $stmtUser->execute($id ? [$username, $id] : [$username]);
     if ($stmtUser->fetch()) {
-        header("Location: /santepro/public/index.php?page=infirmier&" . $redir . "&status=error&type=user_exists" . $oldData);
+        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&" . $redir . "&status=error&type=user_exists" . $oldData);
         exit();
     }
 
     // C. Enregistrement (Update ou Insert)
     if (!empty($id)) {
         if ($infirmier->modifier($id, $nom, $prenom, $username, $email, $tel, $service, $mdp)) {
-            header("Location: /santepro/public/index.php?page=infirmier&status=updated");
+            
+            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&status=updated");
+            
         } else {
-            header("Location: /santepro/public/index.php?page=infirmier&error=update_failed");
+            
+            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&error=update_failed");
         }
     } else {
         if (empty($mdp)) $mdp = '123456';
         if ($infirmier->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $service)) {
-            header("Location: /santepro/public/index.php?page=infirmier&status=success");
+           
+            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&status=success");
         } else {
-            header("Location: /santepro/public/index.php?page=infirmier&error=insert_failed");
+            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&error=insert_failed");
         }
     }
     exit();
@@ -84,5 +85,4 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
 }
 
 // Inclusion de la vue avec le bon chemin
-//include __DIR__ . '/../views/admin/infermier.php';
-require_once __DIR__ . '/../../views/admin/infermier.php';
+require_once ROOT . '/APP/views/admin/infermier.php';

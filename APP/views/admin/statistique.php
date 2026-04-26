@@ -130,6 +130,6 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 </script>
 
 
-<script src="js/jsnoha/admin_statistique.js"></script>
+
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

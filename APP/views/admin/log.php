@@ -69,6 +69,4 @@ include '../APP/views/layout/header_authen.php';
         </div>
     </form>
 </div>
-<script src="js/jsnoha/admin_log.js"></script>
-</body>
-</html>
+

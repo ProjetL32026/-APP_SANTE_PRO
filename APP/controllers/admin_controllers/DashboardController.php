@@ -1,7 +1,6 @@
 <?php
-// 1. Inclure la configuration de la base de données et le Modèle
-require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../models/admin_models/DashboardModel.php';
+// 1. Inclure le Modèle via la constante ROOT définie dans l'index
+require_once ROOT . '/APP/models/admin_models/DashboardModel.php';
 
 
 class DashboardController {
@@ -27,10 +26,8 @@ class DashboardController {
         // On récupère le Top 5 des médecins
         $topMedecins = $this->dashboardModel->getTopMedecins(5);
 
-        // 3. Inclusion de la Vue (C'est ici que l'affichage HTML se produit)
-        // Note : Les variables ci-dessus seront directement accessibles dans accueil.php
-       // include '../APP/views/admin/accueil.php';
-        require_once __DIR__ . '/../../views/admin/accueil.php';
+        // 3. Inclusion de la Vue en utilisant ROOT
+        require_once ROOT . '/APP/views/admin/accueil.php';
     }
 }
 

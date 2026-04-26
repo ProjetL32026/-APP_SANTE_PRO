@@ -283,6 +283,6 @@ foreach($jours_liste as $j):
 <?php if (isset($_GET['action']) && ($_GET['action'] == 'add' || $_GET['action'] == 'edit')): ?>
     <input type="hidden" id="trigger-modal" value="true">
 <?php endif; ?>
-<script src="js/jsnoha/admin_medecin.js"></script>
+
 
 <?php include '../APP/views/layout/footer.php'; ?>

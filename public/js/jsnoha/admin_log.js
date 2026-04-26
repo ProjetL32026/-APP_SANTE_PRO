@@ -1,19 +1,23 @@
 
+    document.addEventListener('DOMContentLoaded', function() {
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
     const eyeIcon = document.querySelector('#eyeIcon');
 
-    togglePassword.addEventListener('click', function (e) {
-        // Empêche le focus par défaut du navigateur qui crée le carré
-        e.preventDefault();
+    if (togglePassword && password && eyeIcon) {
+        togglePassword.addEventListener('click', function (e) {
+            e.preventDefault();
 
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        
-        // Change l'icône proprement
-        if (type === 'text') {
-            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    });
+            // Basculer le type entre password et text
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // Changer l'icône proprement
+            if (type === 'text') {
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    }
+});

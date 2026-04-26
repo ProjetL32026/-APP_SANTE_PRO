@@ -1,7 +1,10 @@
 <?php
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/santepro');
+}
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | infermier"; 
-$pageCSS = "/santepro/public/css/style_admin.css";
+$pageCSS = "style_admin.css";
 $pageScript = "js/jsnoha/admin_infirmier.js";
 // On suppose que $infirmiers et $all_specialities 
 // ont été créés juste AVANT d'inclure ce fichier.

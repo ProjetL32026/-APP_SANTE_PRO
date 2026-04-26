@@ -1,7 +1,10 @@
 <?php
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/santepro');
+}
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | specialite"; 
-$pageCSS = "/santepro/public/css/style_admin.css";
+$pageCSS = "style_admin.css";
 $pageScript = "js/jsnoha/admin_specialite.js";
 // On retire tout le bloc de connexion/requête SQL d'ici !
 include __DIR__ . '/../layout/header.php';

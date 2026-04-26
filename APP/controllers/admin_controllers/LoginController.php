@@ -1,7 +1,7 @@
 <?php
 // On n'a plus besoin de session_start() ici car il est dans public/index.php
 require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../Models/admin_models/Utilisateur.php';
+require_once __DIR__ . '/../../models/admin_models/Utilisateur.php';
 
 $database = new Database();
 $db = $database->getConnection();

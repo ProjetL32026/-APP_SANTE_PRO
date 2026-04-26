@@ -1,7 +1,10 @@
 <?php 
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/santepro');
+}
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | log"; 
-$pageCSS = "/santepro/public/css/style_admin.css";
+$pageCSS = "style_admin.css";
 $pageScript = "js/jsnoha/admin_log.js";
 // 1. On appelle ton header spécial authentification
 include '../APP/views/layout/header_authen.php'; 

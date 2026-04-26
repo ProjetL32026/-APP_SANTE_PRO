@@ -1,7 +1,7 @@
 <?php
 // --- 1. INITIALISATION & CHEMINS (Correction des erreurs orange) ---
 require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../Models/admin_models/infermier.php';
+require_once __DIR__ . '/../../models/admin_models/infermier.php';
 
 
 $database = new Database();

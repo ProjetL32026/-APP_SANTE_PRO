@@ -1,7 +1,7 @@
 <?php
 // 1. Inclure la configuration de la base de données et le Modèle
 require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../Models/admin_models/DashboardModel.php';
+require_once __DIR__ . '/../../models/admin_models/DashboardModel.php';
 
 
 class DashboardController {

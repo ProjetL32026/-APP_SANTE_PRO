@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../../config/db.php';
-require_once __DIR__ . '/../../Models/admin_models/specialite.php';
+require_once __DIR__ . '/../../models/admin_models/specialite.php';
 
 
 $database = new Database();

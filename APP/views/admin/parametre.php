@@ -1,11 +1,14 @@
 <?php 
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/santepro');
+}
 // 1. Indispensable pour lire le nom de l'utilisateur connecté
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); 
 }
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | parametre"; 
-$pageCSS = "/santepro/public/css/style_admin.css";
+$pageCSS = "style_admin.css";
 
 include __DIR__ . '/../layout/header.php';
 include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';

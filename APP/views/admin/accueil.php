@@ -1,7 +1,12 @@
 <?php 
+
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/santepro');
+}
+
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | Accueil Dashboard"; 
-$pageCSS = "/santepro/public/css/style_admin.css";
+$pageCSS = "style_admin.css";
 // On remonte d'un dossier avec /../ pour trouver 'layout'
 include __DIR__ . '/../layout/header.php';
 include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';

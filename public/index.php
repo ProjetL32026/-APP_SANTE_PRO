@@ -7,10 +7,10 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../config/db.php';
 
 // 2. Chargement automatique des Modèles (Optionnel mais recommandé)
-require_once __DIR__ . '/../APP/Models/infirmier_models/RendezVousModel.php';
-require_once __DIR__ . '/../APP/Models/infirmier_models/GestionMedecinModel.php';
-require_once __DIR__ . '/../APP/Models/infirmier_models/TicketModel.php';
-require_once __DIR__ . '/../APP/Models/infirmier_models/InfirmierModel.php';
+require_once __DIR__ . '/../APP/models/infirmier_models/RendezVousModel.php';
+require_once __DIR__ . '/../APP/models/infirmier_models/GestionMedecinModel.php';
+require_once __DIR__ . '/../APP/models/infirmier_models/TicketModel.php';
+require_once __DIR__ . '/../APP/models/infirmier_models/InfirmierModel.php';
 
 // 3. Chargement des Contrôleurs
 require_once __DIR__ . '/../APP/Controllers/InfirmierController/DashboardController.php';

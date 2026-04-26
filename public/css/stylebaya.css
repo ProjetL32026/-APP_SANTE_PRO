@@ -29,9 +29,11 @@ body {
     height: 100vh;
     color: white;
     position: fixed;
-    width: 250px;
+    width: 280px;
     z-index: 1000;
     border: none;
+    top: 0;
+    left: 0;
 }
 
 .sidebar-brand {
@@ -78,11 +80,12 @@ body {
    3. STRUCTURE DU CONTENU (Main Content)
    ============================================================ */
 .main-content {
-    margin-left: 160px; /* Doit être égal à la largeur de la sidebar */
-    padding: 30px 50px; /* On réduit un peu le padding interne */
+    margin-left:380px; /* Doit être égal à la largeur de la sidebar */
+    padding: 30px; /* On réduit un peu le padding interne */
     min-height: 100vh;
-    width: calc(100% - 250px); /* On force le contenu à prendre tout l'espace restant */
+    width: calc(100% - 280px); /* On force le contenu à prendre tout l'espace restant */
     transition: all 0.3s;
+    display: block !important;
 }
 
 

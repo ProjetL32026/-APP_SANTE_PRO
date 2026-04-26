@@ -1,6 +1,9 @@
 <?php
-// Au tout début de votre fichier historique.php
+$pageTitle = "Historique des Consultations";
+$pageCSS = "stylebaya.css";
 $pageScripts = ['jsbaya/historique.js', 'jsbaya/statut.js'];
+require_once ROOT . '/APP/views/layout/header.php'; 
+require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php'; 
 ?>
 <div class="main-content">
     <div class="section-header mb-4">

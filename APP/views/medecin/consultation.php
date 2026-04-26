@@ -1,11 +1,12 @@
 <?php
-
-$pageScripts = ['jsbaya/consultation.js'];
-
-// Ajoute cette ligne tout en haut pour récupérer l'ID rdv de l'URL
 $id_rdv = $_GET['id_rdv'] ?? null;
-
+$pageTitle = "Nouvelle Consultation";
+$pageCSS = "stylebaya.css";// Votre fichier CSS spécifique
+$pageScripts = ['jsbaya/consultation.js']; // Script pour gérer la validation
+require_once ROOT . '/APP/views/layout/header.php'; 
+require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php'; 
 ?>
+
 <div class="main-content">
     <div class="section-header mb-4">
         <h5 class="text-uppercase small fw-bold text-muted">Consultation en cours</h5>

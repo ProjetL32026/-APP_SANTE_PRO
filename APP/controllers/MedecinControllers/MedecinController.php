@@ -9,6 +9,8 @@ switch ($action) {
     case 'liste':
         $file_attente = $model->getFileAttente($id_medecin);
         $nb_termines = $model->getCountTermines($id_medecin);
+        $pageTitle = "Tableau de Bord";
+        $pageCSS = "stylebaya.css";
 
         // Permet à la sidebar de savoir si le bouton doit être coché
         $is_en_conge = $model->getStatusConge($id_medecin);
@@ -23,6 +25,8 @@ switch ($action) {
         if ($id_rdv) {
             $model->updateStatutEnConsultation($id_rdv);
             $patient = $model->getPatientDetails($id_rdv);
+            $pageTitle = "Fiche Patient";
+            $pageCSS = "stylebaya.css";
 
             require_once '../APP/views/layout/header.php';
             require_once '../APP/views/medecin/consultation.php';
@@ -68,6 +72,8 @@ switch ($action) {
         $historique = $model->getHistorique($id_medecin);
         // Récupération du statut pour la sidebar ici aussi
         $is_en_conge = $model->getStatusConge($id_medecin);
+        $pageTitle = "Historique";
+        $pageCSS = "stylebaya.css";
 
         require_once '../APP/views/layout/header.php';
         require_once '../APP/views/medecin/historique.php';

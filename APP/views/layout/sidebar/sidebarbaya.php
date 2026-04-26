@@ -1,8 +1,15 @@
 <?php
-// On récupère l'action actuelle pour mettre en évidence le menu actif
-// On utilise 'action' car c'est ce que votre routeur principal utilise désormais
+// On récupère l'action actuelle
 $currentAction = $_GET['action'] ?? 'liste';
-$pageScript = 'status.js';
+
+// CRUCIAL : On ajoute le script à la liste que le footer va lire
+if (isset($pageScripts) && is_array($pageScripts)) {
+    if (!in_array('jsbaya/statut.js', $pageScripts)) {
+        $pageScripts[] = 'jsbaya/statut.js';
+    }
+} else {
+    $pageScripts = ['jsbaya/statut.js'];
+}
 ?>
 
 <nav class="sidebar shadow d-flex flex-column">

@@ -1,21 +1,44 @@
-document.getElementById('btnConge').addEventListener('change', function() {
-    // Si coché -> "en congé", sinon -> "actif"
-    const nouveauStatus = this.checked ? 'en congé' : 'actif';
-    const statusText = document.getElementById('statusText');
+/**
+ * Fichier : public/js/jsbaya/statut.js
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const btnConge = document.getElementById('btnConge');
 
-    fetch('index.php?action=toggle_conge', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'status=' + nouveauStatus 
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            if(nouveauStatus === 'en congé') {
-                statusText.innerHTML = '<span class="badge bg-warning text-dark animate__animated animate__fadeIn"><i class="bi bi-sun-fill me-1"></i> En congé</span>';
-            } else {
-                statusText.innerHTML = '<span class="badge bg-success animate__animated animate__fadeIn"><i class="bi bi-check-circle-fill me-1"></i> Disponible</span>';
-            }
-        }
-    });
+    if (btnConge) {
+        btnConge.addEventListener('change', function() {
+            // On définit le statut textuel
+            const nouveauStatus = this.checked ? 'en congé' : 'actif';
+            
+            // On sauvegarde l'état actuel pour pouvoir annuler en cas d'erreur
+            const checkbox = this;
+            const etatPrecedent = !this.checked;
+
+            // Appel AJAX vers l'index qui se trouve au même niveau que le dossier /js/
+            fetch('index.php?action=toggle_conge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                // On encode pour gérer l'espace et l'accent de "en congé"
+                body: 'status=' + encodeURIComponent(nouveauStatus)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur réseau');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log("Statut mis à jour avec succès : " + nouveauStatus);
+                } else {
+                    alert("Erreur : " + (data.error || "Impossible de modifier le statut."));
+                    checkbox.checked = etatPrecedent; // Annulation visuelle
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Le serveur n'a pas répondu.");
+                checkbox.checked = etatPrecedent; // Annulation visuelle
+            });
+        });
+    }
 });

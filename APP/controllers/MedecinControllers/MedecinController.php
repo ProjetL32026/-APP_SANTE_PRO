@@ -1,6 +1,5 @@
 <?php
-// On garde les inclusions de base (Modèle et DB sont déjà gérés)
-require_once '../APP/models/MedecinModel.php';
+require_once '../APP/models/MedecinModels/MedecinModel.php';
 $model = new MedecinModel($pdo);
 
 $id_medecin = $_SESSION['user_id'];
@@ -10,12 +9,13 @@ switch ($action) {
     case 'liste':
         $file_attente = $model->getFileAttente($id_medecin);
         $nb_termines = $model->getCountTermines($id_medecin);
-        $is_en_conge = $model->getStatutConge($id_medecin);
 
-        // --- AFFICHAGE COMPLET ---
-        require_once '../APP/views/layout/header.php';    // Affiche la sidebar et le début du HTML
+        // Permet à la sidebar de savoir si le bouton doit être coché
+        $is_en_conge = $model->getStatusConge($id_medecin);
+
+        require_once '../APP/views/layout/header.php';
         require_once '../APP/views/medecin/file_attente.php';
-        require_once '../APP/views/layout/footer.php';    // Ferme les balises HTML
+        require_once '../APP/views/layout/footer.php';
         break;
 
     case 'consulter':
@@ -23,9 +23,7 @@ switch ($action) {
         if ($id_rdv) {
             $model->updateStatutEnConsultation($id_rdv);
             $patient = $model->getPatientDetails($id_rdv);
-            $is_en_conge = $model->getStatutConge($id_medecin);
 
-            // --- AFFICHAGE COMPLET ---
             require_once '../APP/views/layout/header.php';
             require_once '../APP/views/medecin/consultation.php';
             require_once '../APP/views/layout/footer.php';
@@ -35,7 +33,6 @@ switch ($action) {
     case 'annuler_consultation':
         $id_rdv = $_GET['id_rdv'] ?? null;
         if ($id_rdv) {
-            // Le statut repasse à 'Présent' si on clique sur retour
             $model->updateStatutRetourFile($id_rdv);
         }
         header('Location: index.php?action=liste');
@@ -44,7 +41,6 @@ switch ($action) {
 
     case 'enregistrer':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // On récupère l'ID envoyé par le champ caché
             $id_rdv = $_POST['id_rdv'] ?? null;
             $diagnostic = $_POST['diagnostic'] ?? '';
 
@@ -59,52 +55,51 @@ switch ($action) {
                         }
                     }
                 }
-
-                // Utilisation du modèle
                 $success = $model->saveConsultation($id_rdv, $id_medecin, $diagnostic, $ordonnance_finale);
-
                 header('Location: index.php?action=liste&saved=' . ($success ? '1' : '0'));
                 exit();
-            } else {
-                // Si pas d'ID, on retourne à la liste par sécurité
-                header('Location: index.php?action=liste&error=missing_id');
-                exit();
             }
+            header('Location: index.php?action=liste&error=missing_id');
+            exit();
         }
         break;
 
     case 'historique':
-        $id_medecin = $_SESSION['user_id'];
         $historique = $model->getHistorique($id_medecin);
-        $is_en_conge = $model->getStatutConge($id_medecin);
+        // Récupération du statut pour la sidebar ici aussi
+        $is_en_conge = $model->getStatusConge($id_medecin);
 
-        // C'est ICI qu'on répare l'affichage
-        require_once '../APP/views/layout/header.php';    // Pour avoir la sidebar et le CSS
-        require_once '../APP/views/medecin/historique.php'; // La vue elle-même
-        require_once '../APP/views/layout/footer.php';    // Pour fermer le HTML
+        require_once '../APP/views/layout/header.php';
+        require_once '../APP/views/medecin/historique.php';
+        require_once '../APP/views/layout/footer.php';
         break;
-    // Dans ton switch ($action)
+
     case 'get_ordonnance':
         $id_rdv = $_GET['id_rdv'] ?? null;
         if ($id_rdv) {
-            $cons = $model->getConsultationById($id_rdv);
+            $cons = $model->getDetailsConsultation($id_rdv);
             if ($cons) {
-                // Cette ligne est CRUCIALE pour envoyer le HTML au JavaScript
-                require_once '../APP/views/medecin/ordonnance.php';
+                include '../APP/views/medecin/ordonnance.php';
             } else {
-                echo "Détails introuvables.";
+                echo "<div class='alert alert-danger'>Consultation introuvable.</div>";
             }
         }
-        exit(); // Arrête tout ici pour ne pas charger le reste de la page
+        exit();
         break;
 
     case 'toggle_conge':
-        $nouveauStatus = $_POST['status'] ?? 'actif'; // Récupère "en congé" ou "actif"
-        $id_medecin = $_SESSION['user_id'];
+        // On nettoie le tampon pour être sûr de n'envoyer QUE du JSON
+        ob_clean();
+        header('Content-Type: application/json');
 
+        $nouveauStatus = $_POST['status'] ?? 'actif';
         $success = $model->updateStatusConge($id_medecin, $nouveauStatus);
 
-        header('Content-Type: application/json');
-        echo json_encode(['success' => $success]);
+        // On répond au format JSON pour statut.js
+        echo json_encode([
+            'success' => $success,
+            'status' => $nouveauStatus
+        ]);
         exit();
+        break;
 }

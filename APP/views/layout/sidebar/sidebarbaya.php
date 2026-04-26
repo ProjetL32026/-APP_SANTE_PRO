@@ -1,6 +1,7 @@
 <?php
-// On récupère l'action pour mettre en évidence le menu actif
-$action = $_GET['action'] ?? 'liste';
+// On récupère l'action actuelle pour mettre en évidence le menu actif
+// On utilise 'action' car c'est ce que votre routeur principal utilise désormais
+$currentAction = $_GET['action'] ?? 'liste';
 $pageScript = 'status.js';
 ?>
 
@@ -18,13 +19,13 @@ $pageScript = 'status.js';
 
     <ul class="nav flex-column mb-auto">
         <li class="nav-item">
-            <a href="index.php?action=liste" class="nav-link <?= ($action == 'liste') ? 'active' : '' ?>">
+            <a href="index.php?action=liste" class="nav-link <?= ($currentAction == 'liste') ? 'active' : '' ?>">
                 <i class="bi bi-grid-fill me-2"></i>
                 <span>Tableau de bord</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="index.php?action=historique" class="nav-link <?= ($action == 'historique') ? 'active' : '' ?>">
+            <a href="index.php?action=historique" class="nav-link <?= ($currentAction == 'historique') ? 'active' : '' ?>">
                 <i class="bi bi-clock-history me-2"></i>
                 <span>Historique</span>
             </a>
@@ -36,33 +37,20 @@ $pageScript = 'status.js';
             <span class="small fw-bold text-white-50">Mode Congé</span>
             <div class="form-check form-switch">
                 <input class="form-check-input custom-switch" type="checkbox" id="btnConge"
-                    <?= ($is_en_conge === 'en congé') ? 'checked' : '' ?>>
+                    <?= (isset($is_en_conge) && $is_en_conge === 'en congé') ? 'checked' : '' ?>>
             </div>
         </div>
 
-        <style>
-            /* Style pour rendre le switch plus "Santé Pro" */
-            .custom-switch {
-                cursor: pointer;
-                width: 2.5em !important;
-                height: 1.25em !important;
-            }
-
-            .custom-switch:checked {
-                background-color: #ffc107 !important;
-                border-color: #ffc107 !important;
-            }
-        </style>
-
-        <div class="mt-auto pb-3">
-            <div class="user-info-badge">
+        <div class="mt-3 pb-3">
+            <div class="user-info-badge mb-3 text-white">
                 <small class="d-block opacity-75">Connecté en tant que :</small>
-                <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Meziani') ?></span>
+                <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Médecin') ?></span>
             </div>
 
-            <a href="index.php?action=logout" class="nav-link logout-link text-center mx-3">
+            <a href="index.php?action=logout" class="btn btn-outline-light w-100 btn-sm">
                 <i class="bi bi-box-arrow-left me-2"></i>
                 <span>Déconnexion</span>
             </a>
         </div>
+    </div>
 </nav>

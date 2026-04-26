@@ -97,28 +97,26 @@ class MedecinModel
         $stmt->execute(['id_medecin' => $id_medecin]);
         return $stmt->fetchAll();
     }
-    public function getConsultationById($id_rdv)
-    {
-        $sql = "SELECT c.*, u.nom, u.prenom 
-            FROM consultation c
-            JOIN rendez_vous r ON c.id_rdv = r.id_rdv
-            JOIN prendre p ON r.id_rdv = p.id_rdv
-            JOIN utilisateur u ON p.id_patient = u.id
-            WHERE c.id_rdv = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id_rdv]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
 
-    /**
-     * Récupère l'état actuel du médecin
-     */
-    public function getStatutConge($id_medecin)
+    public function getDetailsConsultation($id_rdv)
     {
-        $sql = "SELECT status FROM medecin WHERE id_medecin = :id_m";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id_m' => $id_medecin]);
-        return $stmt->fetchColumn();
+        try {
+            $sql = "SELECT c.*, u.nom, u.prenom, r.date as date_rdv 
+                FROM consultation c
+                JOIN rendez_vous r ON c.id_rdv = r.id_rdv
+                JOIN prendre p ON r.id_rdv = p.id_rdv
+                JOIN utilisateur u ON p.id_patient = u.id
+                WHERE c.id_rdv = :id_r";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_r' => $id_rdv]);
+
+            // fetch() car on ne veut qu'une seule ligne (une seule ordonnance)
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans getDetailsConsultation : " . $e->getMessage());
+            return false;
+        }
     }
 
     public function updateStatusConge($id_medecin, $nouveauStatus)
@@ -135,4 +133,13 @@ class MedecinModel
             return false;
         }
     }
+    public function getStatusConge($id_medecin)
+{
+    $sql = "SELECT status FROM medecin WHERE id_medecin = :id";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['id' => $id_medecin]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $result['status'] ?? 'actif';
+}
 }

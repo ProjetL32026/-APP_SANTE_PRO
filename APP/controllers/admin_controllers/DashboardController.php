@@ -7,10 +7,9 @@ class DashboardController {
     private $db;
     private $dashboardModel;
 
-    public function __construct() {
-        // Initialisation de la connexion
-        $database = new Database();
-        $this->db = $database->getConnection();
+    public function __construct($db) {
+        // On récupère la connexion injectée depuis l'index
+        $this->db = $db;
 
         // Initialisation du modèle en lui passant la connexion
         $this->dashboardModel = new DashboardModel($this->db);
@@ -32,5 +31,6 @@ class DashboardController {
 }
 
 // 4. Exécution du contrôleur
-$controller = new DashboardController();
+// On passe la variable $db globale au contrôleur
+$controller = new DashboardController($db); 
 $controller->index();

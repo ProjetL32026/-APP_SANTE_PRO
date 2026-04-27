@@ -5,7 +5,7 @@ if (!defined('BASE_URL')) {
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | log"; 
 $pageCSS = "style_admin.css";
-$pageScript = "js/jsnoha/admin_log.js";
+$pageScripts = ['jsnoha/admin_log.js'];
 // 1. On appelle ton header spécial authentification
 include '../APP/views/layout/header_authen.php'; 
 ?>

@@ -1,15 +1,15 @@
 <?php
 // --- 1. INITIALISATION & CHEMINS (Correction des erreurs orange) ---
-// À AJOUTER
+
 require_once ROOT . '/APP/models/admin_models/infermier.php';
 $infirmier = new Infirmier($db);
 
 // --- 2. BLOC DE SUPPRESSION ---
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     if ($infirmier->supprimer($_GET['id'])) {
-        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&status=deleted");
+        header("Location: index.php?page=infirmier&status=deleted");
     } else {
-        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&error=delete_failed");
+        header("Location: index.php?page=infirmier&error=delete_failed");
       
     }
     exit(); 
@@ -36,37 +36,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $redir = (!empty($id)) ? "action=edit&id=$id" : "action=add";
 
-    // A. Vérification de l'Email
-    $stmtEmail = $db->prepare("SELECT id FROM utilisateur WHERE email = ? " . ($id ? "AND id != ?" : ""));
-    $stmtEmail->execute($id ? [$email, $id] : [$email]);
-    if ($stmtEmail->fetch()) {
-        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&" . $redir . "&status=error&type=email_exists" . $oldData);
-        exit();
-    }
+    // A. Vérification Email
+$stmtEmail = $db->prepare("SELECT id FROM utilisateur WHERE email = ? " . ($id ? "AND id != ?" : ""));
+$id ? $stmtEmail->execute([$email, $id]) : $stmtEmail->execute([$email]);
 
-    // B. Vérification du Username
-    $stmtUser = $db->prepare("SELECT id FROM utilisateur WHERE username = ? " . ($id ? "AND id != ?" : ""));
-    $stmtUser->execute($id ? [$username, $id] : [$username]);
-    if ($stmtUser->fetch()) {
-        header("Location: " . BASE_URL . "/public/index.php?page=infirmier&" . $redir . "&status=error&type=user_exists" . $oldData);
-        exit();
-    }
+if ($stmtEmail->fetch()) {
+    // CRUCIAL : On garde l'ID dans la redirection pour ne pas repasser en mode "Ajout"
+    $redir_id = $id ? "&modifier=" . $id : "";
+    header("Location: index.php?page=infirmier" . $redir_id . "&status=error&type=email_exists" . $oldData);
+    exit();
+}
 
+// B. Vérification Username
+$stmtUser = $db->prepare("SELECT id FROM utilisateur WHERE username = ? " . ($id ? "AND id != ?" : ""));
+$id ? $stmtUser->execute([$username, $id]) : $stmtUser->execute([$username]);
+
+if ($stmtUser->fetch()) {
+    $redir_id = $id ? "&modifier=" . $id : "";
+    header("Location: index.php?page=infirmier" . $redir_id . "&status=error&type=user_exists" . $oldData);
+    exit();
+}
     // C. Enregistrement (Update ou Insert)
     if (!empty($id)) {
         if ($infirmier->modifier($id, $nom, $prenom, $username, $email, $tel, $service, $mdp)) {
             
-            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&status=updated");
+            header("Location: index.php?page=infirmier&status=updated");
             
         } else {
             
-            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&error=update_failed");
+            header("Location: index.php?page=infirmier&error=update_failed");
         }
     } else {
         if (empty($mdp)) $mdp = '123456';
         if ($infirmier->ajouter($nom, $prenom, $username, $email, $tel, $mdp, $service)) {
            
-            header("Location: " . BASE_URL . "/public/index.php?page=infirmier&status=success");
+            header("Location: index.php?page=infirmier&status=success");
         } else {
             header("Location: " . BASE_URL . "/public/index.php?page=infirmier&error=insert_failed");
         }

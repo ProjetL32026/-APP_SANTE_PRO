@@ -5,7 +5,7 @@ if (!defined('BASE_URL')) {
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | infermier"; 
 $pageCSS = "style_admin.css";
-$pageScript = "js/jsnoha/admin_infirmier.js";
+$pageScripts = ['jsnoha/admin_infirmier.js'];
 // On suppose que $infirmiers et $all_specialities 
 // ont été créés juste AVANT d'inclure ce fichier.
 include __DIR__ . '/../layout/header.php';
@@ -120,7 +120,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
                     <button class="btn-edit-light " onclick='editInfirmier(<?= htmlspecialchars(json_encode($inf), ENT_QUOTES, 'UTF-8') ?>)'>
                         <i class="fas fa-edit"></i>
                     </button>
-                    <a href="../APP/controllers/admin_controllers/InfirmierController.php?action=delete&id=<?= $inf['id'] ?>" 
+                    <a href="index.php?page=infirmier&action=delete&id=<?= $inf['id'] ?>" 
                     class="btn-delete-light text-decoration-none"
                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet infirmier ?');">
                         <i class="fas fa-trash"></i>
@@ -137,8 +137,10 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 <div class="modal-overlay" id="modal-infirmier">
     <div class="custom-modal">
         <h3 class="fw-bold mb-4" style="font-family: 'Poppins'; color: var(--teal);">Ajouter un Infirmier</h3>
-        <form action="/santepro/APP/controllers/admin_controllers/InfirmierController.php" method="POST">
-        <input type="hidden" name="id" id="edit_id">
+        <form action="index.php?page=infirmier<?= isset($_GET['modifier']) ? '&modifier='.$_GET['modifier'] : '' ?>" method="POST" id="form-infirmier">
+    
+    <input type="hidden" name="id" id="edit_id" value="<?= htmlspecialchars($_GET['modifier'] ?? $infirmier_a_modifier['id'] ?? '') ?>">
+
     <div class="row">
         <div class="col-6">
             <label class="fw-bold small mb-2">Nom</label>
@@ -205,21 +207,24 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
     </div>
     <div class="col-6">
     <label class="fw-bold small mb-2">
-        Mot de passe
-        <?= isset($infirmier_a_modifier) ? '<span class="text-muted" style="font-weight:normal;">(Laissez vide pour ne pas changer)</span>' : '' ?>
-        
-        <?php if (!isset($infirmier_a_modifier) && isset($_GET['status']) && $_GET['status'] == 'error'): ?>
-            <span class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
-                <i class="fas fa-shield-alt"></i> (À saisir à nouveau par sécurité)
-            </span>
-        <?php endif; ?>
-    </label>
+    Mot de passe
+    <?php if (isset($infirmier_a_modifier) || isset($_GET['modifier'])): ?>
+        <span class="text-muted" style="font-weight:normal;">(Laissez vide pour ne pas changer)</span>
+    <?php endif; ?>
+    
+    <?php if (!isset($infirmier_a_modifier) && !isset($_GET['modifier']) && isset($_GET['status']) && $_GET['status'] == 'error'): ?>
+        <span class="text-danger ms-2" style="font-size: 1rem; font-weight: bold;">
+            <i class="fas fa-shield-alt"></i> (À saisir à nouveau par sécurité)
+        </span>
+    <?php endif; ?>
+</label>
 
     <input type="password" name="password" 
-           class="form-control-custom <?php echo (isset($_GET['status']) && $_GET['status'] == 'error' && !isset($infirmier_a_modifier)) ? 'input-error-border' : ''; ?>" 
-           placeholder="••••••••" 
-           <?= isset($infirmier_a_modifier) ? '' : 'required' ?> 
-           minlength="6">
+       class="form-control-custom <?php echo (isset($_GET['status']) && $_GET['status'] == 'error' && !isset($_GET['modifier'])) ? 'input-error-border' : ''; ?>" 
+       placeholder="••••••••" 
+       
+       <?= (isset($infirmier_a_modifier) || isset($_GET['modifier'])) ? '' : 'required' ?> 
+       minlength="6">
 </div>
     
     <div class="d-flex justify-content-end gap-2 mt-3">

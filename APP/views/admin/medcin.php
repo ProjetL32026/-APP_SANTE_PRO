@@ -5,7 +5,7 @@ if (!defined('BASE_URL')) {
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | medcin"; 
 $pageCSS = "style_admin.css";
-$pageScript = "js/jsnoha/admin_medecin.js";
+$pageScripts = ['jsnoha/admin_medecin.js'];
 include __DIR__ . '/../layout/header.php';
 include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
 ?>

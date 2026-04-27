@@ -2,21 +2,20 @@
 class Utilisateur {
     private $db;
 
-    // Le constructeur reçoit la connexion à la base de données
-    public function __construct($db) {
-        $this->db = $db;
+    public function __construct($pdo) {
+        $this->db = $pdo;
     }
 
     /**
-     * Récupère toutes les infos d'un utilisateur par son pseudo
+     * Récupère un utilisateur (admin, infirmier ou autre) par son pseudo
      */
     public function findByUsername($username) {
         try {
+            // On sélectionne tout pour avoir le 'role' et le 'mot_de_passe'
             $sql = "SELECT * FROM utilisateur WHERE username = ?";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([$username]);
             
-            // Retourne les données (id, username, mot_de_passe, role...) ou false
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erreur dans findByUsername : " . $e->getMessage());

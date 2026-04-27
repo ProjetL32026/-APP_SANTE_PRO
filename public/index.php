@@ -19,8 +19,9 @@ error_reporting(E_ALL);
 
 // 3. Connexion à la base de données
 require_once ROOT . '/config/db.php';
-$database = new Database(); // Création de l'objet
-$db = $database->getConnection();
+$db = $pdo;
+//$database = new Database(); // Création de l'objet
+//$db = $database->getConnection();
 // 4. Récupération de TOUTES vos variables
 $page = $_GET['page'] ?? 'accueil'; 
 $controller = $_GET['controller'] ?? ''; // Variable controller rétablie

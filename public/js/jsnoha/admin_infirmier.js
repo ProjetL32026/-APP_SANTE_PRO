@@ -21,28 +21,30 @@
         if(inputId) inputId.value = ""; 
     }
 }
-    function editInfirmier(inf) {
-    document.querySelector('.custom-modal h3').innerText = "Modifier l'infirmier";
-    let form = document.querySelector('#modal-infirmier form');
+function editInfirmier(inf) {
+    const modal = document.getElementById('modal-infirmier');
+    const form = modal.querySelector('form');
     
-    // On récupère l'input qui est déjà dans le HTML
+    modal.querySelector('h3').innerText = "Modifier l'infirmier";
+    
+    // On remplit l'ID unique
     document.getElementById('edit_id').value = inf.id;
     
-    // Remplissage des champs classiques
+    // IMPORTANT : On change l'action du formulaire pour informer le contrôleur qu'on modifie
+    form.action = "index.php?page=infirmier&modifier=" + inf.id;
+
+    // Remplissage des autres champs
     form.querySelector('[name="nom"]').value = inf.nom;
     form.querySelector('[name="prenom"]').value = inf.prenom;
     form.querySelector('[name="username"]').value = inf.username;
     form.querySelector('[name="email"]').value = inf.email;
     form.querySelector('[name="telephone"]').value = inf.telephone;
     form.querySelector('[name="service"]').value = inf.id_specialite;
-    
-    // Gestion spécifique du mot de passe pour la modification
-    let mdpInput = form.querySelector('[name="password"]');
-    mdpInput.required = false; 
-    mdpInput.placeholder = "(Laisser vide pour garder l'actuel)";
-    mdpInput.value = ""; // On vide le champ au cas où il y avait du texte
 
-    openModal();
+    // Le mot de passe n'est plus requis en modification
+    form.querySelector('[name="password"]').required = false;
+
+    modal.classList.add('open');
 }
 
     window.onclick = function(event) {

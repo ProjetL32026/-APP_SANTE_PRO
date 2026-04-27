@@ -2,8 +2,8 @@
 class Infirmier {
     private $db;
 
-    public function __construct($db) {
-        $this->db = $db;
+    public function __construct($pdo) {
+        $this->db = $pdo;
     }
 
     public function ajouter($nom, $prenom, $username, $email, $tel, $mdp, $id_specialite) {

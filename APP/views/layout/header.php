@@ -16,7 +16,7 @@
   <?php endif; ?>
 
   <?php if (!empty($pageCSS)): ?>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/<?= $pageCSS ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/<?= $pageCSS ?>?v=<?= time() ?>">
   <?php endif; ?>
 </head>
  

@@ -1,27 +1,30 @@
 <?php
-class Database {
-    private $host = 'localhost';
-    private $port = '3306'; // Garde 3306 ou change en 3308 si Wamp est sur 3308
-    private $dbname = 'sante_pro_db';
-    private $user = 'root';
-    private $pass = ''; 
-    public $conn;
+// ============================================
+// config/connexion.php
+// Connexion à la base de données MySQL
+// Inclus dans TOUS les Models
+// ============================================
+ 
+$host   = 'localhost';
+ $port = '3306';
+$dbname = 'sante_pro_db';
+$user   = 'root';
+$pass   = '';          // vide sur WAMP par défaut
+$charset = 'utf8mb4';
 
-    public function getConnection() {
-        $this->conn = null;
-        try {
-            // On crée la connexion PDO
-            $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->dbname . ";charset=utf8", 
-                $this->user, 
-                $this->pass
-            );
-            // On active la gestion des erreurs
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Erreur de connexion : " . $e->getMessage());
-        }
-        return $this->conn;
-    }
+try {
+    $pdo = new PDO(
+        "mysql:host=$host;dbname=$dbname;charset=utf8",
+        $user,
+        $pass
+    );
+    // Affiche les erreurs SQL clairement
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Retourne les résultats en tableau associatif (nom des colonnes)
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+ 
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
 }
-?>
+
+

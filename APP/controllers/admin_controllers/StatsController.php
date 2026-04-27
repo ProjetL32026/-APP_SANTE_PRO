@@ -4,12 +4,12 @@
 require_once ROOT . '/APP/models/admin_models/Statistiques.php';
 
 try {
-    $database = new Database();
+    // On n'utilise plus "new Database()". 
+    // On récupère directement $db qui vient de l'index global via db.php
     $anneeSelectionnee = $_GET['annee'] ?? date('Y');
-    $db = $database->getConnection();
     
-    if (!$db) {
-        throw new Exception("La connexion à la base de données a échoué.");
+    if (!isset($db)) {
+        throw new Exception("La connexion à la base de données (\$db) est introuvable.");
     }
 
     $statsModel = new Statistiques($db);

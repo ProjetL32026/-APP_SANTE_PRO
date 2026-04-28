@@ -63,7 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
 
         } else {
-            header("Location: index.php?page=$login_page&error=invalid");
+            // Dans votre LoginController.php, la redirection doit être :
+header("Location: index.php?page=log&error=invalid");
             exit();
         }
 

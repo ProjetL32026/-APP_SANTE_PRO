@@ -1,89 +1,60 @@
 <?php
-require_once dirname(__DIR__, 2) . '/models/Smodel/TicketModel.php';
-
 class TicketController
 {
-    /**
-     * 1. Affiche le formulaire de saisie du code
-     */
-    public function showSaisie($erreur = null)
+    public function showSaisie()
     {
-        $msg_erreur = $erreur;
-        include dirname(__DIR__, 2) . '/views/securite/saisie_ticket.php';
+        require_once ROOT . '/APP/views/securite/saisie_ticket.php';
     }
-
-    /**
-     * 2. VALIDER ET AFFICHER (La méthode qui manquait à la ligne 9)
-     * Appelée quand l'utilisateur soumet le formulaire de saisie
-     */
 
     public function validerEtAfficher()
     {
-        $code = $_POST['code_ticket'] ?? $_GET['code'] ?? null;
+        // MODIFICATION : On accepte POST (formulaire) et GET (lien de retour)
+        $codeSaisi = $_POST['codeticket'] ?? $_GET['codeticket'] ?? null;
+        $email = $_POST['email'] ?? $_GET['email'] ?? null;
 
-        if (!$code) {
-            $this->showSaisie("Veuillez saisir un code.");
-            return;
-        }
+        if ($codeSaisi && $email) {
+            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
+            $model = new TicketModel();
 
-        $model = new TicketModel();
-        $ticket = $model->getTicketDetails($code);
+            // On vérifie le code
+            if ($model->verifierCodeTicket($email, $codeSaisi)) {
+                $ticket = $model->getTicketDetails($email);
 
-        if (!$ticket) {
-            $this->showSaisie("Code de ticket invalide.");
+                // Affiche la vue du TICKET BLANC
+                require_once ROOT . '/APP/views/securite/affichage_ticket.php';
+            } else {
+                $msg_erreur = "Code ou email incorrect.";
+                require_once ROOT . '/APP/views/securite/saisie_ticket.php';
+            }
         } else {
-            // CALCUL DE LA POSITION (La variable qui manquait !)
-            $position = $model->getPosition($ticket['id_rdv'], $ticket['id_medecin'], $ticket['date']);
-
-            // On s'assure que 'code_ticket' existe pour la vue (ton SQL utilise 'code')
-            $ticket['code_ticket'] = $ticket['code'];
-
-            include dirname(__DIR__, 2) . '/views/securite/affichage_ticket.php';
+            // Si on arrive ici sans données, on renvoie à la saisie
+            $this->showSaisie();
         }
     }
 
-
-    /**
-     * 3. VOIR FILE (Le moniteur Live plein écran)
-     */
     public function voirFile()
     {
-        $code = $_GET['code'] ?? null;
-        if (!$code) {
-            header('Location: index.php?action=saisie');
-            exit;
-        }
+        $email = $_GET['email'] ?? null;
 
+        require_once ROOT . '/APP/models/Smodel/TicketModel.php';
         $model = new TicketModel();
-        $ticket = $model->getTicketDetails($code);
 
-        if ($ticket) {
-            $file = $model->getFullQueue($ticket['id_medecin'], $ticket['date']);
+        $ticket = $model->getTicketDetails($email);
 
-            $maPos = 0;
-            $ticketAppele = null;
-            $rangAppele = 0;
-            $monNumeroTK = $ticket['numero_ticket'] ?? 'TK--';
-            $cabinetOuvert = (date('Y-m-d') == $ticket['date']);
+        if ($ticket && is_array($ticket)) {
+            $id_medecin = $ticket['id_medecin'];
 
-            foreach ($file as $idx => $p) {
-                if (($p['code'] ?? '') == $code) {
-                    $maPos = $idx + 1;
-                }
-
-                $statut = $p['rdv_statut'] ?? 'attente';
-
-                if ($ticketAppele === null && ($statut == 'en_cours' || $statut == 'valide')) {
-                    $ticketAppele = $p;
-                    $rangAppele = $idx + 1;
-                }
+            $ticketAppele = $model->getTicketActuelDuMedecin($id_medecin);
+            if (!is_array($ticketAppele)) {
+                $ticketAppele = null;
             }
 
-            $resteAvantMoi = ($rangAppele > 0) ? max(0, $maPos - $rangAppele) : ($maPos - 1);
+            $resteAvantMoi = $model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
 
-            include dirname(__DIR__, 2) . '/views/securite/file_attente_live.php';
+            // Affiche la vue TURQUOISE (Bootstrap)
+            require_once ROOT . '/APP/views/securite/file_attente_live.php';
         } else {
-            $this->showSaisie("Ticket introuvable pour le mode Live.");
+            header("Location: index.php?page=ticket&action=saisie");
         }
     }
 }

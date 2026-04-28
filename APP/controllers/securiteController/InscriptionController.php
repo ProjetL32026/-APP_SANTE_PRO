@@ -1,42 +1,37 @@
 <?php
-require_once 'models/Smodel/PatientModel.php';
-require_once 'controllers/MailController.php';
+if (!defined('ROOT')) {
+    define('ROOT', dirname(__DIR__, 3));
+}
+
+require_once ROOT . '/APP/models/Smodel/PatientModel.php';
+require_once ROOT . '/APP/controllers/securiteController/MailController.php';
 
 class InscriptionController
 {
-
-    // A. Fonction appelée juste après l'inscription
     public function initierVerification($email, $nom)
     {
         $model = new PatientModel();
         $mailCtrl = new MailController();
 
-        // 1. GÉNÉRER
+        // 1. Générer code à 6 chiffres
         $code = rand(100000, 999999);
 
-        // 2. STOCKER
-        $model->stockerCodeConfirmation($email, $code);
+        // 2. Stocker en BDD
+        if ($model->stockerCodeConfirmation($email, $code)) {
 
-        // 3. ENVOYER le mail
-        $mailCtrl->envoyerCodeVerification($email, $nom, $code);
+            // 3. Envoyer l'email
+            $mailCtrl->envoyerCodeVerification($email, $nom, $code);
 
-        // Rediriger vers la page de saisie du code
-        header("Location: index.php?action=afficher_page_code&email=$email");
-    }
-
-    // B. Fonction appelée quand le patient clique sur "Valider"
-    public function validerMonEmail()
-    {
-        if (isset($_POST['code_saisi'], $_POST['email'])) {
-            $model = new PatientModel();
-
-            // 4. VÉRIFIER
-            if ($model->verifierCodeBDD($_POST['email'], $_POST['code_saisi'])) {
-                echo "Succès ! Votre compte est activé.";
-                // Rediriger vers le login
-            } else {
-                echo "Erreur : Code incorrect.";
-            }
+            // 4. Création du Ticket LocalStorage + Redirection
+            echo "
+            <script>
+                // On enregistre l'email dans le navigateur (le Ticket)
+                localStorage.setItem('ticket_sante_pro', '" . addslashes($email) . "');
+                
+                // On redirige vers la page de saisie
+                window.location.href = 'index.php?page=page_saisie_code&email=" . urlencode($email) . "';
+            </script>";
+            exit;
         }
     }
 }

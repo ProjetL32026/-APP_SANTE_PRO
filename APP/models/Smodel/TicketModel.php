@@ -1,7 +1,4 @@
 <?php
-// CORRECTION : Le dossier config est à la racine, pas dans APP
-require_once ROOT . '/config/db.php';
-
 class TicketModel
 {
     private $db;
@@ -12,47 +9,73 @@ class TicketModel
     }
 
     /**
-     * Récupère la file complète avec alias pour le statut
+     * ÉTAPE 1 : Vérifier si le code ticket saisi (ex: TK-1234) est valide
      */
-    public function getFullQueue($id_medecin, $date)
+    public function verifierCodeTicket($email, $codeSaisi)
     {
-        // L'alias 'statut AS rdv_statut' règle ton erreur de clé manquante
-        $sql = "SELECT r.*, r.statut AS rdv_statut, u.nom 
-                FROM rendez_vous r 
+        $sql = "SELECT r.id_rdv 
+                FROM rendez_vous r
                 JOIN utilisateur u ON r.id_patient = u.id_utilisateur
-                WHERE r.id_medecin = :id_m 
-                AND r.date = :date
-                ORDER BY r.id_rdv ASC";
-
+                WHERE u.email = :email 
+                AND r.codeticket = :code 
+                AND DATE(r.date) = CURDATE()";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id_m' => $id_medecin, 'date' => $date]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute(['email' => $email, 'code' => $codeSaisi]);
+        return $stmt->fetch() ? true : false;
     }
 
-    public function getTicketDetails($code)
+    /**
+     * ÉTAPE 2 : Récupérer les détails et générer le numéro (id 1 -> tk1)
+     */
+    public function getTicketDetails($email)
     {
+        // On ajoute u_p.email dans le SELECT pour pouvoir l'utiliser dans le bouton de la vue
         $sql = "SELECT r.*, 
-                   u_p.nom AS p_nom, 
-                   u_m.nom AS m_nom 
+                   u_p.email, 
+                   CONCAT('tk', r.id_rdv) as numero_affiche,
+                   u_p.nom as p_nom, u_p.prenom as p_prenom,
+                   u_m.nom as m_nom, u_m.prenom as m_prenom,
+                   m.status as statut_medecin
             FROM rendez_vous r 
             JOIN utilisateur u_p ON r.id_patient = u_p.id_utilisateur
-            JOIN utilisateur u_m ON r.id_medecin = u_m.id_utilisateur
-            WHERE r.code = :code";
+            JOIN medecin m ON r.id_medecin = m.id_medecin
+            JOIN utilisateur u_m ON m.id_medecin = u_m.id_utilisateur
+            WHERE u_p.email = :email AND DATE(r.date) = CURDATE()
+            LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['code' => $code]);
+        $stmt->execute(['email' => $email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Ajoute cette fonction si elle n'existe pas pour calculer la position
-    public function getPosition($id_ticket, $id_medecin, $date)
+    /**
+     * ÉTAPE 3 : Quel ticket est actuellement appelé ?
+     */
+    public function getTicketActuelDuMedecin($id_medecin)
     {
-        $sql = "SELECT COUNT(*) + 1 as pos FROM rendez_vous 
-            WHERE id_medecin = :id_m AND date = :date 
-            AND id_rdv < (SELECT id_rdv FROM rendez_vous WHERE id_rdv = :id_t)
-            AND statut != 'annule'";
+        $sql = "SELECT CONCAT('tk', id_rdv) as numero_actuel 
+                FROM rendez_vous 
+                WHERE id_medecin = :id 
+                AND statut = 'en_cours' 
+                AND DATE(date) = CURDATE() 
+                LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id_m' => $id_medecin, 'date' => $date, 'id_t' => $id_ticket]);
-        $res = $stmt->fetch();
-        return $res['pos'] ?? 1;
+        $stmt->execute(['id' => $id_medecin]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['numero_actuel'] : '---';
+    }
+
+    /**
+     * ÉTAPE 4 : Compter combien de personnes attendent avant
+     */
+    public function calculerNombreAttente($id_medecin, $monIdRdv)
+    {
+        $sql = "SELECT COUNT(*) FROM rendez_vous 
+                WHERE id_medecin = :id 
+                AND statut = 'attente' 
+                AND id_rdv < :monId 
+                AND DATE(date) = CURDATE()";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id_medecin, 'monId' => $monIdRdv]);
+        return $stmt->fetchColumn();
     }
 }

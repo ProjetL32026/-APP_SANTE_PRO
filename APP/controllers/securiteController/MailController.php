@@ -1,14 +1,21 @@
 <?php
-// On remonte de securiteController(..), de CONTROLLER(..), puis on va dans libs
-require_once __DIR__ . '/../../libs/PHPMailer/Exception.php';
-require_once __DIR__ . '/../../libs/PHPMailer/PHPMailer.php';
-require_once __DIR__ . '/../../libs/PHPMailer/SMTP.php';
+// On utilise la constante ROOT définie dans ton test_mon_code.php
+// C'est le chemin le plus sûr : C:\wamp64\www\santepro
+require_once ROOT . '/libs/PHPMailer/Exception.php';
+require_once ROOT . '/libs/PHPMailer/PHPMailer.php';
+require_once ROOT . '/libs/PHPMailer/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 
 class MailController
 {
+    // ... Garde ta fonction envoyerCodeVerification telle quelle 
+
+    // ... ton code
+
+
     // ... reste de ta classe (configurer, envoyerCodeVerification, etc.)
 
     /**

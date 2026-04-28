@@ -11,17 +11,16 @@ class MedecinModel
     // Récupérer la file d'attente (Patients non consultés)
     public function getFileAttente($id_medecin)
     {
-        // PLUS DE TABLE 'prendre' : On lie directement rendez_vous à patient
-        // Et on lie patient à utilisateur pour avoir le nom/prénom
+        // Correction de la jointure : p.id_patient correspond à u.id
         $sql = "SELECT u.nom, u.prenom, r.id_rdv, r.periode, r.statut
-                FROM rendez_vous r
-                JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u ON p.id_utilisateur = u.id
-                LEFT JOIN consultation c ON r.id_rdv = c.id_rdv
-                WHERE r.id_medecin = :id_m 
-                AND r.statut IN ('Présent', 'Chez Medecin')
-                AND c.id_rdv IS NULL 
-                ORDER BY r.periode ASC";
+            FROM rendez_vous r
+            JOIN patient p ON r.id_patient = p.id_patient
+            JOIN utilisateur u ON p.id_patient = u.id 
+            LEFT JOIN consultation c ON r.id_rdv = c.id_rdv
+            WHERE r.id_medecin = :id_m 
+            AND r.statut IN ('Présent', 'Chez Medecin')
+            AND c.id_rdv IS NULL 
+            ORDER BY r.periode ASC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id_m' => $id_medecin]);
@@ -47,7 +46,7 @@ class MedecinModel
         $sql = "SELECT u.nom, u.prenom 
                 FROM rendez_vous r
                 JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u ON p.id_utilisateur = u.id
+                JOIN utilisateur u ON p.id_patient = u.id
                 WHERE r.id_rdv = :id_rdv";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id_rdv' => $id_rdv]);
@@ -72,12 +71,12 @@ class MedecinModel
                      VALUES (CURDATE(), :diag, :presc, :id_m, :id_r)";
             $stmt1 = $this->db->prepare($sql1);
             $stmt1->execute(['diag' => $diag, 'presc' => $presc, 'id_m' => $id_medecin, 'id_r' => $id_rdv]);
-            
-            // Il est conseillé de décommenter ceci pour que le patient disparaisse de la file
+
+            /* Il est conseillé de décommenter ceci pour que le patient disparaisse de la file
             $sql2 = "UPDATE rendez_vous SET statut = 'Terminé' WHERE id_rdv = :id_r";
             $stmt2 = $this->db->prepare($sql2);
             $stmt2->execute(['id_r' => $id_rdv]);
-            
+            */
             return $this->db->commit();
         } catch (Exception $e) {
             $this->db->rollBack();
@@ -91,7 +90,7 @@ class MedecinModel
                 FROM consultation c
                 JOIN rendez_vous r ON c.id_rdv = r.id_rdv
                 JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u ON p.id_utilisateur = u.id
+                JOIN utilisateur u ON p.id_patient = u.id
                 WHERE c.id_medecin = :id_medecin
                 ORDER BY c.date DESC";
         $stmt = $this->db->prepare($sql);
@@ -106,7 +105,7 @@ class MedecinModel
                 FROM consultation c
                 JOIN rendez_vous r ON c.id_rdv = r.id_rdv
                 JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u ON p.id_utilisateur = u.id
+                JOIN utilisateur u ON p.id_parient = u.id
                 WHERE c.id_rdv = :id_r";
 
             $stmt = $this->db->prepare($sql);

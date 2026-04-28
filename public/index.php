@@ -121,7 +121,7 @@ else {
         case 'ticket':
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
             $ticketCtrl = new TicketController();
-            
+
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
             } elseif ($action === 'live' || $action === 'voir_file') {

@@ -3,64 +3,86 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="10">
-    <link rel="stylesheet" href="/santepro/public/css/style_Securite.css?v=<?= time(); ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <title>SANTE PRO - Live Monitor</title>
+    <title>Live Monitor - SANTE PRO</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            background: radial-gradient(circle, #1e3a8a 0%, #001f3f 100%);
+            color: white;
+        }
+
+        .monitor {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 50px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 450px;
+            backdrop-filter: blur(15px);
+        }
+
+        .logo {
+            width: 40px;
+            fill: #60a5fa;
+            margin-bottom: 20px;
+        }
+
+        .call {
+            font-size: 8rem;
+            font-weight: 900;
+            margin: 10px 0;
+            color: #fff;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 30px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid #60a5fa;
+            padding: 10px 20px;
+            border-radius: 12px;
+        }
+    </style>
 </head>
 
-<body class="monitor-body">
+<body>
+    <div class="monitor">
+        <svg class="logo" viewBox="0 0 512 512">
+            <path
+                d="M320 32c-8.1 0-15.5 5-18.6 12.5L197.9 334.1 151.3 218c-3.1-7.8-10.7-13-19.1-13H16c-8.8 0-16 7.2-16 16s7.2 16 16 16h104.4l65.6 164c3.1 7.8 10.7 13 19.1 13s16-5.2 19.1-13l103.5-258.7L360.7 294c3.1 7.8 10.7 13 19.1 13H496c8.8 0 16-7.2 16-16s-7.2-16-16-16H391.3l-52.7-131.5C335.5 37 328.1 32 320 32z" />
+        </svg>
+        <p style="letter-spacing: 3px; color: #94a3b8; text-transform: uppercase; font-size: 0.8rem;">Appel en cours -
+            Dr. <?= htmlspecialchars($ticket['m_nom']) ?></p>
 
-    <?php
-    $statutCourant = $ticket['rdv_statut'] ?? $ticket['statut'] ?? 'attente';
-    $nomMedecin = $ticket['m_nom'] ?? 'Médecin';
-    $cabinetOuvert = (isset($ticketAppele) && is_array($ticketAppele)) || (isset($resteAvantMoi) && $resteAvantMoi > 0);
-    ?>
+        <h1 class="call"><?= $ticketAppele ?></h1>
 
-    <?php if ($statutCourant == 'annule'): ?>
-        <div class="monitor">
-            <div class="doctor-header">DR. <?= htmlspecialchars($nomMedecin) ?></div>
-            <div class="announcement-box">
-                <i class="fas fa-exclamation-triangle" style="font-size: 5rem; color: #fbbf24;"></i>
-                <h1>SÉANCE ANNULÉE</h1>
-                <p>Le médecin est exceptionnellement absent aujourd'hui.</p>
-            </div>
-            <a href="index.php" class="btn-return-monitor">RETOUR ACCUEIL</a>
-        </div>
-    <?php else: ?>
-        <div class="monitor">
-            <div class="doctor-header">DR. <?= htmlspecialchars($nomMedecin) ?></div>
-
-            <div class="label-called">TICKET APPELÉ</div>
-
-            <?php if ($cabinetOuvert && isset($ticketAppele) && is_array($ticketAppele)): ?>
-                <h1 class="big-number"><?= htmlspecialchars($ticketAppele['numero_affiche'] ?? '--') ?></h1>
-                <div class="patient-name-monitor"><?= htmlspecialchars($ticketAppele['p_nom'] ?? 'Patient') ?></div>
-            <?php else: ?>
-                <h1 class="big-number" style="color: rgba(255,255,255,0.2)">--</h1>
-                <div class="patient-name-monitor" style="color: #64748b;">Cabinet en pause</div>
-            <?php endif; ?>
-
-            <div class="footer-stats-monitor">
-                <div class="stat-box-monitor">
-                    <span class="stat-label-monitor">Votre Ticket</span>
-                    <span class="stat-number-monitor"><?= htmlspecialchars($ticket['numero_affiche'] ?? '--') ?></span>
-                </div>
-                <div class="stat-box-monitor" style="border-left: 1px solid rgba(255,255,255,0.1);">
-                    <span class="stat-label-monitor">Personnes avant vous</span>
-                    <span class="stat-number-monitor"
-                        style="color: #fb7185;"><?= htmlspecialchars($resteAvantMoi ?? '0') ?></span>
-                </div>
-            </div>
+        <div class="stats">
+            <div><small style="color: #94a3b8;">VOTRE RANG</small><br><strong
+                    style="font-size: 1.5rem;"><?= $ticket['numero_affiche'] ?></strong></div>
+            <div><small style="color: #94a3b8;">ATTENTE</small><br><strong
+                    style="font-size: 1.5rem; color: #f87171;"><?= $resteAvantMoi ?> pers.</strong></div>
         </div>
 
         <a href="index.php?page=ticket&action=valider&email=<?= urlencode($ticket['email']) ?>&codeticket=<?= $ticket['codeticket'] ?>"
-            class="btn-return-monitor">
-            <i class="fas fa-expand-arrows-alt me-2"></i> QUITTER LE MODE PLEIN ÉCRAN
-        </a>
-    <?php endif; ?>
-
+            class="btn-back">← RETOUR AU TICKET</a>
+    </div>
 </body>
 
 </html>

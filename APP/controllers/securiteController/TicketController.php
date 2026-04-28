@@ -8,53 +8,42 @@ class TicketController
 
     public function validerEtAfficher()
     {
-        // MODIFICATION : On accepte POST (formulaire) et GET (lien de retour)
-        $codeSaisi = $_POST['codeticket'] ?? $_GET['codeticket'] ?? null;
-        $email = $_POST['email'] ?? $_GET['email'] ?? null;
+        $code = trim($_REQUEST['codeticket'] ?? '');
+        $email = trim($_REQUEST['email'] ?? '');
 
-        if ($codeSaisi && $email) {
+        if (!empty($code) && !empty($email)) {
             require_once ROOT . '/APP/models/Smodel/TicketModel.php';
             $model = new TicketModel();
 
-            // On vérifie le code
-            if ($model->verifierCodeTicket($email, $codeSaisi)) {
+            if ($model->verifierCodeTicket($email, $code)) {
                 $ticket = $model->getTicketDetails($email);
-
-                // Affiche la vue du TICKET BLANC
                 require_once ROOT . '/APP/views/securite/affichage_ticket.php';
+                exit();
             } else {
-                $msg_erreur = "Code ou email incorrect.";
-                require_once ROOT . '/APP/views/securite/saisie_ticket.php';
+                $msg_erreur = "Identifiants incorrects.";
             }
         } else {
-            // Si on arrive ici sans données, on renvoie à la saisie
-            $this->showSaisie();
+            $msg_erreur = "Veuillez remplir les champs.";
         }
+        require_once ROOT . '/APP/views/securite/saisie_ticket.php';
     }
 
     public function voirFile()
     {
         $email = $_GET['email'] ?? null;
-
         require_once ROOT . '/APP/models/Smodel/TicketModel.php';
         $model = new TicketModel();
-
         $ticket = $model->getTicketDetails($email);
 
-        if ($ticket && is_array($ticket)) {
+        if ($ticket) {
+            // ATTENTION : vérifie que la colonne s'appelle bien id_medecin
             $id_medecin = $ticket['id_medecin'];
-
             $ticketAppele = $model->getTicketActuelDuMedecin($id_medecin);
-            if (!is_array($ticketAppele)) {
-                $ticketAppele = null;
-            }
-
             $resteAvantMoi = $model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
-
-            // Affiche la vue TURQUOISE (Bootstrap)
             require_once ROOT . '/APP/views/securite/file_attente_live.php';
         } else {
             header("Location: index.php?page=ticket&action=saisie");
+            exit();
         }
     }
 }

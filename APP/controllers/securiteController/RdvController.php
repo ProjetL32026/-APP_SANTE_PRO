@@ -32,8 +32,7 @@ class RdvController
             $patients = $model->getPatientsByAbsence($id_medecin, $date);
 
             // On récupère le vrai nom du médecin depuis la BDD pour le mail
-            $nomMedecin = $model->getNomMedecin($id_medecin) ?: "Hocine";
-
+            $nomMedecin = $model->getNomMedecin($id_medecin) ?: "votre médecin";
             $compteur = 0;
             foreach ($patients as $p) {
                 // 3. IMPORTANT : On vérifie si le mail n'a pas déjà été envoyé
@@ -41,7 +40,7 @@ class RdvController
                 if (isset($p['mail_envoye']) && $p['mail_envoye'] == 0) {
 
                     // 4. On change le statut du RDV en 'annule'
-                    $model->updateStatut($p['id_rdv'], 'annule');
+                    $model->updateStatut($p['id_rdv'], 'Annulé');
 
                     // 5. On envoie le mail via PHPMailer (Mailtrap)
                     $envoiOk = $mailCtrl->envoyerAlerteAbsence(

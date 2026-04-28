@@ -124,7 +124,9 @@ else {
 
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
-            } elseif ($action === 'live' || $action === 'voir_file') {
+            }
+            // On ajoute 'voirFile' ici pour que le routeur le reconnaisse
+            elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
                 $ticketCtrl->voirFile();
             } else {
                 $ticketCtrl->showSaisie();

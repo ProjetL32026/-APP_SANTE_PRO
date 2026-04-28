@@ -39,7 +39,8 @@ switch ($action) {
         if ($id_rdv) {
             $model->updateStatutRetourFile($id_rdv);
         }
-        header('Location: index.php?action=liste');
+        // AJOUTER page=medecin ICI
+        header('Location: index.php?page=medecin&action=liste');
         exit();
         break;
 
@@ -60,10 +61,10 @@ switch ($action) {
                     }
                 }
                 $success = $model->saveConsultation($id_rdv, $id_medecin, $diagnostic, $ordonnance_finale);
-                header('Location: index.php?action=liste&saved=' . ($success ? '1' : '0'));
+                header('Location: index.php?page=medecin&action=liste&saved=' . ($success ? '1' : '0'));
                 exit();
             }
-            header('Location: index.php?action=liste&error=missing_id');
+            header('Location: index.php?page=medecin&action=liste&error=missing_id');
             exit();
         }
         break;

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const etatPrecedent = !this.checked;
 
             // Appel AJAX vers l'index qui se trouve au même niveau que le dossier /js/
-            fetch('index.php?action=toggle_conge', {
+            fetch('index.php?page=medecin&action=toggle_conge', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

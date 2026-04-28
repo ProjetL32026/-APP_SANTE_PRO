@@ -1,10 +1,10 @@
 <?php
 $id_rdv = $_GET['id_rdv'] ?? null;
 $pageTitle = "Nouvelle Consultation";
-$pageCSS = "stylebaya.css";// Votre fichier CSS spécifique
+$pageCSS = "stylebaya.css"; // Votre fichier CSS spécifique
 $pageScripts = ['jsbaya/consultation.js']; // Script pour gérer la validation
-require_once ROOT . '/APP/views/layout/header.php'; 
-require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php'; 
+require_once ROOT . '/APP/views/layout/header.php';
+require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 ?>
 
 <div class="main-content">
@@ -15,7 +15,7 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 
     <div class="card-container shadow-sm" style="max-width: 900px;">
         <div class="card-body p-4">
-            <form action="index.php?action=enregistrer" method="POST">
+            <form action="index.php?page=medecin&action=enregistrer" method="POST">
                 <input type="hidden" name="id_rdv" value="<?= htmlspecialchars($id_rdv) ?>">
 
 
@@ -56,7 +56,7 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
                                     <td><input type="text" name="medoc[]" class="form-control form-control-sm" placeholder="Ex: Paracétamol 1g" required></td>
                                     <td><input type="text" name="poso[]" class="form-control form-control-sm" placeholder="Ex: 1 cp matin et soir"></td>
                                     <td><input type="text" name="duree[]" class="form-control form-control-sm" placeholder="Ex: 5 jours"></td>
-                                    <td></td>
+                                    
                                 </tr>
                             </tbody>
                         </table>
@@ -64,7 +64,7 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-5 border-top pt-4">
-                    <a href="index.php?action=annuler_consultation&id_rdv=<?= htmlspecialchars($id_rdv) ?>"
+                    <a href="index.php?page=medecin&action=annuler_consultation&id_rdv=<?= htmlspecialchars($id_rdv) ?>"
                         class="text-muted text-decoration-none fw-bold hover-teal">
                         <i class="bi bi-arrow-left"></i> Retour
                     </a>

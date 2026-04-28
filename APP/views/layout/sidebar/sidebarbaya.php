@@ -26,13 +26,13 @@ if (isset($pageScripts) && is_array($pageScripts)) {
 
     <ul class="nav flex-column mb-auto">
         <li class="nav-item">
-            <a href="index.php?action=liste" class="nav-link <?= ($currentAction == 'liste') ? 'active' : '' ?>">
+            <a href="index.php?page=medecin&action=liste" class="nav-link <?= ($currentAction == 'liste') ? 'active' : '' ?>">
                 <i class="bi bi-grid-fill me-2"></i>
                 <span>Tableau de bord</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="index.php?action=historique" class="nav-link <?= ($currentAction == 'historique') ? 'active' : '' ?>">
+            <a href="index.php?page=medecin&action=historique" class="nav-link <?= ($currentAction == 'historique') ? 'active' : '' ?>">
                 <i class="bi bi-clock-history me-2"></i>
                 <span>Historique</span>
             </a>
@@ -54,7 +54,7 @@ if (isset($pageScripts) && is_array($pageScripts)) {
                 <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Médecin') ?></span>
             </div>
 
-            <a href="index.php?action=logout" class="btn btn-outline-light w-100 btn-sm">
+            <a href="index.php?page=logout" class="btn btn-outline-light w-100 btn-sm">
                 <i class="bi bi-box-arrow-left me-2"></i>
                 <span>Déconnexion</span>
             </a>

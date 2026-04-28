@@ -71,7 +71,7 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="index.php?action=consulter&id_rdv=<?= $p['id_rdv'] ?>" class="btn btn-primary btn-sm px-4 shadow-sm">
+                                    <a href="index.php?page=medecin&action=consulter&id_rdv=<?= $p['id_rdv'] ?>" class="btn btn-primary btn-sm px-4 shadow-sm">
                                         Ouvrir
                                     </a>
                                 </td>

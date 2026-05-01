@@ -71,7 +71,7 @@ if ($page === 'log') {
 // --- ESPACE ADMINISTRATEUR ---
 if ($role === 'admin') {
     switch ($page) {
-        case 'medecin':
+        case 'medcin':
             require_once ROOT . '/APP/controllers/admin_controllers/MedecinController.php';
             break;
         case 'infirmier':

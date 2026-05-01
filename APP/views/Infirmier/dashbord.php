@@ -4,7 +4,7 @@ define('BASE_URL', '/santepro');
 $pageTitle  = "infirmier | Tableau de Bord"; 
 $pageCSS   = "style_infirmier.css";  
 $bodyClass = "bg-light"; 
-$pageScript = "/script_infirmier/dashbord.js"; 
+$pageScript = ["script_infirmier/dashbord.js"]; 
 
 // 2. INCLUSION DES COMPOSANTS DE STRUCTURE
 require_once __DIR__ . '/../layout/header.php'; 

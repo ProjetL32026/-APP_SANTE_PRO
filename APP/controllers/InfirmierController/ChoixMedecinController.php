@@ -32,7 +32,7 @@ require_once __DIR__ . '/../../views/Infirmier/choix_medecin.php';
     }
 
     public function selectDoctor($id_medecin) {
-        $medInfo = $this->medecinModel->getMedecinById($id_medecin);
+        $medInfo = $this->medecinModel->getmedecinById($id_medecin);
         if ($medInfo) {
             $_SESSION['id_medecin_choisi'] = $id_medecin;
             $_SESSION['nom_medecin_choisi'] = ($medInfo['nom'] ?? '') . ' ' . ($medInfo['prenom'] ?? '');

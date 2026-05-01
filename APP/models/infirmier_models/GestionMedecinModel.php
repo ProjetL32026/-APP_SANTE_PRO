@@ -10,7 +10,7 @@ class GestionMedecinModel {
     /**
      * Récupérer les informations d'un médecin spécifique
      */
-    public function getMedecinById($id_medecin) {
+    public function getmedecinById($id_medecin) {
         // Correction : On sélectionne m.id_medecin pour l'utiliser dans le dashboard
         $sql = "SELECT m.id_medecin, u.nom, u.prenom, s.nom_specialite, m.status
                 FROM medecin m

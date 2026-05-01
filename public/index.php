@@ -1,63 +1,142 @@
 <?php
-session_start();
-define('BASE_URL', '/santepro');
+/**
+ * SANTE_PRO - INDEX GLOBAL RÉVISÉ
+ **/
 
-// 1. Charger la config et PDO en premier
-require_once '../config/db.php'; 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// 2. Définir les constantes
-define('ROOT', dirname(__DIR__));
+// 1. Définition des constantes
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/santepro');
+}
+define('ROOT', dirname(__DIR__)); 
 
-$page = $_GET['page'] ?? 'log';
+// 2. Affichage des erreurs
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-// --- GESTION DE LA DÉCONNEXION ---
-if ($page === 'logout') {
-    session_unset();
+// 3. Connexion à la base de données
+require_once ROOT . '/config/db.php';
+$db = $pdo;
+//$database = new Database(); // Création de l'objet
+//$db = $database->getConnection();
+// 4. Récupération de TOUTES vos variables
+$page = $_GET['page'] ?? 'accueil'; 
+$controller = $_GET['controller'] ?? ''; // Variable controller rétablie
+$action = $_GET['action'] ?? null;
+$role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? null; 
+
+// 5. Bloc de détection Connexion / Inscription (Votre logique exacte)
+if ($page === 'connexion' || (isset($_GET['action']) && $_GET['action'] === 'login')) {
+    if (isset($_GET['from']) && $_GET['from'] === 'inscription') {
+        // On mémorise qu'après le login, il faut aller au RDV
+        $_SESSION['redirect_after_login'] = 'rdv';
+        $_SESSION['temp_id_medecin'] = $_GET['idMedecin'] ?? null;
+    } else {
+        // Sinon, on s'assure que la redirection par défaut est l'accueil
+        $_SESSION['redirect_after_login'] = 'accueil';
+    }
+}
+
+// 6. Gestion de la déconnexion
+if ($page === 'logout' || $page === 'deconnexion') {
     session_destroy();
-    header('Location: index.php?page=log');
+    header("Location: index.php?page=accueil");
     exit();
 }
 
-// 1. SÉCURITÉ : Si l'utilisateur n'est pas connecté
-// Il ne peut accéder qu'à la page 'log' (qui traite aussi le POST du login)
-if (!isset($_SESSION['user_id']) && $page !== 'log') {
-    header('Location: index.php?page=log');
+/**
+ * 7. ROUTAGE DES ACTIONS (AuthController du Patient)
+ */
+if ($controller === 'auth') {
+    require_once ROOT . '/APP/controllers/PatientController/AuthController.php';
     exit();
 }
 
-// 2. ROUTAGE PRINCIPAL
-// Si on demande la page 'log', on charge le contrôleur de traitement du login
+/**
+ * 8. ROUTAGE DU LOGIN UNIQUE (Professionnels)
+ */
 if ($page === 'log') {
-    // Comme db.php est inclus juste au-dessus, $pdo est disponible ici !
-    require_once ROOT . '/APP/controllers/MedecinControllers/process_login.php';
+    require_once ROOT . '/APP/controllers/admin_controllers/LoginController.php';
     exit();
 }
 
-// 3. ROUTAGE PAR RÔLE (Une fois connecté)
-$role = $_SESSION['role'] ?? '';
+/**
+ * 9. ROUTAGE SELON LE RÔLE OU ACCÈS LIBRE
+ */
 
-// On redirige selon le rôle et la page demandée
-switch ($role) {
-    case 'medecin':
-        require_once ROOT . '/APP/controllers/MedecinControllers/MedecinController.php';
-        // Le MedecinController se chargera d'inclure la bonne vue (ex: file_attente)
-        break;
+// --- ESPACE ADMINISTRATEUR ---
+if ($role === 'admin') {
+    switch($page) {
+        case 'medcin': require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php'; break;
+        case 'infirmier': require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php'; break;
+        case 'specialite': require_once ROOT . '/APP/controllers/admin_controllers/SpecialiteController.php'; break;
+        case 'statistique': require_once ROOT . '/APP/controllers/admin_controllers/StatsController.php'; break;
+        case 'parametre': require_once ROOT . '/APP/controllers/admin_controllers/AdminController.php'; break;
+        default: require_once ROOT . '/APP/controllers/admin_controllers/DashboardController.php'; break;
+    }
+} 
 
-    case 'infirmier':
-        // Inclure le contrôleur infirmier ici
-        // if ($page === 'choix_medecin') { ... }
-        break;
+// --- ESPACE INFIRMIER ---
+elseif ($role === 'infirmier') {
+    require_once ROOT . '/APP/models/infirmier_models/RendezVousModel.php';
+    require_once ROOT . '/APP/models/infirmier_models/TicketModel.php';
+    switch ($page) {
+        case 'choix_medecin': require_once ROOT . '/APP/controllers/InfirmierController/ChoixMedecinController.php'; break;
+        case 'presencePatient': require_once ROOT . '/APP/controllers/InfirmierController/RendezVousController.php'; break;
+        default: require_once ROOT . '/APP/controllers/InfirmierController/DashboardController.php'; break;
+    }
+} 
 
-    case 'admin':
-        // if ($page === 'dashbord') { ... }
-        break;
+// --- ESPACE MÉDECIN ---
+elseif ($role === 'medecin') {
+    require_once ROOT . '/APP/controllers/MedecinControllers/MedecinController.php';
+} 
 
-    case 'patient':
-        require_once ROOT . '/APP/controllers/PatientController.php';
-        break;
+/**
+ * 10. SÉPARATION PATIENT ET TICKET (ACCÈS LIBRE)
+ */
+else {
+    switch ($page) {
+        // PARTIE PATIENT
+        case 'rdv': 
+            require_once ROOT . '/APP/controllers/PatientController/RdvController.php'; 
+            break;
+        case 'historique': 
+            require_once ROOT . '/APP/controllers/PatientController/HistoriqueController.php'; 
+            break;
+        case 'inscription': 
+            require_once ROOT . '/APP/controllers/PatientController/InscriptionController.php'; 
+            break;
+        case 'verification': 
+            require_once ROOT . '/APP/views/patient/verification.php'; 
+            break;
+        case 'connexion':
+            require_once ROOT . '/APP/views/patient/inscription.php';
+            break;
 
-    default:
-        session_destroy();
-        header('Location: index.php?page=log');
-        exit();
+        // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
+        case 'ticket':
+            require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
+            $ticketCtrl = new TicketController();
+
+            if ($action === 'valider') {
+                $ticketCtrl->validerEtAfficher();
+            }
+            // On ajoute 'voirFile' ici pour que le routeur le reconnaisse
+            elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
+                $ticketCtrl->voirFile();
+            } else {
+                $ticketCtrl->showSaisie();
+            }
+            break;
+
+        case 'accueil':
+        case 'accueil_patient':
+        default:
+            require_once ROOT . '/APP/controllers/PatientController/AccueilController.php';
+            break;
+    }
 }

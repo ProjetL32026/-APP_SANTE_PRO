@@ -1,6 +1,6 @@
 <?php 
 
-define('BASE_URL', '/santepro');
+
 $pageTitle  = "infirmier | Présence Patients"; 
 $pageCSS   = "style_infirmier.css";   
 $bodyClass = "bg-light";

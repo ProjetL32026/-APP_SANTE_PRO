@@ -1,6 +1,6 @@
 <?php 
 
-define('BASE_URL', '/santepro');
+
 $pageTitle  = "infirmier | Tableau de Bord"; 
 $pageCSS   = "style_infirmier.css";  
 $bodyClass = "bg-light"; 

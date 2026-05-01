@@ -1,6 +1,5 @@
 <?php 
-// 1. DÉFINITION DES VARIABLES
-define('BASE_URL', '/santepro');
+
 $pageTitle  = "infirmier | Sélection du Médecin"; 
 $pageCSS   = "style_infirmier.css";   
 $bodyClass = "bg-light"; 

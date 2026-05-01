@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Contrôleur pour la sélection du médecin par l'infirmier
+ */
 class ChoixMedecinController {
     private $medecinModel;
 
@@ -8,8 +10,8 @@ class ChoixMedecinController {
     }
 
     public function handleRequest() {
-        // Gérer l'action de sélection
-        if (isset($_GET['action']) && $_GET['action'] === 'select_doctor') {
+        $action = $_GET['action'] ?? null;
+        if ($action === 'select_doctor') {
             $id = $_GET['id'] ?? null;
             if ($id) {
                 $this->selectDoctor($id);
@@ -21,14 +23,13 @@ class ChoixMedecinController {
     }
 
     public function index() {
-        $id_spec_infirmier = $_SESSION['user']['id_specialite'] ?? null;
+        $id_spec_infirmier = $_SESSION['user']['id_specialite'] ?? $_SESSION['id_specialite'] ?? null;
         $medecins = $id_spec_infirmier ? $this->medecinModel->getMedecinsBySpecialite($id_spec_infirmier) : [];
         
         $pageTitle = "Sélection du Médecin | Santé Pro";
         $pageCSS = "css/style_infirmier.css"; 
 
-        // Remonter de deux crans pour atteindre APP/views
-require_once __DIR__ . '/../../views/Infirmier/choix_medecin.php';
+        require_once __DIR__ . '/../../views/Infirmier/choix_medecin.php';
     }
 
     public function selectDoctor($id_medecin) {
@@ -43,3 +44,14 @@ require_once __DIR__ . '/../../views/Infirmier/choix_medecin.php';
         }
     }
 }
+
+// --- AJOUTS POUR L'INSTANCIATION AUTOMATIQUE ---
+// On charge le modèle nécessaire
+require_once ROOT . '/APP/models/infirmier_models/GestionMedecinModel.php';
+
+// On crée les objets en utilisant la variable $db de l'index
+$medModel = new GestionMedecinModel($db); 
+$choixCtrl = new ChoixMedecinController($medModel);
+
+// On lance le traitement
+$choixCtrl->handleRequest();

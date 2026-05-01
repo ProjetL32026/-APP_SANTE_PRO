@@ -49,4 +49,18 @@ class RendezVousController {
         return false;
     }
 
-} // FIN DE LA CLASSE
+} 
+/**
+ * --- AJOUTS POUR L'INSTANCIATION AUTOMATIQUE ---
+ * Ce bloc permet au contrôleur de se lancer tout seul.
+ */
+
+// 1. Initialisation du modèle (RendezVousModel est déjà inclus par l'index)
+// On utilise la variable $db qui est déjà définie dans index.php
+$rdvModelForPresence = new RendezVousModel($db);
+
+// 2. Création du contrôleur
+$presenceCtrl = new RendezVousController($rdvModelForPresence);
+
+// 3. Lancement de la méthode index pour afficher la liste des patients
+$presenceCtrl->index();

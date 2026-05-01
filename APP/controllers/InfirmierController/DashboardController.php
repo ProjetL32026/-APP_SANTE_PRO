@@ -83,3 +83,26 @@ require_once __DIR__ . '/../../views/Infirmier/dashbord.php';
         exit();
     }
 }
+/**
+ * --- AJOUTS POUR L'INSTANCIATION AUTOMATIQUE ---
+ * Ce code s'exécute dès que l'index.php fait le require_once.
+ */
+
+// 1. Chargement des fichiers nécessaires non inclus par l'index commun
+require_once ROOT . '/APP/models/infirmier_models/GestionMedecinModel.php';
+require_once ROOT . '/APP/controllers/InfirmierController/TicketController.php';
+
+// 2. Création des instances des modèles (en utilisant la variable $db de l'index)
+$rdvMdl  = new RendezVousModel($db);
+$medMdl  = new GestionMedecinModel($db);
+$tickMdl = new TicketModel($db);
+
+// 3. Création du TicketController avec son argument (TicketModel)
+// C'est ici qu'on résout l'erreur "Too few arguments"
+$tickCtl = new TicketController($tickMdl);
+
+// 4. Création du DashboardController avec ses 4 dépendances
+$dashCtrl = new DashboardController($rdvMdl, $medMdl, $tickMdl, $tickCtl);
+
+// 5. Lancement de la méthode index pour afficher la page
+$dashCtrl->index();

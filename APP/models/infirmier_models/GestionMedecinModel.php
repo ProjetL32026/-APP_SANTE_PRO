@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Modèle pour la gestion des médecins (Espace Infirmier)
+ */
 class GestionMedecinModel {
     private $db;
 
@@ -8,7 +10,7 @@ class GestionMedecinModel {
     }
 
     /**
-     * Récupérer les informations d'un médecin spécifique
+     * Récupère les informations d'un médecin spécifique
      */
     public function getmedecinById($id_medecin) {
         // Correction : On sélectionne m.id_medecin pour l'utiliser dans le dashboard
@@ -23,7 +25,22 @@ class GestionMedecinModel {
     }
 
     /**
-     * Mettre à jour le statut de présence
+     * Récupère les médecins d'une spécialité précise
+     */
+    public function getMedecinsBySpecialite($id_specialite) {
+        $sql = "SELECT m.id_medecin, u.nom, u.prenom, s.nom_specialite
+                FROM medecin m
+                JOIN utilisateur u ON m.id_medecin = u.id
+                JOIN specialite s ON m.id_specialite = s.id_specialite
+                WHERE m.id_specialite = :id_spec";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_spec' => $id_specialite]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Mettre à jour le statut de présence du médecin
      */
     public function updateStatus($id_medecin, $status) {
         try {
@@ -40,7 +57,7 @@ class GestionMedecinModel {
     }
 
     /**
-     * Récupère tous les médecins
+     * Récupère la liste complète des médecins (pour administration)
      */
     public function getAllMedecins() {
         $sql = "SELECT m.id_medecin, u.nom, u.prenom, s.nom_specialite, m.status
@@ -51,16 +68,5 @@ class GestionMedecinModel {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    public function getMedecinsBySpecialite($id_specialite) {
-        $sql = "SELECT m.id_medecin, u.nom, u.prenom, s.nom_specialite
-                FROM medecin m
-                JOIN utilisateur u ON m.id_medecin = u.id
-                JOIN specialite s ON m.id_specialite = s.id_specialite
-                WHERE m.id_specialite = :id_spec";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id_spec' => $id_specialite]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    
 }

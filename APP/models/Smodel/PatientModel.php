@@ -14,7 +14,7 @@ class PatientModel
     public function stockerCodeConfirmation($email, $code)
     {
         $sql = "UPDATE patient p 
-                JOIN utilisateur u ON p.id_patient = u.id_utilisateur 
+                JOIN utilisateur u ON p.id_patient = u.id 
                 SET p.verification_code = :code 
                 WHERE u.email = :email AND p.is_verified = 0";
         $stmt = $this->db->prepare($sql);
@@ -27,7 +27,7 @@ class PatientModel
     public function verifierCodeBDD($email, $codeSaisi)
     {
         $sql = "SELECT p.* FROM patient p
-                JOIN utilisateur u ON p.id_patient = u.id_utilisateur
+                JOIN utilisateur u ON p.id_patient = u.id
                 WHERE u.email = :email AND p.verification_code = :code";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['email' => $email, 'code' => $codeSaisi]);
@@ -35,7 +35,7 @@ class PatientModel
 
         if ($patient) {
             $update = "UPDATE patient p
-                       JOIN utilisateur u ON p.id_patient = u.id_utilisateur
+                       JOIN utilisateur u ON p.id_patient = u.id
                        SET p.is_verified = 1, p.verification_code = NULL 
                        WHERE u.email = :email";
             $this->db->prepare($update)->execute(['email' => $email]);
@@ -63,7 +63,7 @@ class PatientModel
                     m.status as m_status -- Ta colonne 'status' dans la table medecin
                 FROM rendez_vous r
                 JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u_p ON p.id_patient = u_p.id_utilisateur
+                JOIN utilisateur u_p ON p.id_patient = u_p.id
                 JOIN medecin m ON r.id_medecin = m.id_medecin
                 JOIN utilisateur u_m ON m.id_medecin = u_m.id_utilisateur
                 WHERE u_p.email = :email 

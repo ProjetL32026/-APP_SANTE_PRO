@@ -12,8 +12,8 @@ class TicketController
         $email = trim($_REQUEST['email'] ?? '');
 
         if (!empty($code) && !empty($email)) {
-            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
-            $model = new TicketModel();
+            require_once ROOT . '/APP/models/Smodel/TickModel.php';
+            $model = new TickModel();
 
             if ($model->verifierCodeTicket($email, $code)) {
                 $ticket = $model->getTicketDetails($email);
@@ -31,8 +31,8 @@ class TicketController
     public function voirFile()
     {
         $email = $_GET['email'] ?? null;
-        require_once ROOT . '/APP/models/Smodel/TicketModel.php';
-        $model = new TicketModel();
+        require_once ROOT . '/APP/models/Smodel/TickModel.php';
+        $model = new TickModel();
         $ticket = $model->getTicketDetails($email);
 
         if ($ticket) {

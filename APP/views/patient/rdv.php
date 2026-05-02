@@ -1,8 +1,10 @@
 <?php
 // 1. Vérification de sécurité
-require_once ROOT . '/config/connexion.php';
+require_once ROOT . '/config/db.php';
 $pageTitle  = 'Prendre Rendez-vous';
-$pageScript = 'rdv.js';
+$pageCSS ='stylep.css';
+$pageScripts = ['scriptpatient/rdv.js'];
+$bodyClass  = 'bg-light';
 $joursChiffres = [];
 $map = ['Lun' => 1, 'Mar' => 2, 'Mer' => 3, 'Jeu' => 4, 'Ven' => 5, 'Sam' => 6, 'Dim' => 0];
 
@@ -26,6 +28,8 @@ if (!empty($erreur)): ?>
 // 2. Inclusion du header (qui inclut déjà la navbar dynamique)
 
 include ROOT . '/APP/views/layout/header.php';
+include ROOT . '/APP/views/layout/navbar.php'; 
+
 ?>
 <!-- ══════════════════════════════════════
      MINI-HERO
@@ -303,50 +307,8 @@ include ROOT . '/APP/views/layout/header.php';
  
 
 <script>
-
- 
-
-  
-
-
-document.getElementById('choix_patient').addEventListener('change', function() {
-    const inpNom = document.getElementById('inp-nom');
-    const inpPrenom = document.getElementById('inp-prenom');
-    const inpDdn = document.getElementById('inp-ddn');
-
-    if (this.value === 'moi') {
-        // Remplissage automatique
-        inpNom.value = parentInfos.nom;
-        inpPrenom.value = parentInfos.prenom;
-        inpDdn.value = parentInfos.ddn;
-        // Optionnel : mettre en lecture seule pour éviter les erreurs
-        inpNom.readOnly = true;
-        inpPrenom.readOnly = true;
-        inpDdn.readOnly = true;
-    } else {
-        // On vide les champs pour laisser l'utilisateur saisir les infos du fils
-        inpNom.value = "";
-        inpPrenom.value = "";
-        inpDdn.value = "";
-        inpNom.readOnly = false;
-        inpPrenom.readOnly = false;
-        inpDdn.readOnly = false;
-    }
-});
-
-// Initialiser au chargement si "Moi-même" est sélectionné par défaut
-window.addEventListener('DOMContentLoaded', () => {
-    if(document.getElementById('choix_patient').value === 'moi') {
-        document.getElementById('inp-nom').value = parentInfos.nom;
-        document.getElementById('inp-prenom').value = parentInfos.prenom;
-        document.getElementById('inp-ddn').value = parentInfos.ddn;
-    }
-});
-
-
-
-    // On passe les données PHP au JavaScript
-   window.joursPermis = <?php echo json_encode($joursChiffres); ?>;
+    // 1. ON DÉCLARE LES VARIABLES D'ABORD (IMPORTANT)
+    window.joursPermis = <?php echo json_encode($joursChiffres); ?>;
     window.RDV_EXISTANTS = <?php echo json_encode($rdvDejaExistants ?? []); ?>;
     window.selectedDate = null;
     window.selectedCreneau = null;
@@ -355,8 +317,42 @@ window.addEventListener('DOMContentLoaded', () => {
         prenom: "<?php echo addslashes($patient['prenom'] ?? ''); ?>",
         ddn: "<?php echo $patient['date_naissance'] ?? ''; ?>"
     };
-</script>
 
+    // 2. ENSUITE ON ÉCRIT LA LOGIQUE QUI UTILISE CES VARIABLES
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectPatient = document.getElementById('choix_patient');
+        const inpNom = document.getElementById('inp-nom');
+        const inpPrenom = document.getElementById('inp-prenom');
+        const inpDdn = document.getElementById('inp-ddn');
+
+        // Fonction pour remplir ou vider
+        function rafraichirChamps() {
+            if (selectPatient.value === 'moi') {
+                inpNom.value = window.parentInfos.nom;
+                inpPrenom.value = window.parentInfos.prenom;
+                inpDdn.value = window.parentInfos.ddn;
+                
+                inpNom.readOnly = true;
+                inpPrenom.readOnly = true;
+                inpDdn.readOnly = true;
+            } else {
+                inpNom.value = "";
+                inpPrenom.value = "";
+                inpDdn.value = "";
+                
+                inpNom.readOnly = false;
+                inpPrenom.readOnly = false;
+                inpDdn.readOnly = false;
+            }
+        }
+
+        // Ecouter le changement
+        selectPatient.addEventListener('change', rafraichirChamps);
+
+        // Initialiser au chargement (au cas où "Moi-même" est déjà sélectionné)
+        rafraichirChamps();
+    });
+</script>
  
 
 

@@ -2,4 +2,4 @@
 .env
 .DS_Store
 Thumbs.db
-config/connexion.php
+config/db.php

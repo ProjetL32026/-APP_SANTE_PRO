@@ -1,9 +1,14 @@
 <?php
+// controllers/RdvController.php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+
+// --- INSTANCIATION DE LA CLASSE ---
+global $pdo;
+$patientModel = new PatientModel($pdo);
 
 // 1. INITIALISATION DES VARIABLES
 $erreur = null;
@@ -17,8 +22,8 @@ if (!isset($_SESSION['patient_id']) || empty($_SESSION['patient_id'])) {
     exit();
 }
 
-// 3. VÉRIFICATION DU PATIENT
-$patient = recupererPatientParId($patientId);
+// 3. VÉRIFICATION DU PATIENT (Utilisation de la méthode de classe)
+$patient = $patientModel->recupererPatientParId($patientId);
 if ($patient && $patient['is_verified'] == 0) {
     header("Location: index.php?page=verification");
     exit();
@@ -27,9 +32,11 @@ if ($patient && $patient['is_verified'] == 0) {
 // 4. RÉCUPÉRATION INFOS MÉDECIN
 $rdvDejaExistants = [];
 if ($idMedecin) {
-    $medecin = getMedecinById($idMedecin);
+    // Utilisation de la méthode de classe
+    $medecin = $patientModel->getMedecinById($idMedecin);
     if ($medecin) {
-        $rdvDejaExistants = countRdvByMedecin($idMedecin);
+        // Utilisation de la méthode de classe
+        $rdvDejaExistants = $patientModel->countRdvByMedecin($idMedecin);
     } else {
         $erreur = "Erreur : Aucun médecin trouvé pour l'ID " . htmlspecialchars($idMedecin);
     }
@@ -48,21 +55,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_medecin'])) {
         'date_rdv'       => $_POST['date_rdv']       ?? null,   
         'periode'        => $_POST['periode']        ?? null
     ];
-
-    // ✅ BUG CORRIGÉ : On vérifie 'date_rdv' et non 'date'
+    // verifier  que  un seul rendez-vous par personne par 24h
     if ($data['nom_patient'] && $data['date_rdv']) {
-        if (saveSimpleRendezVous($data)) {
-            header('Location: index.php?page=historique&status=success');
-            exit();
+        
+        // 1. ON AJOUTE LA VÉRIFICATION ICI (Utilisation de la méthode de classe)
+        // On vérifie si ce patient (nom + prénom) existe déjà dans la table pour cette date
+        if ($patientModel->aDejaUnRdvLeMemeJour($data['nom_patient'], $data['prenom_patient'], $data['date_rdv'])) {
+            
+            // Si oui, on bloque et on prépare le message d'erreur
+            $erreur = "Désolé, " . htmlspecialchars($data['nom_patient']) . " a déjà un rendez-vous prévu pour cette date. Un seul rendez-vous par personne est autorisé par 24h.";
+            
         } else {
-            $erreur = "Erreur technique lors de l'enregistrement.";
+            // 2. SI PAS DE DOUBLON, ON CONTINUE LA LOGIQUE HABITUELLE (Utilisation de la méthode de classe)
+            if ($patientModel->saveSimpleRendezVous($data)) {
+                header('Location: index.php?page=historique&status=success');
+                exit();
+            } else {
+                $erreur = "Erreur technique lors de l'enregistrement.";
+            }
         }
+
     } else {
-        // DEBUG TEMPORAIRE — supprime ces lignes après que ça marche
+        // Bloc de debug
         $erreur  = "Données reçues : ";
         $erreur .= "nom=" . ($data['nom_patient'] ?? 'VIDE') . " | ";
-        $erreur .= "date_rdv=" . ($data['date_rdv'] ?? 'VIDE') . " | ";
-        $erreur .= "periode=" . ($data['periode'] ?? 'VIDE');
+        $erreur .= "date_rdv=" . ($data['date_rdv'] ?? 'VIDE');
     }
 }
 

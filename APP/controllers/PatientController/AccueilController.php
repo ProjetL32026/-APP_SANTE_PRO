@@ -8,21 +8,25 @@ require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 // On récupère la connexion PDO globale
 global $pdo;
 
+// --- INSTANCIATION DE LA CLASSE ---
+$patientModel = new PatientModel($pdo);
+
 // On récupère les stats
 $nbMedecins = $pdo->query("SELECT COUNT(*) FROM medecin")->fetchColumn();
 $nbSpecialites = $pdo->query("SELECT COUNT(*) FROM specialite")->fetchColumn();
 $rdvJourMax = 30;
 
-// 1. On appelle la fonction du modèle pour récupérer les spécialités
+// 1. On appelle la méthode de la classe pour récupérer les spécialités
 // Cette fonction (qu'on a créée dans PatientModel) récupère le nom, l'id et le nombre de médecins
-$specialites = getAllSpecialites();
+$specialites = $patientModel->getAllSpecialites();
 
 // 2. On vérifie si l'utilisateur a cliqué sur une spécialité (via l'URL ?spec=ID)
 $medecins = [];
 $specSelectionnee = $_GET['spec'] ?? null;
 
 if ($specSelectionnee) {
-    $medecins = getMedecinsBySpec($specSelectionnee);
+    // Utilisation de la méthode via l'objet
+    $medecins = $patientModel->getMedecinsBySpec($specSelectionnee);
 }
 
 // 2. On charge la vue Accueil.php

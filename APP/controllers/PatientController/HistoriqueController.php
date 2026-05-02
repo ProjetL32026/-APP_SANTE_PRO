@@ -1,26 +1,28 @@
 <?php
-// controllers/HistoriqueController.php
 require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 
-// On vérifie si l'utilisateur est connecté, sinon on le redirige
+global $pdo;
+$patientModel = new PatientModel($pdo);
+
 if (!isset($_SESSION['patient_id'])) {
     header('Location: index.php?page=inscription');
     exit();
 }
 
-// 1. Simulation des données du patient (on utilise la session)
-$patient = [
-    'nom'       => $_SESSION['patient_nom'] ?? 'Nom',
-    'prenom'    => $_SESSION['patient_prenom'] ?? 'Prénom',
-    'email'     => $_SESSION['patient_email'] ?? 'email@exemple.com',
-    'telephone' => $_SESSION['patient_tel'] ?? 'Non renseigné'
-];
+// 1. Récupération dynamique du profil
+$patient = $patientModel->recupererPatientParId($_SESSION['patient_id']);
 
-// 2. Simulation d'un tableau vide pour les rendez-vous (évite l'erreur count() )
-$rendezVous = []; 
+// Sécurité : si le patient n'existe pas en BDD
+if (!$patient) {
+    $patient = ['nom' => 'Client', 'prenom' => '', 'email' => '', 'telephone' => ''];
+}
 
-// 3. Préparation du JSON pour le JavaScript de la page
+// 2. Récupération dynamique des rendez-vous
+$rendezVous = $patientModel->getRendezVousByPatient($_SESSION['patient_id']);
+
+
+
+// 3. Transformation en JSON pour Historique.js
 $rdvJson = json_encode($rendezVous);
 
-// 4. Appel de la vue
 require_once ROOT . '/APP/views/patient/historique.php';

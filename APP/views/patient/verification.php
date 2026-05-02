@@ -1,6 +1,7 @@
 <?php
 $pageTitle = "Vérification du compte";
-$pageCSS ='styleP'
+$pageCSS ='stylep.css';
+$bodyClass  = 'bg-light';
 include ROOT . '/APP/views/layout/header.php';
 ?>
 

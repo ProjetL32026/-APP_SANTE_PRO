@@ -87,78 +87,52 @@ function renderList() {
 }
  
 function buildRdvCard(rdv) {
-  const d   = parseDateFR(rdv.date);
-  const sc  = statutConfig(rdv.statut);
-  const fut = isFutur(rdv.date) && rdv.statut !== 'annule';
- 
-  // Boutons actions
+  // Détection de l'ID pour les boutons
+  const rdvId = rdv.id_rendez_vous || rdv.id_rdv || rdv.id;
+  const d = parseDateFR(rdv.date_rdv || rdv.date);
+  const sc = statutConfig(rdv.statut);
+  
+  // On définit les actions (Modifier/Annuler ou Diagnostic)
   let actions = '';
- 
-  if (fut && (rdv.statut === 'confirme' || rdv.statut === 'attente')) {
-    actions += `
-      <button class="btn-action btn-modifier me-2"
-              onclick="ouvrirModifier(${rdv.id})">
-        <i class="fas fa-edit me-1"></i>Modifier
-      </button>
-      <button class="btn-action btn-annuler me-2"
-              onclick="ouvrirAnnuler(${rdv.id})">
-        <i class="fas fa-times me-1"></i>Annuler
-      </button>`;
+  if (rdv.statut === 'attente' || rdv.statut === 'confirme') {
+    actions = `
+      <button class="btn-action btn-modifier" onclick="ouvrirModifier(${rdvId})">Modifier</button>
+      <button class="btn-action btn-annuler" onclick="ouvrirAnnuler(${rdvId})">Annuler</button>`;
+  } else if (rdv.statut === 'consulte' || rdv.statut === 'passe') {
+    actions = `
+      <a href="index.php?page=diagnostic&id_rdv=${rdvId}" class="btn-action btn-diagnostic text-decoration-none">
+        <i class="fas fa-file-medical me-1"></i>Voir diagnostic
+      </a>`;
   }
- 
-  // Bouton diagnostic
-  if (rdv.statut === 'passe') {
-    if (rdv.diagnostic) {
-      actions += `
-        <button class="btn-action btn-diagnostic"
-                onclick="voirDiagnostic(${rdv.id})">
-          <i class="fas fa-file-medical me-1"></i>Voir diagnostic
-        </button>`;
-    } else {
-      actions += `
-        <button class="btn-action btn-diagnostic locked" disabled
-                title="Le médecin n'a pas encore rédigé le diagnostic">
-          <i class="fas fa-lock me-1"></i>Diagnostic en attente
-        </button>`;
-    }
-  }
- 
+
   return `
-    <div class="rdv-card d-flex mb-3" data-statut="${rdv.statut}" data-id="${rdv.id}">
-      <div class="card-left d-none d-sm-flex flex-column justify-content-center">
-        <div class="date-day">${d.jour}</div>
-        <div class="date-month">${d.mois}</div>
-        <div class="date-year">${d.annee}</div>
+    <div class="rdv-card d-flex mb-3 align-items-stretch">
+      <div class="card-left d-flex flex-column justify-content-center text-center p-3" style="min-width:100px; background:#f8fafc; border-right:1px solid #e2e8f0;">
+        <div class="date-day fw-bold" style="font-size:1.4rem; color:var(--aqua-dark); line-height:1;">${d.jour}</div>
+        <div class="date-month text-uppercase" style="font-size:0.75rem; font-weight:700;">${d.mois}</div>
+        <div class="date-year text-muted" style="font-size:0.7rem;">${d.annee}</div>
       </div>
-      <div class="card-body-inner w-100">
-        <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+      <div class="card-body-inner p-3 w-100">
+        <div class="d-flex justify-content-between align-items-start">
           <div>
-            <h6 class="fw-bold text-aqua-dark mb-1" style="font-size:.95rem">
-              <i class="fas fa-user-md me-1"></i>${rdv.medecin}
+            <h6 class="fw-bold text-aqua-dark mb-1">
+              <i class="fas fa-user-md me-2"></i>Dr. ${rdv.nom_medecin || 'Médecin'}
             </h6>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-              <span class="doc-chip">
-                <i class="fas fa-stethoscope" style="font-size:.7rem"></i>${rdv.specialite}
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+              <span class="badge bg-light text-dark border" style="font-size:0.75rem;">
+                <i class="fas fa-stethoscope me-1"></i>${rdv.nom_specialite || 'Généraliste'}
               </span>
-              <span class="badge-creneau">${creneauLabel(rdv.creneau)}</span>
-              <!-- Date visible sur mobile -->
-              <span class="d-sm-none" style="font-size:.75rem;color:#64748b">
-                <i class="fas fa-calendar me-1"></i>${dateComplete(rdv.date)}
+              <span class="badge-creneau" style="font-size:0.75rem;">
+                ${creneauLabel(rdv.periode || rdv.creneau)}
               </span>
             </div>
           </div>
-          <span class="badge-statut ${sc.cls}">
-            <i class="fas ${sc.icon}"></i>${sc.label}
+          <span class="badge-statut ${sc.cls}" style="font-size:0.75rem;">
+            <i class="fas ${sc.icon} me-1"></i>${sc.label}
           </span>
         </div>
- 
-        <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
-          <span style="font-size:.75rem;color:#94a3b8">
-            <i class="fas fa-ticket-alt me-1"></i>Ticket : <strong style="color:#475569">${rdv.ticket}</strong>
-          </span>
-          <div class="d-flex flex-wrap gap-1">
-            ${actions}
-          </div>
+        <div class="mt-3 d-flex justify-content-end gap-2">
+          ${actions}
         </div>
       </div>
     </div>`;

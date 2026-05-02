@@ -7,6 +7,10 @@ le formulaire vide quand on clique sur "S'inscrire".
 require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 // controllers/InscriptionController.php
 
+// --- INSTANCIATION DE LA CLASSE ---
+global $pdo;
+$patientModel = new PatientModel($pdo);
+
 // 1. On peut récupérer l'idMedecin depuis l'URL si besoin
 $idMedecin = $_GET['idMedecin'] ?? null;
 

@@ -1,5 +1,10 @@
-<?php include ROOT . '/APP/views/layout/header.php';
+<?php 
+require_once ROOT . '/config/db.php';
+$pageCSS    = 'stylep.css';
+$bodyClass  = 'bg-light';
 $idMedecin = $_GET['idMedecin'] ?? '';
+include ROOT . '/APP/views/layout/header.php';
+
  ?>
 
 <div class="container py-5">

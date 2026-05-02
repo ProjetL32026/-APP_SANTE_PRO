@@ -2,13 +2,14 @@
 // controllers/AuthController.php
 require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 
+global $pdo;
+$patientModel = new PatientModel($pdo);
+
 $action = $_GET['action'] ?? '';
 
 switch($action) {
     case 'inscription':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // ON GÉNÈRE LE CODE UNE SEULE FOIS ICI
-            $code_fixe = rand(100000, 999999);
             
             $data = [
                 'nom'            => $_POST['nom'] ?? '',
@@ -18,20 +19,18 @@ switch($action) {
                 'telephone'      => $_POST['telephone'] ?? '',
                 'mdp'            => $_POST['mdp'] ?? '', 
                 'date_naissance' => $_POST['date_naissance'] ?? '',
-                'id_medecin'     => $_POST['id_medecin'] ?? null,
-                'code_verif'     => $code_fixe // On utilise notre code fixe
+                'id_medecin'     => $_POST['id_medecin'] ?? null
             ];
 
-            // On appelle la fonction (pense à bien utiliser $data['code_verif'] dans le modèle)
-            $nouveauId = inscrirePatient($data);
+            // On appelle la méthode de la classe[cite: 7]
+            $nouveauId = $patientModel->inscrirePatient($data);
 
             if ($nouveauId) {
                 $_SESSION['patient_id'] = $nouveauId;
                 $_SESSION['patient_nom'] = $data['nom'];
 
-                // On prépare la redirection avec le MÊME code fixe
-               
-                header("Location: index.php?page=verification" . $idMed );
+                // Redirection vers la vérification
+                header("Location: index.php?page=verification");
                 exit();
             }
         } else {
@@ -44,8 +43,8 @@ switch($action) {
             $codeSaisi = $_POST['code_verif'] ?? ''; 
             $patientId = $_SESSION['patient_id'] ?? null;
 
-            // On utilise la fonction du modèle
-            if (verifierLeCodeAction($patientId, $codeSaisi)) {
+            // On utilise la méthode de la classe[cite: 7]
+            if ($patientModel->verifierLeCodeAction($patientId, $codeSaisi)) {
                 // Si c'est bon, on redirige vers le RDV (avec l'ID médecin si présent)
                 $idMed = $_GET['idMedecin'] ?? '';
                 $url = $idMed ? "index.php?page=rdv&idMedecin=$idMed" : "index.php?page=rdv";
@@ -59,38 +58,34 @@ switch($action) {
         break;
 
     case 'login':
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $email = $_POST['email'] ?? '';
-        $mdp = $_POST['password'] ?? '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'] ?? '';
+            $mdp = $_POST['password'] ?? '';
 
-        // On appelle la fonction de vérification du modèle
-        $user = verifierConnexionPatient($email, $mdp);
+            // Utilisation de la méthode via l'objet[cite: 7]
+            $user = $patientModel->verifierConnexionPatient($email, $mdp);
 
-        if ($user && is_array($user)) {
-            $_SESSION['patient_id'] = $user['id_patient'];
-            $_SESSION['patient_nom'] = $user['nom'];
+            if ($user && is_array($user)) {
+                $_SESSION['patient_id'] = $user['id_patient'];
+                $_SESSION['patient_nom'] = $user['nom'];
 
-            // Récupération de la redirection mémorisée dans index.php
-            $idMed = $_GET['idMedecin'] ?? $_POST['id_medecin'] ?? '';
+                $idMed = $_GET['idMedecin'] ?? $_POST['id_medecin'] ?? '';
 
-            // Nettoyage
-            unset($_SESSION['redirect_after_login']);
-            unset($_SESSION['temp_id_medecin']);
+                unset($_SESSION['redirect_after_login']);
+                unset($_SESSION['temp_id_medecin']);
 
-            if (!empty($idMed)) {
-    // Si un médecin est présent, on va vers le formulaire de rendez-vous
-    header("Location: index.php?page=rdv&idMedecin=" . $idMed);
-} else {
-    // Sinon, retour classique à l'accueil
-    header("Location: index.php?page=accueil");
-}
-            exit();
-        } else {
-            header("Location: index.php?page=connexion&error=1");
-            exit();
+                if (!empty($idMed)) {
+                    header("Location: index.php?page=rdv&idMedecin=" . $idMed);
+                } else {
+                    header("Location: index.php?page=accueil");
+                }
+                exit();
+            } else {
+                header("Location: index.php?page=connexion&error=1");
+                exit();
+            }
         }
-    }
-    break;        
+        break;        
 
     case 'logout':
         $_SESSION = array();

@@ -1,8 +1,11 @@
 <?php
-require_once ROOT . '/config/connexion.php';
+
 $pageTitle  = 'Santé Pro - Accueil';
-$pageScript = 'accueil.js';
+$pageCSS    = 'stylep.css';
+$pageScripts = ['scriptpatient/accueil.js'];
+$bodyClass  = 'bg-light';
 include ROOT . '/APP/views/layout/header.php';
+include ROOT . '/APP/views/layout/navbar.php'; 
 
 ?>
 <!-- ══════════════════════════════════

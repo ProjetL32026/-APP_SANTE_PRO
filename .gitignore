@@ -1,4 +1,6 @@
-node_modules/
-vendor/
+/vendor/
+.env
 .DS_Store
+Thumbs.db
 config/db.php
+node_modules/

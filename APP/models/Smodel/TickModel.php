@@ -4,7 +4,8 @@ class TickModel
     private $db;
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        global $pdo; // On va chercher ta variable globale
+        $this->db = $pdo;
     }
 
     public function verifierCodeTicket($email, $codeSaisi)
@@ -52,5 +53,15 @@ class TickModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id_medecin, 'monId' => $monIdRdv]);
         return $stmt->fetchColumn();
+    }
+    // Ajoute cette fonction dans ton TickModel.php
+    public function creerTicket($id_rdv, $numero)
+    {
+        $sql = "INSERT INTO ticket (id_rdv, numero) VALUES (:id_rdv, :numero)";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'id_rdv' => $id_rdv,
+            'numero' => $numero
+        ]);
     }
 }

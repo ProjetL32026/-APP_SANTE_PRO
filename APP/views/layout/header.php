@@ -19,5 +19,5 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/<?= $pageCSS ?>?v=<?= time() ?>">
   <?php endif; ?>
 </head>
- 
+
 <body class="<?= $bodyClass ?? '' ?>">

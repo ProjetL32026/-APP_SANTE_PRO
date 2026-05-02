@@ -1,4 +1,5 @@
 <?php
+/** @var array $historique */
 $pageTitle = "Historique des Consultations";
 $pageCSS = "stylebaya.css";
 $pageScripts = ['jsbaya/historique.js', 'jsbaya/statut.js'];

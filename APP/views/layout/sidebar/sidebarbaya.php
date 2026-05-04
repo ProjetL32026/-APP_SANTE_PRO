@@ -54,8 +54,8 @@ if (isset($pageScripts) && is_array($pageScripts)) {
                 <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Médecin') ?></span>
             </div>
 
-            <a href="index.php?page=logout" class="btn btn-outline-light w-100 btn-sm">
-                <i class="bi bi-box-arrow-left me-2"></i>
+            <a href="index.php?page=logout" class="nav-link text-warning logout-link">
+                <i class="fas fa-sign-out-alt me-2"></i>
                 <span>Déconnexion</span>
             </a>
         </div>

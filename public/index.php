@@ -71,7 +71,7 @@ if ($page === 'log') {
 if ($role === 'admin') {
     switch ($page) {
         case 'medcin':
-            require_once ROOT . '/APP/controllers/admin_controllers/MedecinController.php';
+            require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php';
             break;
         case 'infirmier':
             require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';

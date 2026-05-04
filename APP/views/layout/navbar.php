@@ -32,7 +32,7 @@
                 <a href="index.php?page=inscription" class="btn-connect text-decoration-none">
                     <i class="fas fa-user-plus me-1"></i> S'inscrire
                 </a>
-                <a href="index.php?page=login_admin" class="btn shadow-sm rounded-pill px-3 fw-bold text-white border-0" 
+                <a href="index.php?page=log" class="btn shadow-sm rounded-pill px-3 fw-bold text-white border-0" 
                    style="background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); font-size: 0.85rem;">
                     <i class="fas fa-user-shield me-1"></i> Espace Pro
                 </a>

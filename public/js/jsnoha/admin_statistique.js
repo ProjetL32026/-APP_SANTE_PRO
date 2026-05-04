@@ -30,9 +30,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // --- Graphique 2 : Consultations ---
     const labelsConsul = data.labelsConsul || [];
     const colorsConsul = labelsConsul.map(label => {
-        if (label.toLowerCase().includes('confirmé')) return '#4CAF50';
-        if (label.toLowerCase().includes('annulé')) return '#F44336';
-        if (label.toLowerCase().includes('attente')) return '#FF9800';
+        if (label.includes('Confirmé')) return '#4CAF50';
+        if (label.includes('Annulé')) return '#F44336';
+        if (label.includes('En attente')) return '#FF9800';
+        if (label.includes('Consulté')) return '#2196F3';
         return '#9E9E9E';
     });
 

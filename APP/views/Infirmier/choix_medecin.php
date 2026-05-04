@@ -12,7 +12,7 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
 <div class="main-content">
     <div class="selection-wrapper">
         <div class="selection-header-clean">
-            <h1>Sélection du Service</h1>
+            <h1>Sélection du Medecin</h1>
             <p>Veuillez choisir le médecin pour la session actuelle</p>
         </div>
 

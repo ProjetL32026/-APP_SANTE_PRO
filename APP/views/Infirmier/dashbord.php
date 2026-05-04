@@ -13,7 +13,7 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
 
 <div class="main-content">
 <div class="dashboard-container">
-    <h2 class="dashboard-title">Tableau de bord infirmier</h2>
+    <h1 class="dashboard-title">Tableau de bord infirmier</h1>
 
     <div class="stats-grid">
         <div class="stat-card">

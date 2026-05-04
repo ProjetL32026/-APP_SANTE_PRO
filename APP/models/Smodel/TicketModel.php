@@ -1,11 +1,10 @@
 <?php
-class TickModel
+class TicketModel
 {
     private $db;
-    public function __construct()
+    public function __construct($db)
     {
-        global $pdo; // On va chercher ta variable globale
-        $this->db = $pdo;
+        $this->db = $db;
     }
 
     public function verifierCodeTicket($email, $codeSaisi)
@@ -63,5 +62,17 @@ class TickModel
             'id_rdv' => $id_rdv,
             'numero' => $numero
         ]);
+    }
+    public function confirmerStatutRdv($email)
+    {
+        // On met à jour la table rendez_vous en filtrant par l'email de la table utilisateur
+        $sql = "UPDATE rendez_vous r
+            JOIN utilisateur u ON r.id_patient = u.id
+            SET r.statut = 'Confirmé' 
+            WHERE u.email = :email 
+            AND r.statut = 'En attente'";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['email' => $email]);
     }
 }

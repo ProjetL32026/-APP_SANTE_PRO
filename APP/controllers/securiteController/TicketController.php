@@ -12,10 +12,18 @@ class TicketController
         $email = trim($_REQUEST['email'] ?? '');
 
         if (!empty($code) && !empty($email)) {
-            require_once ROOT . '/APP/models/Smodel/TickModel.php';
-            $model = new TickModel();
+            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
+            $model = new TicketModel($db);
 
+            // 1. On vérifie si le code et l'email sont bons
             if ($model->verifierCodeTicket($email, $code)) {
+
+                // --- AJOUT ICI ---
+                // 2. On change le statut immédiatement en base de données
+                $model->confirmerStatutRdv($email);
+                // -----------------
+
+                // 3. On récupère les infos pour l'affichage
                 $ticket = $model->getTicketDetails($email);
                 require_once ROOT . '/APP/views/securite/affichage_ticket.php';
                 exit();
@@ -27,12 +35,11 @@ class TicketController
         }
         require_once ROOT . '/APP/views/securite/saisie_ticket.php';
     }
-
     public function voirFile()
     {
         $email = $_GET['email'] ?? null;
-        require_once ROOT . '/APP/models/Smodel/TickModel.php';
-        $model = new TickModel();
+        require_once ROOT . '/APP/models/Smodel/TicketModel.php';
+        $model = new TicketModel($db);
         $ticket = $model->getTicketDetails($email);
 
         if ($ticket) {

@@ -1,6 +1,15 @@
 <?php
+
 class TicketController
 {
+    private $model;
+
+    // Le constructeur reçoit le modèle injecté depuis l'index
+    public function __construct($model)
+    {
+        $this->model = $model;
+    }
+
     public function showSaisie()
     {
         require_once ROOT . '/APP/views/securite/saisie_ticket.php';
@@ -12,19 +21,14 @@ class TicketController
         $email = trim($_REQUEST['email'] ?? '');
 
         if (!empty($code) && !empty($email)) {
-            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
-            $model = new TicketModel($db);
+            // On utilise $this->model (plus besoin de $db ici)
+            if ($this->model->verifierCodeTicket($email, $code)) {
 
-            // 1. On vérifie si le code et l'email sont bons
-            if ($model->verifierCodeTicket($email, $code)) {
-
-                // --- AJOUT ICI ---
                 // 2. On change le statut immédiatement en base de données
-                $model->confirmerStatutRdv($email);
-                // -----------------
+                $this->model->confirmerStatutRdv($email);
 
                 // 3. On récupère les infos pour l'affichage
-                $ticket = $model->getTicketDetails($email);
+                $ticket = $this->model->getTicketDetails($email);
                 require_once ROOT . '/APP/views/securite/affichage_ticket.php';
                 exit();
             } else {
@@ -35,18 +39,18 @@ class TicketController
         }
         require_once ROOT . '/APP/views/securite/saisie_ticket.php';
     }
+
     public function voirFile()
     {
         $email = $_GET['email'] ?? null;
-        require_once ROOT . '/APP/models/Smodel/TicketModel.php';
-        $model = new TicketModel($db);
-        $ticket = $model->getTicketDetails($email);
+
+        // Utilisation du modèle via $this->model
+        $ticket = $this->model->getTicketDetails($email);
 
         if ($ticket) {
-            // ATTENTION : vérifie que la colonne s'appelle bien id_medecin
             $id_medecin = $ticket['id_medecin'];
-            $ticketAppele = $model->getTicketActuelDuMedecin($id_medecin);
-            $resteAvantMoi = $model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
+            $ticketAppele = $this->model->getTicketActuelDuMedecin($id_medecin);
+            $resteAvantMoi = $this->model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
             require_once ROOT . '/APP/views/securite/file_attente_live.php';
         } else {
             header("Location: index.php?page=ticket&action=saisie");

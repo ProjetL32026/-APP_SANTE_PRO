@@ -9,7 +9,7 @@ require_once ROOT . '/config/db.php';
 require_once ROOT . '/APP/controllers/securiteController/MailController.php';
 
 try {
-    $db = Database::getConnection();
+    $db = $pdo;
     $mailCtrl = new MailController();
 
     // On cible les rendez-vous de demain

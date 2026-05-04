@@ -1,0 +1,44 @@
+<?php
+// --- 1. INITIALISATION ---
+// On utilise ROOT pour charger le modèle (ROOT est défini dans index.php)
+require_once ROOT . '/APP/models/admin_models/Statistiques.php';
+
+try {
+    // On n'utilise plus "new Database()". 
+    // On récupère directement $db qui vient de l'index global via db.php
+    $anneeSelectionnee = $_GET['annee'] ?? date('Y');
+    
+    if (!isset($db)) {
+        throw new Exception("La connexion à la base de données (\$db) est introuvable.");
+    }
+
+    $statsModel = new Statistiques($db);
+
+    // --- 1. Performance par Spécialité ---
+$dataSpec = $statsModel->getRdvParSpecialite($anneeSelectionnee) ?: [];
+$labelsSpec = array_column($dataSpec, 'label');   // Modifié : PHP pur
+$valeursSpec = array_column($dataSpec, 'valeur'); // Modifié : PHP pur
+
+// --- 2. Statut des Consultations ---
+$dataConsul = $statsModel->getStatutConsultations($anneeSelectionnee) ?: [];
+$labelsConsul = array_column($dataConsul, 'label');
+$valeursConsul = array_column($dataConsul, 'valeur');
+
+// --- 3. Affluence Hebdomadaire ---
+$dataAffluence = $statsModel->getAffluenceHebdomadaire($anneeSelectionnee) ?: [];
+$labelsAffluence = array_column($dataAffluence, 'label');
+$valeursAffluence = array_column($dataAffluence, 'valeur');
+
+// --- 4. Disponibilité des Équipes ---
+$dataDispo = $statsModel->getDisponibiliteEquipes() ?: [];
+$labelsDispo = array_column($dataDispo, 'label');
+$valeursDispo = array_column($dataDispo, 'valeur');
+
+    // --- 3. APPEL DE LA VUE (AFFICHAGE) ---
+    // On utilise ROOT pour garantir le bon chemin vers la vue
+    require_once ROOT . '/APP/views/admin/statistique.php';
+
+} catch (Exception $e) {
+    // En cas d'erreur, on affiche un message propre au lieu d'une page blanche
+    die("Erreur lors du chargement des statistiques : " . $e->getMessage());
+}

@@ -1,15 +1,13 @@
 <?php
+
 class TicketModel
 {
     private $db;
+
     public function __construct($db)
     {
-<<<<<<< HEAD:APP/models/Smodel/TickModel.php
-        global $pdo; // On va chercher ta variable globale
-        $this->db = $pdo;
-=======
+        // On utilise l'instance $db passée par le contrôleur (Injection de dépendances)
         $this->db = $db;
->>>>>>> test:APP/models/Smodel/TicketModel.php
     }
 
     public function verifierCodeTicket($email, $codeSaisi)
@@ -58,7 +56,7 @@ class TicketModel
         $stmt->execute(['id' => $id_medecin, 'monId' => $monIdRdv]);
         return $stmt->fetchColumn();
     }
-    // Ajoute cette fonction dans ton TickModel.php
+
     public function creerTicket($id_rdv, $numero)
     {
         $sql = "INSERT INTO ticket (id_rdv, numero) VALUES (:id_rdv, :numero)";
@@ -68,19 +66,17 @@ class TicketModel
             'numero' => $numero
         ]);
     }
-<<<<<<< HEAD:APP/models/Smodel/TickModel.php
-=======
+
     public function confirmerStatutRdv($email)
     {
-        // On met à jour la table rendez_vous en filtrant par l'email de la table utilisateur
+        // Mise à jour automatique du statut lors de l'ouverture du lien magique
         $sql = "UPDATE rendez_vous r
-            JOIN utilisateur u ON r.id_patient = u.id
-            SET r.statut = 'Confirmé' 
-            WHERE u.email = :email 
-            AND r.statut = 'En attente'";
+                JOIN utilisateur u ON r.id_patient = u.id
+                SET r.statut = 'Confirmé' 
+                WHERE u.email = :email 
+                AND r.statut = 'En attente'";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['email' => $email]);
     }
->>>>>>> test:APP/models/Smodel/TicketModel.php
 }

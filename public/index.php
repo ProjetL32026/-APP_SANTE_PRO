@@ -135,17 +135,21 @@ elseif ($role === 'medecin') {
             break;
 
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
+        // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':
+            // 1. On appelle d'abord le modèle (le bon chemin sans le 's' si nécessaire)
+            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
+
+            // 2. On appelle le contrôleur
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
-            require_once ROOT . '/APP/models/securite_models/TicketModel.php';
+
+            // 3. On initialise
             $ticketModel = new TicketModel($db);
             $ticketCtrl = new TicketController($ticketModel);
 
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
-            }
-            // On ajoute 'voirFile' ici pour que le routeur le reconnaisse
-            elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
+            } elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
                 $ticketCtrl->voirFile();
             } else {
                 $ticketCtrl->showSaisie();

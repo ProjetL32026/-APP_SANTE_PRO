@@ -1,15 +1,15 @@
 <?php
 class MedecinModel
 {
-    private $db;
+    private PDO $db;
 
-    public function __construct($pdo)
+    public function __construct(PDO $pdo)
     {
         $this->db = $pdo;
     }
 
     // Récupérer la file d'attente (Patients non consultés)
-    public function getFileAttente($id_medecin)
+    public function getFileAttente(int $id_medecin): array
     {
         // Correction de la jointure : p.id_patient correspond à u.id
         $sql = "SELECT u.nom, u.prenom, r.id_rdv, r.periode, r.statut
@@ -27,20 +27,20 @@ class MedecinModel
         return $stmt->fetchAll();
     }
 
-    public function updateStatutEnConsultation($id_rdv)
+    public function updateStatutEnConsultation(int $id_rdv): bool
     {
         $sql = "UPDATE rendez_vous SET statut = 'Chez Medecin' WHERE id_rdv = :id_rdv";
         return $this->db->prepare($sql)->execute(['id_rdv' => $id_rdv]);
     }
 
-    public function updateStatutRetourFile($id_rdv)
+    public function updateStatutRetourFile(int $id_rdv): bool
     {
         $sql = "UPDATE rendez_vous SET statut = 'Présent' WHERE id_rdv = :id_rdv";
         return $this->db->prepare($sql)->execute(['id_rdv' => $id_rdv]);
     }
 
     // Détails du patient pour la page consultation
-    public function getPatientDetails($id_rdv)
+    public function getPatientDetails(int $id_rdv)
     {
         // Jointure directe simplifiée
         $sql = "SELECT u.nom, u.prenom 
@@ -53,7 +53,7 @@ class MedecinModel
         return $stmt->fetch();
     }
 
-    public function getCountTermines($id_medecin)
+    public function getCountTermines(int $id_medecin): int
     {
         $sql = "SELECT COUNT(*) as total FROM consultation 
                 WHERE id_medecin = :id AND date = CURDATE()";
@@ -63,7 +63,7 @@ class MedecinModel
         return $result['total'] ?? 0;
     }
 
-    public function saveConsultation($id_rdv, $id_medecin, $diag, $presc)
+    public function saveConsultation(int $id_rdv, int $id_medecin, string $diag, string $presc)
     {
         try {
             $this->db->beginTransaction();
@@ -84,7 +84,7 @@ class MedecinModel
         }
     }
 
-    public function getHistorique($id_medecin)
+    public function getHistorique(int $id_medecin): array
     {
         $sql = "SELECT c.*, u.nom, u.prenom, r.periode 
                 FROM consultation c
@@ -98,14 +98,14 @@ class MedecinModel
         return $stmt->fetchAll();
     }
 
-    public function getDetailsConsultation($id_rdv)
+    public function getDetailsConsultation(int $id_rdv)
     {
         try {
             $sql = "SELECT c.*, u.nom, u.prenom, r.date as date_rdv 
                 FROM consultation c
                 JOIN rendez_vous r ON c.id_rdv = r.id_rdv
                 JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u ON p.id_parient = u.id
+                JOIN utilisateur u ON p.id_patient = u.id
                 WHERE c.id_rdv = :id_r";
 
             $stmt = $this->db->prepare($sql);
@@ -116,7 +116,7 @@ class MedecinModel
         }
     }
 
-    public function updateStatusConge($id_medecin, $nouveauStatus)
+    public function updateStatusConge(int $id_medecin, string $nouveauStatus): bool
     {
         try {
             $sql = "UPDATE medecin SET status = :s WHERE id_medecin = :id_m";
@@ -127,7 +127,7 @@ class MedecinModel
         }
     }
 
-    public function getStatusConge($id_medecin)
+    public function getStatusConge(int $id_medecin): string
     {
         $sql = "SELECT status FROM medecin WHERE id_medecin = :id";
         $stmt = $this->db->prepare($sql);

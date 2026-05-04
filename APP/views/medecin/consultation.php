@@ -1,4 +1,5 @@
 <?php
+/** @var array $patient */
 $id_rdv = $_GET['id_rdv'] ?? null;
 $pageTitle = "Nouvelle Consultation";
 $pageCSS = "stylebaya.css"; // Votre fichier CSS spécifique

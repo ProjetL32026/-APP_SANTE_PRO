@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $user = $userModel->findByUsername($username);
 
+
         if ($user && password_verify($password, $user['mot_de_passe'])) {
             
             // 1. Initialisation de la session

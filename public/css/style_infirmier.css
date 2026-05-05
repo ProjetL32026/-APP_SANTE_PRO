@@ -29,26 +29,80 @@ body {
     width: 100%;
 }
 
+/* --- SIDEBAR --- */
 .sidebar {
     background: var(--teal-gradient);
     height: 100vh;
-    width: var(--sidebar-width);
     color: white;
-    position: fixed; /* Fixée à gauche */
-    left: 0;
-    top: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    position: fixed; 
+    width: inherit;
     z-index: 1000;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.05);
 }
 
+.sidebar-brand {
+    padding: 2.5rem 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+
+.brand-logo-container { background: rgba(255, 255, 255, 0.2); padding: 8px; border-radius: 10px; display: flex; }
+.brand-logo-svg { width: 28px; height: 28px; fill: white; }
+
+.nav-container { display: flex; flex-direction: column; flex-grow: 1; }
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 15px 25px !important;
+    font-weight: 600;
+    transition: 0.3s;
+    display: flex; align-items: center;
+    border-left: 4px solid transparent;
+    text-decoration: none;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15);
+    border-left: 4px solid white;
+}
+
+.logout-link { margin-top: auto !important; margin-bottom: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px !important; }
+
+
+/* --- CONTENU --- */
+
 .main-content {
-    flex-grow: 1;
-    margin-left: var(--sidebar-width); /* EMPÊCHE LE CONTENU DE GLISSER SOUS LA SIDEBAR */
+    margin-left: 260px; /* Largeur de ta sidebar */
     padding: 2rem;
     min-height: 100vh;
-    background-color: var(--bg-color);
+}
+/* MODIFICATION : Style du titre pour copier P2 (Admin) */
+/* --- STYLE UNIFORME POUR LES TITRES (P1, P2, P3) --- */
+.main-content h1, 
+.selection-header-clean h1, 
+.header-section h1 {
+    font-size: 1.4rem !important;    /* Taille demandée */
+    font-weight: 800;               /* Très gras comme l'admin */
+    color: var(--text-dark);        /* Ton bleu foncé #1B2559 */
+    padding-left: 15px;             /* Espace après la barre */
+    border-left: 5px solid var(--teal); /* La barre Aqua #00BCD4 */
+    margin-bottom: 25px;
+    font-family: 'Poppins', sans-serif;
+    display: block;                 /* Évite les bugs d'alignement */
+    line-height: 1.2;
+}
+
+/* Conserve tes lignes suivantes sans rien supprimer */
+.section-header { 
+    border-left: 5px solid var(--teal); 
+    padding-left: 20px; 
+    margin-bottom: 30px; 
 }
 
 /* --- Navigation Sidebar --- */
@@ -749,4 +803,7 @@ row-red {
     opacity: 0.8;
     background-color: #f9fafb !important;
 }
+
+
+
 

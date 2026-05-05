@@ -1,8 +1,6 @@
 <?php 
-
-
 $pageTitle  = "infirmier | Présence Patients"; 
-$pageCSS   = "style_infirmier.css";   
+$pageCSS    = "style_infirmier.css";   
 $bodyClass = "bg-light";
 $pageScript = ["script_infirmier/presencePatient.js"]; 
 
@@ -12,24 +10,29 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
 ?>
 
 <style>
-    /* Style pour la ligne rouge (Annulé) */
-    .ligne-annulee { 
+    /* Style pour toute la ligne annulée */
+    tr.ligne-annulee {
+        background-color: #fee2e2 !important; /* Rouge très clair sur toute la ligne */
+        transition: background-color 0.3s;
+    }
+
+    /* Force la couleur rouge sur chaque cellule et le texte */
+    .ligne-annulee td {
         background-color: #fee2e2 !important; 
+        color: #b91c1c !important; /* Texte en rouge foncé pour la lisibilité */
+        border-bottom: 1px solid #fecaca !important;
     }
-    .ligne-annulee td { 
-        background-color: #fee2e2 !important; 
-        color: #991b1b !important; 
-        border-bottom: 1px solid #fecaca !important; 
+
+    /* Change aussi la couleur du texte des badges internes pour qu'ils ne jurent pas */
+    .ligne-annulee .patient-name, 
+    .ligne-annulee .period-tag,
+    .ligne-annulee .status-label {
+        color: #b91c1c !important;
     }
-    /* Style pour la ligne envoyée à la fin */
-    .ligne-terminee { 
-        opacity: 0.8; 
-        background-color: #f3f4f6 !important; 
-    }
-    .btn-disabled { 
-        opacity: 0.4; 
-        cursor: not-allowed !important; 
-        pointer-events: none; 
+
+    /* Facultatif : désactiver l'effet au survol pour les lignes annulées */
+    .table tbody tr.ligne-annulee:hover {
+        background-color: #fecaca !important;
     }
 </style>
 
@@ -38,7 +41,7 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
     <div class="header-section">
         <div class="section-header">
             <h5>Suivi en temps réel</h5>
-            <h2>Gestion de la présence des patients</h2>
+            <h1>Gestion de la présence des patients</h1>
         </div>
         <div class="search-box">
              <i class="fas fa-search"></i>
@@ -62,13 +65,17 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
                 <?php 
                     $s = $rdv['statut'];
                     
-                    // Détection si le statut est "Annulé"
+                    // Détection précise des états pour le style visuel
                     $isAnnule = (strcasecmp(trim($s), 'Annulé') == 0 || strcasecmp(trim($s), 'Annule') == 0);
-                    // Détection si le patient a été envoyé à la fin
-                    $isFini = ($s == 'Fin');
+                    $isAbsent = ($s == 'Absent'); 
                     
-                    $rowClass = $isAnnule ? 'ligne-annulee' : ($isFini ? 'ligne-terminee' : '');
-                    $statusBadgeClass = ($s == 'Présent') ? 'present' : (($s == 'Absent' || $s == 'Retard' || $isAnnule) ? 'absent' : 'waiting');
+                    // Application des classes de ligne
+                    $rowClass = $isAnnule ? 'ligne-annulee' : ($isAbsent ? 'ligne-terminee' : '');
+                    
+                    // Gestion des badges de couleur
+                    $statusBadgeClass = 'waiting'; // Par défaut
+                    if ($s == 'Présent') $statusBadgeClass = 'present';
+                    elseif ($isAbsent || $isAnnule || $s == 'Retard') $statusBadgeClass = 'absent';
                 ?>
                 
                 <tr class="<?php echo $rowClass; ?>">
@@ -92,19 +99,37 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
                     
                     <td>
                         <span class="status-label <?php echo $statusBadgeClass; ?>">
-                            <?php echo ($s == 'Fin') ? 'En attente (Fin)' : htmlspecialchars($s); ?>
+                            <?php 
+                                // Si c'est Absent, on affiche le mot "Absent", ce qui correspond à votre logique de tri
+                                echo htmlspecialchars($s); 
+                            ?>
                         </span>
                     </td>
                     
                     <td class="text-center">
                         <?php if ($isAnnule): ?>
+                            <!-- Boutons désactivés pour les annulés -->
                             <button class="btn-action btn-present-sm btn-disabled"><i class="fas fa-check"></i></button>
                             <button class="btn-action btn-absent-sm btn-disabled"><i class="fas fa-times"></i></button>
                             <button class="btn-action btn-reorder-sm btn-disabled">Fin</button>
                         <?php else: ?>
-                            <button class="btn-action btn-present-sm" onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Présent')"><i class="fas fa-check"></i></button>
-                            <button class="btn-action btn-absent-sm" onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Absent')"><i class="fas fa-times"></i></button>
-                            <button class="btn-action btn-reorder-sm" onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Fin')">Fin</button>
+                            <!-- Action Présent -->
+                            <button class="btn-action btn-present-sm" title="Marquer présent" 
+                                    onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Présent')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            
+                            <!-- Action Absent -->
+                            <button class="btn-action btn-absent-sm" title="Marquer absent" 
+                                    onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Absent')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            
+                            <!-- Action Fin (pousse le patient vers le bas en mettant le statut 'Absent') -->
+                            <button class="btn-action btn-reorder-sm" title="Mettre à la fin" 
+                                    onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Absent')">
+                                Fin
+                            </button>
                         <?php endif; ?>
                     </td>
                 </tr>

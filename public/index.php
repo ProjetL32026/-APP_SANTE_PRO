@@ -70,7 +70,7 @@ if ($page === 'log') {
 // --- ESPACE ADMINISTRATEUR ---
 if ($role === 'admin') {
     switch($page) {
-        case 'medcin': require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php'; break;
+        case 'medcin': require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php'; break;
         case 'infirmier': require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php'; break;
         case 'specialite': require_once ROOT . '/APP/controllers/admin_controllers/SpecialiteController.php'; break;
         case 'statistique': require_once ROOT . '/APP/controllers/admin_controllers/StatsController.php'; break;
@@ -139,3 +139,4 @@ else {
             require_once ROOT . '/APP/controllers/PatientController/AccueilController.php';
             break;
     }
+}

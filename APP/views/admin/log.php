@@ -1,7 +1,5 @@
 <?php 
-if (!defined('BASE_URL')) {
-    define('BASE_URL', '/santepro');
-}
+
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | log"; 
 $pageCSS = "style_admin.css";
@@ -63,7 +61,7 @@ include '../APP/views/layout/header_authen.php';
         <button type="submit" class="btn btn-primary w-100 mb-3">Se connecter</button>
         
         <div class="text-center">
-            <a href="../../../index.php" class="btn btn-link btn-sm text-muted text-decoration-none">
+            <a href="index.php?page=accueil" class="btn btn-link btn-sm text-muted text-decoration-none">
                 <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
             </a>
         </div>

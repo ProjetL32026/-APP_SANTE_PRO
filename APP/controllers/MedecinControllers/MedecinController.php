@@ -70,7 +70,12 @@ switch ($action) {
         break;
 
     case 'historique':
-        $historique = $model->getHistorique($id_medecin);
+        $search = $_GET['search'] ?? ''; // Récupère le texte de recherche
+        $historique = $model->getHistorique($id_medecin, $search);
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            require_once '../APP/views/medecin/historique_rows.php';
+            exit; // On arrête l'exécution ici pour ne pas envoyer le header/footer
+        }
         // Récupération du statut pour la sidebar ici aussi
         $is_en_conge = $model->getStatusConge($id_medecin);
         $pageTitle = "Historique";
@@ -80,7 +85,6 @@ switch ($action) {
         require_once '../APP/views/medecin/historique.php';
         require_once '../APP/views/layout/footer.php';
         break;
-
     case 'get_ordonnance':
         $id_rdv = $_GET['id_rdv'] ?? null;
         if ($id_rdv) {

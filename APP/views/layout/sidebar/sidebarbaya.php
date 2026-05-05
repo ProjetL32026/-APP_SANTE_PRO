@@ -51,11 +51,11 @@ if (isset($pageScripts) && is_array($pageScripts)) {
         <div class="mt-3 pb-3">
             <div class="user-info-badge mb-3 text-white">
                 <small class="d-block opacity-75">Connecté en tant que :</small>
-                <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['nom_user'] ?? 'Médecin') ?></span>
+                <span class="fw-bold">Dr. <?= htmlspecialchars($_SESSION['username'] ?? 'Médecin') ?></span>
             </div>
 
-            <a href="index.php?page=logout" class="btn btn-outline-light w-100 btn-sm">
-                <i class="bi bi-box-arrow-left me-2"></i>
+            <a href="index.php?page=logout" class="nav-link text-warning logout-link">
+                <i class="fas fa-sign-out-alt"></i>
                 <span>Déconnexion</span>
             </a>
         </div>

@@ -28,7 +28,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #E8F5E9; color: #4CAF50;"><i class="fas fa-user-check"></i></div>
-                <div class="text-muted small fw-bold">MÉDECINS ACTIFS</div>
+                <div class="text-muted small fw-bold">MÉDECINS PRÉSENT</div>
                 <div class="h3 fw-bold m-0"><?= $totalMedecinsActifs ?></div>
             </div>
         </div>

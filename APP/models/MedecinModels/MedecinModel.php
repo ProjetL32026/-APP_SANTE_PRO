@@ -147,6 +147,6 @@ class MedecinModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id_medecin]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['status'] ?? 'actif';
+        return $result['status'] ?? 'Actif';
     }
 }

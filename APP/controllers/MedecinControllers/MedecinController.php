@@ -104,7 +104,7 @@ switch ($action) {
         ob_clean();
         header('Content-Type: application/json');
 
-        $nouveauStatus = $_POST['status'] ?? 'actif';
+        $nouveauStatus = $_POST['status'] ?? 'Actif';
         $success = $model->updateStatusConge($id_medecin, $nouveauStatus);
 
         // On répond au format JSON pour statut.js

@@ -7,8 +7,8 @@ class RendezVousModel {
     }
 
     /**
-     * Récupère les rendez-vous du jour avec tri par priorité :
-     * 0: Normal/Présent (Haut), 1: Fin (Bas), 2: Annulé (Tout en bas)
+     * Récupère les rendez-vous du jour avec tri par priorité
+     * Tri : En attente/Présent (0) -> Absent (1) -> Annulé (2)
      */
     public function getTodayRendezVous($id_medecin) {
         $sql = "SELECT r.id_rdv, t.numero, r.periode, r.statut, 
@@ -22,7 +22,7 @@ class RendezVousModel {
                 ORDER BY 
                     (CASE 
                         WHEN r.statut = 'Annulé' THEN 2 
-                        WHEN r.statut = 'Fin' THEN 1 
+                        WHEN r.statut = 'Absent' THEN 1 
                         ELSE 0 
                     END) ASC, 
                     t.numero ASC"; 
@@ -32,18 +32,12 @@ class RendezVousModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Met à jour le statut d'un rendez-vous
-     */
     public function updateStatut($id_rdv, $nouveau_statut) {
         $sql = "UPDATE rendez_vous SET statut = :statut WHERE id_rdv = :id";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute(['statut' => $nouveau_statut, 'id' => $id_rdv]);
     }
 
-    /**
-     * Récupère les prochains patients présents pour le dashboard
-     */
     public function getProchainsEnAttente($id_medecin, $limit = 3) {
         $sql = "SELECT t.numero AS numero,
                        COALESCE(NULLIF(r.nom_patient, ''), u.nom) AS nom_patient,
@@ -65,44 +59,40 @@ class RendezVousModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Compte le nombre total de rendez-vous aujourd'hui
-     */
     public function countToday($id_medecin) {
-        $sql = "SELECT COUNT(*) AS total FROM rendez_vous 
-                WHERE id_medecin = :id_medecin 
-                AND date = CURDATE()";
+        $sql = "SELECT COUNT(*) AS total FROM rendez_vous WHERE id_medecin = :id_medecin AND date = CURDATE()";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id_medecin' => $id_medecin]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)($result['total'] ?? 0);
     }
 
-    /**
-     * Compte le nombre de patients présents aujourd'hui
-     */
     public function countPresentsCumule($id_medecin) {
-        $sql = "SELECT COUNT(*) AS total FROM rendez_vous 
-                WHERE id_medecin = :id_medecin 
-                AND statut = 'Présent' 
-                AND date = CURDATE()";
+        $sql = "SELECT COUNT(*) AS total FROM rendez_vous WHERE id_medecin = :id_medecin AND statut = 'Présent' AND date = CURDATE()";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id_medecin' => $id_medecin]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)($result['total'] ?? 0);
     }
 
-    /**
-     * Compte les rendez-vous selon un statut spécifique
-     */
     public function countByStatus($status, $id_medecin) {
-        $sql = "SELECT COUNT(*) AS total FROM rendez_vous 
-                WHERE id_medecin = :id_medecin 
-                AND statut = :statut 
-                AND date = CURDATE()";
+        $sql = "SELECT COUNT(*) AS total FROM rendez_vous WHERE id_medecin = :id_medecin AND statut = :statut AND date = CURDATE()";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id_medecin' => $id_medecin, 'statut' => $status]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)($result['total'] ?? 0);
+    }
+
+    public function getPatientsAAnnuler($id_medecin, $date_absent) {
+        $sql = "SELECT u_pat.email AS mail_patient, u_pat.prenom AS prenom_patient, u_med.nom AS nom_medecin
+                FROM rendez_vous r
+                JOIN patient p ON r.id_patient = p.id_patient
+                JOIN utilisateur u_pat ON p.id_patient = u_pat.id
+                JOIN medecin m ON r.id_medecin = m.id_medecin
+                JOIN utilisateur u_med ON m.id_medecin = u_med.id
+                WHERE r.id_medecin = :id_med AND r.date = :date_abs AND r.statut != 'Annulé'";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id_med' => $id_medecin, 'date_abs' => $date_absent]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

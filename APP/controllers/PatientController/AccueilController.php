@@ -6,7 +6,7 @@ require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
 
 // --- PARTIE STATISTIQUES (Point 3) ---
 // On récupère la connexion PDO globale
-global $pdo;
+global $pdo; 
 
 // --- INSTANCIATION DE LA CLASSE ---
 $patientModel = new PatientModel($pdo);

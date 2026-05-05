@@ -6,7 +6,8 @@ class RdvModel
 
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        global $pdo; // On va chercher ta variable globale
+        $this->db = $pdo;
     }
 
     /**

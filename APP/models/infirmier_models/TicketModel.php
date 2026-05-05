@@ -11,19 +11,23 @@ class TicketModel {
      * Le nom et le prénom ne s'affichent QUE si le médecin a validé.
      */
     public function getTicketEnCours($id_medecin) {
-        $sql = "SELECT t.numero, u.nom, u.prenom 
-                FROM ticket t 
-                JOIN rendez_vous r ON t.id_rdv = r.id_rdv 
-                JOIN utilisateur u ON r.id_patient = u.id 
-                WHERE r.id_medecin = :id 
-                AND r.statut = 'Chez le médecin' 
-                AND r.date = CURDATE() 
-                LIMIT 1";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id_medecin]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    // COALESCE choisit le nom de rdv s'il existe, sinon celui de utilisateur
+    $sql = "SELECT 
+                t.numero, 
+                COALESCE(r.nom_patient, u.nom) AS nom, 
+                COALESCE(r.prenom_patient, u.prenom) AS prenom
+            FROM ticket t 
+            JOIN rendez_vous r ON t.id_rdv = r.id_rdv 
+            LEFT JOIN utilisateur u ON r.id_patient = u.id 
+            WHERE r.id_medecin = :id 
+            AND r.statut = 'Chez le médecin' 
+            AND r.date = CURDATE() 
+            LIMIT 1";
+    
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['id' => $id_medecin]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
     /**
      * ACTION DE L'INFIRMIER :
@@ -32,7 +36,7 @@ class TicketModel {
      */
     public function appelerProchainPatient($id_medecin) {
         // A. On termine SEULEMENT la consultation qui était en cours
-        $stmt = $this->db->prepare("UPDATE rendez_vous SET statut = 'Terminé'
+        $stmt = $this->db->prepare("UPDATE rendez_vous SET statut = 'Consulté'
                             WHERE statut = 'Chez le médecin'
                             AND id_medecin = :id
                             AND date = CURDATE()");

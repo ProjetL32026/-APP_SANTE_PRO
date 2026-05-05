@@ -4,6 +4,7 @@ $model = new MedecinModel($pdo);
 
 $id_medecin = $_SESSION['user_id'];
 $action = $_GET['action'] ?? 'liste';
+$is_en_conge = $model->getStatusConge($id_medecin);
 
 switch ($action) {
     case 'liste':

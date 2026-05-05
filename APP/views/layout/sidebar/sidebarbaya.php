@@ -44,7 +44,7 @@ if (isset($pageScripts) && is_array($pageScripts)) {
             <span class="small fw-bold text-white-50">Mode Congé</span>
             <div class="form-check form-switch">
                 <input class="form-check-input custom-switch" type="checkbox" id="btnConge"
-                    <?= (isset($is_en_conge) && $is_en_conge === 'en congé') ? 'checked' : '' ?>>
+                    <?= (isset($is_en_conge) && $is_en_conge === 'Congé') ? 'checked' : '' ?>>
             </div>
         </div>
 

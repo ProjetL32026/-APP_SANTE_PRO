@@ -4,6 +4,7 @@ $model = new MedecinModel($pdo);
 
 $id_medecin = $_SESSION['user_id'];
 $action = $_GET['action'] ?? 'liste';
+$is_en_conge = $model->getStatusConge($id_medecin);
 
 switch ($action) {
     case 'liste':
@@ -70,7 +71,12 @@ switch ($action) {
         break;
 
     case 'historique':
-        $historique = $model->getHistorique($id_medecin);
+        $search = $_GET['search'] ?? ''; // Récupère le texte de recherche
+        $historique = $model->getHistorique($id_medecin, $search);
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            require_once '../APP/views/medecin/historique_rows.php';
+            exit; // On arrête l'exécution ici pour ne pas envoyer le header/footer
+        }
         // Récupération du statut pour la sidebar ici aussi
         $is_en_conge = $model->getStatusConge($id_medecin);
         $pageTitle = "Historique";
@@ -80,7 +86,6 @@ switch ($action) {
         require_once '../APP/views/medecin/historique.php';
         require_once '../APP/views/layout/footer.php';
         break;
-
     case 'get_ordonnance':
         $id_rdv = $_GET['id_rdv'] ?? null;
         if ($id_rdv) {
@@ -99,7 +104,7 @@ switch ($action) {
         ob_clean();
         header('Content-Type: application/json');
 
-        $nouveauStatus = $_POST['status'] ?? 'actif';
+        $nouveauStatus = $_POST['status'] ?? 'Actif';
         $success = $model->updateStatusConge($id_medecin, $nouveauStatus);
 
         // On répond au format JSON pour statut.js

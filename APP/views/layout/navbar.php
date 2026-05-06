@@ -80,7 +80,7 @@
         <i class="fas fa-user text-info"></i> Espace Patient
       </a>
 
-      <a class="offcanvas-nav-link d-flex align-items-center gap-2 p-2 text-decoration-none text-dark" href="index.php?page=login_medecin">
+      <a class="offcanvas-nav-link d-flex align-items-center gap-2 p-2 text-decoration-none text-dark" href="index.php?page=log">
         <i class="fas fa-user-md text-success"></i> Espace Médecin
       </a>
       <a class="offcanvas-nav-link d-flex align-items-center gap-2 p-2 text-decoration-none text-dark" href="index.php?page=login_admin">

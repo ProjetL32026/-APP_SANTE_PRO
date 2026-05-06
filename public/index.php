@@ -1,7 +1,7 @@
 <?php
 /**
  * SANTE_PRO - INDEX GLOBAL RÉVISÉ
- */
+ **/
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -71,7 +71,7 @@ if ($page === 'log') {
 if ($role === 'admin') {
     switch ($page) {
         case 'medcin':
-            require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php';
+            require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php';
             break;
         case 'infirmier':
             require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';
@@ -165,15 +165,21 @@ case 'modifier_rdv':
       
 
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
+        // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':
+            // 1. On appelle d'abord le modèle (le bon chemin sans le 's' si nécessaire)
+            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
+
+            // 2. On appelle le contrôleur
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
-            $ticketCtrl = new TicketController();
+
+            // 3. On initialise
+            $ticketModel = new TicketModel($db);
+            $ticketCtrl = new TicketController($ticketModel);
 
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
-            }
-            // On ajoute 'voirFile' ici pour que le routeur le reconnaisse
-            elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
+            } elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
                 $ticketCtrl->voirFile();
             } else {
                 $ticketCtrl->showSaisie();

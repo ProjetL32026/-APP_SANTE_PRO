@@ -384,3 +384,33 @@ body {
         display: none !important;
     }
 }
+/* ============================================================
+   7. TITRES AVEC BARRE VERTICALE (Harmonisation)
+   ============================================================ */
+.section-header {
+    border-left: 6px solid var(--teal); /* La barre verticale Aqua */
+    padding-left: 20px;                 /* Espace entre la barre et le texte */
+    margin-bottom: 30px;                /* Équivalent à mb-4 */
+    display: flex;
+    flex-direction: column;
+}
+
+.section-header h2 {
+    font-weight: 800;                   /* fw-bold poussé à 800 pour Santé Pro */
+    color: var(--text-dark);            /* Utilise #1B2559 */
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.8rem;
+    line-height: 1.2;
+}
+
+/* Le petit texte gris au-dessus du titre */
+.section-header span {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-gray);            /* Utilise #A3AED0 */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}

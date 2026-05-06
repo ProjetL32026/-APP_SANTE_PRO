@@ -22,7 +22,6 @@ class DashboardController {
     }
 
     public function index() {
-        // L'ID est garanti d'exister grâce au constructeur ci-dessus
         $id_medecin = $_SESSION['id_medecin_choisi'];
 
         // 2. Gérer les actions (Changement de statut)
@@ -52,8 +51,7 @@ class DashboardController {
         $pageTitle = "Tableau de Bord | Santé Pro";
         $pageCSS = "css/style_infirmier.css"; 
         
-       // On remonte de InfirmierController (1) puis de controllers (2) pour atteindre APP/views
-require_once __DIR__ . '/../../views/Infirmier/dashbord.php';
+        require_once __DIR__ . '/../../views/Infirmier/dashbord.php';
     }
 
     private function updateDocStatus() {
@@ -65,13 +63,28 @@ require_once __DIR__ . '/../../views/Infirmier/dashbord.php';
         }
         
         $status = trim($status);
-        $allowed = ['Présent', 'Absent'];
-        if (!in_array($status, $allowed, true)) {
-            die("Erreur: statut invalide");
+        
+        // --- LOGIQUE D'ENVOI D'EMAILS SI ABSENT ---
+        if ($status === 'Absent') {
+            $aujourdhui = date('Y-m-d');
+            // Récupération des patients via le modèle rdv
+            $patients = $this->rdvModel->getPatientsAAnnuler($id_medecin_param, $aujourdhui);
+
+            if (!empty($patients)) {
+                $mail = new MailController();
+                foreach ($patients as $p) {
+                    // Utilisation exacte des colonnes renvoyées par le modèle et attendues par MailController
+                    $mail->envoyerAlerteAbsence(
+                        $p['mail_patient'],   
+                        $p['prenom_patient'], 
+                        $aujourdhui,          
+                        $p['nom_medecin']     
+                    );
+                }
+            }
         }
         
-        $result = $this->medecinModel->updateStatus($id_medecin_param, $status);
-        
+        $this->medecinModel->updateStatus($id_medecin_param, $status);
         header('Location: index.php?page=dashbord');
         exit();
     }
@@ -88,9 +101,11 @@ require_once __DIR__ . '/../../views/Infirmier/dashbord.php';
  * Ce code s'exécute dès que l'index.php fait le require_once.
  */
 
-// 1. Chargement des fichiers nécessaires non inclus par l'index commun
+// --- INSTANCIATION AUTOMATIQUE ---
 require_once ROOT . '/APP/models/infirmier_models/GestionMedecinModel.php';
 require_once ROOT . '/APP/controllers/InfirmierController/TicketController.php';
+// Chemin corrigé selon ton MailController
+require_once ROOT . '/APP/controllers/securiteController/MailController.php'; 
 
 // 2. Création des instances des modèles (en utilisant la variable $db de l'index)
 $rdvMdl  = new RendezVousModel($db);

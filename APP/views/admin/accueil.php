@@ -9,7 +9,7 @@ $pageTitle = "Admin | Accueil Dashboard";
 $pageCSS = "style_admin.css";
 // On remonte d'un dossier avec /../ pour trouver 'layout'
 include __DIR__ . '/../layout/header.php';
-include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
+include __DIR__ . '/../layout/sidebar/sidebar_admin.php';
 ?>
 
 <main class="col-12 col-md-9 col-lg-10 main-content offset-md-3 offset-lg-2">
@@ -28,7 +28,7 @@ include __DIR__ . '/../layout/Sidebar/sidebar_admin.php';
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card-stat">
                 <div class="stat-icon-circle" style="background: #E8F5E9; color: #4CAF50;"><i class="fas fa-user-check"></i></div>
-                <div class="text-muted small fw-bold">MÉDECINS ACTIFS</div>
+                <div class="text-muted small fw-bold">MÉDECINS PRÉSENT</div>
                 <div class="h3 fw-bold m-0"><?= $totalMedecinsActifs ?></div>
             </div>
         </div>

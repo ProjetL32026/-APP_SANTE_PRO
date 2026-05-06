@@ -1,10 +1,13 @@
 <?php
-class TickModel
+
+class TicketModel
 {
     private $db;
-    public function __construct()
+
+    public function __construct($db)
     {
-        $this->db = Database::getConnection();
+        // On utilise l'instance $db passée par le contrôleur (Injection de dépendances)
+        $this->db = $db;
     }
 
     public function verifierCodeTicket($email, $codeSaisi)
@@ -52,5 +55,28 @@ class TickModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id_medecin, 'monId' => $monIdRdv]);
         return $stmt->fetchColumn();
+    }
+
+    public function creerTicket($id_rdv, $numero)
+    {
+        $sql = "INSERT INTO ticket (id_rdv, numero) VALUES (:id_rdv, :numero)";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'id_rdv' => $id_rdv,
+            'numero' => $numero
+        ]);
+    }
+
+    public function confirmerStatutRdv($email)
+    {
+        // Mise à jour automatique du statut lors de l'ouverture du lien magique
+        $sql = "UPDATE rendez_vous r
+                JOIN utilisateur u ON r.id_patient = u.id
+                SET r.statut = 'Confirmé' 
+                WHERE u.email = :email 
+                AND r.statut = 'En attente'";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['email' => $email]);
     }
 }

@@ -71,7 +71,7 @@ if ($page === 'log') {
 if ($role === 'admin') {
     switch ($page) {
         case 'medcin':
-            require_once ROOT . '/APP/controllers/admin_controllers/MedecinController.php';
+            require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php';
             break;
         case 'infirmier':
             require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';
@@ -133,6 +133,36 @@ elseif ($role === 'medecin') {
         case 'connexion':
             require_once ROOT . '/APP/views/patient/inscription.php';
             break;
+
+        case 'annuler_rdv':
+    $data  = json_decode(file_get_contents('php://input'), true);
+    $idRdv = (int)($data['idRdv'] ?? 0);
+
+    // Vérification de sécurité de base
+    if (!isset($_SESSION['patient_id']) || $idRdv <= 0) {
+        echo json_encode(['success' => false]);
+        exit();
+    }
+
+    $ok = $model->annulerRendezVous($idRdv);
+    echo json_encode(['success' => (bool)$ok]);
+    exit();
+
+case 'modifier_rdv':
+    $data    = json_decode(file_get_contents('php://input'), true);
+    $idRdv   = (int)($data['idRdv'] ?? 0);
+    $date    = $data['date']    ?? '';
+    $periode = $data['periode'] ?? '';
+
+    if (!isset($_SESSION['patient_id']) || $idRdv <= 0 || !$date) {
+        echo json_encode(['success' => false]);
+        exit();
+    }
+
+    $ok = $model->modifierRendezVous($idRdv, $date, $periode);
+    echo json_encode(['success' => (bool)$ok]);
+    exit();
+      
 
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':

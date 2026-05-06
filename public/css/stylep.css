@@ -98,6 +98,28 @@ body {
   box-shadow: 0 6px 20px rgba(0,0,0,.2);
 }
 
+.brand-logo-container {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.brand-logo-svg {
+    width: 28px;
+    height: 28px;
+    fill: white;
+}
+
+/* Animation au survol du logo */
+.navbar-brand:hover .brand-logo-container {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
 
  
 /* Offcanvas */
@@ -777,4 +799,53 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3) !important;
     color: #ffffff !important;
+}
+
+
+
+
+
+
+/* Styles pour les statuts */
+.bg-purple { background-color: #7c3aed !important; }
+
+/* Bordure de la card selon le statut */
+.doctor-card.statut-present { border-left: 4px solid #16a34a !important; }
+.doctor-card.statut-absent  { border-left: 4px solid #ef4444 !important; }
+.doctor-card.statut-conge   { border-left: 4px solid #7c3aed !important; }
+.doctor-card.statut-actif   { border-left: 4px solid #0ea5e9 !important; }
+/* Design de la carte */
+.card-medecin {
+    position: relative;
+    border-radius: 20px;
+    background: #fff;
+    transition: transform 0.3s ease;
+    overflow: hidden;
+}
+
+.card-medecin:hover {
+    transform: translateY(-5px);
+}
+
+/* Badge de statut positionné */
+.badge-status-top {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Icônes */
+.card-medecin i {
+    width: 20px;
+    text-align: center;
+}
+
+.avatar-container img {
+    background-color: #f0f9ff;
 }

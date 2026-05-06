@@ -14,10 +14,20 @@ $patientModel = new PatientModel($pdo);
 $erreur = null;
 $idMedecin = $_GET['idMedecin'] ?? ($_POST['id_medecin'] ?? null);
 $medecin = null;
-$patientId = $_SESSION['patient_id'] ?? null;
+$rdvDejaExistants = [];
 
-// 2. LE GARDIEN : Vérification d'authentification
-if (!isset($_SESSION['patient_id']) || empty($_SESSION['patient_id'])) {
+// 2. RÉCUPÉRATION INFOS MÉDECIN (À METTRE ICI !)
+// On charge le médecin AVANT de vérifier la session pour que les jours de travail soient dispo
+if ($idMedecin) {
+    $medecin = $patientModel->getMedecinById($idMedecin);
+    if ($medecin) {
+        $rdvDejaExistants = $patientModel->countRdvByMedecin($idMedecin);
+    }
+}
+
+// 3. LE GARDIEN : Vérification d'authentification
+$patientId = $_SESSION['patient_id'] ?? null;
+if (!$patientId) {
     header("Location: index.php?page=inscription&idMedecin=" . $idMedecin);
     exit();
 }
@@ -45,7 +55,6 @@ if ($idMedecin) {
 // 5. TRAITEMENT DU FORMULAIRE (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_medecin'])) {
 
-    // ✅ BUG CORRIGÉ : La clé 'date_rdv' correspond au name="date_rdv" dans le formulaire
     $data = [
         'id_parent'      => $_SESSION['patient_id'],
         'id_medecin'     => $_POST['id_medecin'],
@@ -60,7 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_medecin'])) {
         
         // 1. ON AJOUTE LA VÉRIFICATION ICI (Utilisation de la méthode de classe)
         // On vérifie si ce patient (nom + prénom) existe déjà dans la table pour cette date
-        if ($patientModel->aDejaUnRdvLeMemeJour($data['nom_patient'], $data['prenom_patient'], $data['date_rdv'])) {
+        if ($patientModel->aDejaUnRdvDansCetteSpecialite(
+            $data['nom_patient'], 
+            $data['prenom_patient'], 
+            $data['date_rdv'], 
+            $data['id_medecin'] // Nouveau paramètre
+        )) {
             
             // Si oui, on bloque et on prépare le message d'erreur
             $erreur = "Désolé, " . htmlspecialchars($data['nom_patient']) . " a déjà un rendez-vous prévu pour cette date. Un seul rendez-vous par personne est autorisé par 24h.";

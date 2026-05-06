@@ -10,7 +10,7 @@ $action = $_GET['action'] ?? '';
 switch($action) {
     case 'inscription':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            
+            $idMed = $_POST['id_medecin'] ?? null;
             $data = [
                 'nom'            => $_POST['nom'] ?? '',
                 'prenom'         => $_POST['prenom'] ?? '',
@@ -29,9 +29,11 @@ switch($action) {
                 $_SESSION['patient_id'] = $nouveauId;
                 $_SESSION['patient_nom'] = $data['nom'];
 
-                // Redirection vers la vérification
-                header("Location: index.php?page=verification");
-                exit();
+                $redir = "index.php?page=verification";
+            if ($idMed) { $redir .= "&idMedecin=" . $idMed; }
+            
+            header("Location: " . $redir);
+            exit();
             }
         } else {
             require_once ROOT . '/APP/views/patient/inscription.php';
@@ -42,6 +44,9 @@ switch($action) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $codeSaisi = $_POST['code_verif'] ?? ''; 
             $patientId = $_SESSION['patient_id'] ?? null;
+
+         // On récupère l'ID médecin depuis le POST ou le GET
+        $idMed = $_POST['id_medecin'] ?? $_GET['idMedecin'] ?? '';
 
             // On utilise la méthode de la classe[cite: 7]
             if ($patientModel->verifierLeCodeAction($patientId, $codeSaisi)) {

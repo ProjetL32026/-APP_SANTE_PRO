@@ -127,44 +127,93 @@ include ROOT . '/APP/views/layout/navbar.php';
 
         <div class="row g-4 justify-content-center">
             <?php if (!empty($medecins)): ?>
-                <?php foreach ($medecins as $doc): ?>
+                <?php 
+                // CRITIQUE : On définit la variable ICI, AVANT la boucle[cite: 19]
+                $statusStyles = [
+                    'Actif'   => ['cls' => 'bg-primary', 'icon' => 'fa-info-circle'],
+                    'Présent' => ['cls' => 'bg-success', 'icon' => 'fa-check-circle'],
+                    'Absent'  => ['cls' => 'bg-danger',  'icon' => 'fa-times-circle'],
+                    'Congé'   => ['cls' => 'bg-purple',  'icon' => 'fa-plane-departure']
+                ];
+                ?>
+
+                <?php foreach ($medecins as $doc): 
+                    // 1. On récupère le style du badge
+                    $st = $statusStyles[$doc['status']] ?? $statusStyles['Actif']; 
+                    
+                    // 2. On prépare la classe CSS pour la bordure de gauche[cite: 19]
+                    $statutClasse = match(strtolower(trim($doc['status'] ?? ''))) {
+                        'présent', 'present' => 'statut-present',
+                        'absent'             => 'statut-absent',
+                        'congé', 'conge'     => 'statut-conge',
+                        default              => 'statut-actif'
+                    };
+                ?>
                 <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4">
-                        <div class="card-body">
-                            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center" 
-                                 style="width: 70px; height: 70px; background-color: #00a8e8; border-radius: 50%; color: white; font-size: 2rem;">
+                    <!-- On ajoute la classe $statutClasse ici pour activer vos bordures CSS[cite: 19] -->
+                    <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-0 overflow-hidden position-relative doctor-card <?php echo $statutClasse; ?>">
+                        
+                        <!-- Badge de statut -->
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill <?php echo $st['cls']; ?> text-white shadow-sm" style="font-size: 0.75rem; z-index: 2;">
+                            <i class="fas <?php echo $st['icon']; ?> me-1"></i> <?php echo htmlspecialchars($doc['status'] ?? 'Actif'); ?>
+                        </span>
+
+                        <div class="card-body p-4 pt-5">
+                            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" 
+                                 style="width: 85px; height: 85px; background-color: #f0f9ff; border: 4px solid #00a8e8; border-radius: 50%; color: #00a8e8; font-size: 2.5rem;">
                                 👤
                             </div>
                             
                             <h4 class="fw-bold text-aqua-dark h5 mb-1">
-                                Dr. <?php echo htmlspecialchars($doc['nom'] . ' ' . $doc['prenom']); ?>
+                                <?php 
+                                    $typeNettoye = strtoupper(trim($doc['type']));
+                                    echo ($typeNettoye === 'PROFESSEUR' || $typeNettoye === 'PR') ? 'Pr.' : 'Dr.'; 
+                                ?> 
+                                <?php echo htmlspecialchars($doc['nom'] . ' ' . $doc['prenom']); ?>
                             </h4>
                             
-                            <p class="text-muted small mb-1"><?php echo htmlspecialchars($doc['type']); ?></p> <!-- le type du médecin  titulaire ou visiteur -->
-                            
-                            <p class="fw-bold <?php echo ($doc['status'] == 'disponible') ? 'text-success' : 'text-danger'; ?>" style="font-size: 0.9rem;">
-                                ● <?php echo ucfirst(htmlspecialchars($doc['status'])); ?> <!--status (disponible en gongé .....)-->
+                            <p class="text-muted small text-uppercase fw-bold mb-3" style="letter-spacing: 1px;">
+                                <?php echo htmlspecialchars($doc['type']); ?>
                             </p>
 
+                            <hr class="my-3 opacity-25">
 
-                            
-                            <?php if (isset($_SESSION['patient_id']) && !empty($_SESSION['patient_id'])): ?>
-    <a href="index.php?page=rdv&idMedecin=<?php echo $doc['id']; ?>" 
-       class="btn btn-success text-white w-100 rounded-pill mt-2 fw-bold">
-       Prendre rendez-vous (Direct)
-    </a>
-<?php else: ?>
-    <a href="index.php?page=inscription&idMedecin=<?php echo $doc['id']; ?>" 
-       class="btn btn-info text-white w-100 rounded-pill mt-2 fw-bold">
-       Prendre rendez-vous
-    </a>
-<?php endif; ?>
+                            <div class="text-start mb-4 bg-light p-3 rounded-3">
+                                <div class="mb-2" style="font-size: 0.85rem;">
+                                    <i class="fas fa-calendar-check text-info me-2"></i>
+                                    <span class="text-dark"><strong>Jours :</strong> 
+                                        <?php echo (!empty($doc['jour_travail'])) ? htmlspecialchars($doc['jour_travail']) : 'Non renseigné'; ?>
+                                    </span>
+                                </div>
+                                
+                                <?php if (!empty($doc['heure_debut'])): ?>
+                                <div class="mb-2" style="font-size: 0.85rem;">
+                                    <i class="fas fa-clock text-warning me-2"></i>
+                                    <span class="text-dark"><strong>Horaires :</strong> 
+                                        <?php echo substr($doc['heure_debut'], 0, 5); ?> – <?php echo substr($doc['heure_fin'], 0, 5); ?>
+                                    </span>
+                                </div>
+                                <?php endif; ?>
+
+                                <div style="font-size: 0.85rem;">
+                                    <i class="fas fa-phone-alt text-success me-2"></i>
+                                    <span class="text-dark"><strong>Contact :</strong> 
+                                        <?php echo (!empty($doc['telephone'])) ? htmlspecialchars($doc['telephone']) : 'Non renseigné'; ?>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <?php if (isset($_SESSION['patient_id'])): ?>
+                                <a href="index.php?page=rdv&idMedecin=<?php echo $doc['id']; ?>" class="btn btn-info text-white w-100 rounded-pill fw-bold py-2">Réserver</a>
+                            <?php else: ?>
+                                <a href="index.php?page=inscription&idMedecin=<?php echo $doc['id']; ?>" class="btn btn-outline-info w-100 rounded-pill fw-bold py-2">Prendre rendez-vous</a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <div class="col-12 text-center text-muted">Aucun médecin trouvé dans cette catégorie.</div>
+                <div class="col-12 text-center text-muted">Aucun médecin trouvé.</div>
             <?php endif; ?>
         </div>
         <?php endif; ?>

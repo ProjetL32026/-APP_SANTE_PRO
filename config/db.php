@@ -1,18 +1,7 @@
 <?php
-// ============================================
-// config/connexion.php
-// Connexion à la base de données MySQL
-// Inclus dans TOUS les Models
-// ============================================
-<<<<<<< HEAD
 
 $host = 'localhost';
 $port = '3306';
-=======
- 
-$host   = 'localhost';
- $port = '3308';
->>>>>>> 659744949ba85135a201d4e59bfff21c522a32ac
 $dbname = 'sante_pro_db';
 $user = 'root';
 $pass = '';          // vide sur WAMP par défaut
@@ -20,7 +9,7 @@ $charset = 'utf8mb4';
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8",
+        "mysql:host=$host;dbname=$dbname;charset=utf8",
         $user,
         $pass
     );

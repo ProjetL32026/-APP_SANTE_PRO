@@ -21,14 +21,17 @@ class TicketController
         $email = trim($_REQUEST['email'] ?? '');
 
         if (!empty($code) && !empty($email)) {
-            // On utilise $this->model (plus besoin de $db ici)
             if ($this->model->verifierCodeTicket($email, $code)) {
 
-                // 2. On change le statut immédiatement en base de données
+                // 2. Modification du statut pour le rendez-vous de demain
                 $this->model->confirmerStatutRdv($email);
 
-                // 3. On récupère les infos pour l'affichage
+                // 3. On récupère les infos mis à jour pour l'affichage
                 $ticket = $this->model->getTicketDetails($email);
+
+                // Optionnel : tu peux créer une variable pour afficher un badge "Confirmé !" sur ta vue
+                $statut_confirme = true;
+
                 require_once ROOT . '/APP/views/securite/affichage_ticket.php';
                 exit();
             } else {

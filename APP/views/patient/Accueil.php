@@ -1,5 +1,4 @@
 <?php
-
 $pageTitle  = 'Santé Pro - Accueil';
 $pageCSS    = 'stylep.css';
 $pageScripts = ['scriptpatient/accueil.js'];
@@ -19,10 +18,10 @@ include ROOT . '/APP/views/layout/navbar.php';
  
     <div class="container position-relative">
       <div class="hero-badge">
-        <span class="dot"></span> Cabinet médical en ligne · Béjaia
+        <span class="dot"></span> Centre Médical médical en ligne · Béjaia
       </div>
  
-      <h1 class="fw-bold mb-3">Bienvenue au Cabinet<br>Santé Pro</h1>
+      <h1 class="fw-bold mb-3">Bienvenue au Centre Médical<br>Santé Pro</h1>
       <p class="lead mb-5 mx-auto">Prenez rendez-vous facilement avec nos médecins spécialistes, 24h/24</p>
  
       <div class="hero-actions d-flex gap-3 justify-content-center flex-wrap">
@@ -72,6 +71,34 @@ include ROOT . '/APP/views/layout/navbar.php';
   <!-- ══════════════════════════════════
        SPÉCIALITÉS + MÉDECINS
   ══════════════════════════════════ -->
+
+  <section class="py-3 bg-white border-bottom">
+  <div class="container" style="max-width:500px">
+    <form action="index.php" method="GET" class="d-flex gap-2">
+      <input type="hidden" name="page" value="accueil">
+      <div class="input-group shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="fas fa-search text-muted"></i>
+        </span>
+        <input type="text" name="search" 
+               class="form-control border-start-0"
+               placeholder="Rechercher un médecin..."
+               value="<?= htmlspecialchars($recherche ?? '') ?>"
+               autocomplete="off">
+        <?php if (!empty($recherche)): ?>
+          <a href="index.php?page=accueil#services-section" class="btn btn-outline-secondary">
+            <i class="fas fa-times"></i>
+          </a>
+        <?php endif; ?>
+      </div>
+      <button type="submit" class="btn text-white fw-bold px-4"
+              style="background:linear-gradient(135deg,var(--aqua-start),var(--aqua-mid));border-radius:50px;white-space:nowrap">
+        Chercher
+      </button>
+    </form>
+  </div>
+</section>
+
   <section id="services-section" class="py-5">
     <div class="container">
 
@@ -96,7 +123,7 @@ include ROOT . '/APP/views/layout/navbar.php';
             <?php endif; ?>
         </div>
         
-        <?php if (!$specSelectionnee): ?>
+        <?php if (!$specSelectionnee && empty($recherche)): ?>
         <div class="row g-4 justify-content-center">
             <?php foreach ($specialites as $spec): ?>
              <!--cette boucle PHP :

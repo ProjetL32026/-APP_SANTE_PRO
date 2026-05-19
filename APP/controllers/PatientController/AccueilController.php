@@ -23,10 +23,12 @@ $specialites = $patientModel->getAllSpecialites();
 // 2. On vérifie si l'utilisateur a cliqué sur une spécialité (via l'URL ?spec=ID)
 $medecins = [];
 $specSelectionnee = $_GET['spec'] ?? null;
+$recherche = $_GET['search'] ?? '';
 
 if ($specSelectionnee) {
-    // Utilisation de la méthode via l'objet
     $medecins = $patientModel->getMedecinsBySpec($specSelectionnee);
+} elseif ($recherche) {
+    $medecins = $patientModel->rechercherMedecins($recherche);
 }
 
 // 2. On charge la vue Accueil.php

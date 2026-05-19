@@ -10,8 +10,14 @@ $action = $_GET['action'] ?? '';
 switch($action) {
     case 'inscription':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idMed = $_POST['id_medecin'] ?? null;
-            $data = [
+        $idMed = $_POST['id_medecin'] ?? null;
+        
+        // ✅ Sauvegarder en session pour ne pas perdre l'idMedecin
+        if ($idMed) {
+            $_SESSION['temp_id_medecin'] = $idMed;
+        }
+        
+        $data = [
                 'nom'            => $_POST['nom'] ?? '',
                 'prenom'         => $_POST['prenom'] ?? '',
                 'username'       => $_POST['username'] ?? '',
@@ -22,45 +28,72 @@ switch($action) {
                 'id_medecin'     => $_POST['id_medecin'] ?? null
             ];
 
-            // On appelle la méthode de la classe[cite: 7]
-            $nouveauId = $patientModel->inscrirePatient($data);
 
-            if ($nouveauId) {
-                $_SESSION['patient_id'] = $nouveauId;
-                $_SESSION['patient_nom'] = $data['nom'];
 
-                $redir = "index.php?page=verification";
-            if ($idMed) { $redir .= "&idMedecin=" . $idMed; }
+        $nouveauId = $patientModel->inscrirePatient($data);
+
+        if ($nouveauId) {
+    $_SESSION['patient_id']  = $nouveauId;
+    $_SESSION['patient_nom'] = $data['nom'];
+
+    // 1. GÉNÉRER LE CODE
+    $codeVerif = rand(100000, 999999);
+
+    // 2. SAUVEGARDER EN BDD
+    $pdo->prepare("UPDATE patient SET verification_code = ? WHERE id_patient = ?")
+        ->execute([$codeVerif, $nouveauId]);
+
+    // 3. ENVOYER L'EMAIL
+    require_once ROOT . '/APP/controllers/securiteController/MailController.php';
+    $mail = new MailController();
+    $mail->envoyerCodeVerification(
+        $data['email'],
+        $data['nom'] . ' ' . $data['prenom'],
+        $codeVerif
+    );
             
+
+            $redir = "index.php?page=verification";
+            if ($idMed) { $redir .= "&idMedecin=" . $idMed; }
             header("Location: " . $redir);
             exit();
-            }
-        } else {
-            require_once ROOT . '/APP/views/patient/inscription.php';
         }
-        break;
+        else {
+    $redir = "index.php?page=inscription&error=email_existe";
+    if ($idMed) { $redir .= "&idMedecin=" . $idMed; }
+    header("Location: " . $redir);
+    exit();
+}
+    }
+    break;
 
     case 'valider_code':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $codeSaisi = $_POST['code_verif'] ?? ''; 
-            $patientId = $_SESSION['patient_id'] ?? null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $codeSaisi = $_POST['code_verif'] ?? '';
+        $patientId = $_SESSION['patient_id'] ?? null;
 
-         // On récupère l'ID médecin depuis le POST ou le GET
-        $idMed = $_POST['id_medecin'] ?? $_GET['idMedecin'] ?? '';
+        // Triple sécurité
+        $idMed = $_POST['id_medecin']
+              ?? $_GET['idMedecin']
+              ?? $_SESSION['temp_id_medecin']
+              ?? '';
 
-            // On utilise la méthode de la classe[cite: 7]
-            if ($patientModel->verifierLeCodeAction($patientId, $codeSaisi)) {
-                // Si c'est bon, on redirige vers le RDV (avec l'ID médecin si présent)
-                $idMed = $_GET['idMedecin'] ?? '';
-                $url = $idMed ? "index.php?page=rdv&idMedecin=$idMed" : "index.php?page=rdv";
-                header("Location: $url");
-                exit();
-            } else {
-                header("Location: index.php?page=verification&error=code_invalide");
-                exit();
-            }
+        if ($patientModel->verifierLeCodeAction($patientId, $codeSaisi)) {
+            
+            // Nettoyer la session
+            if ($idMed) unset($_SESSION['temp_id_medecin']);
+            
+            $url = $idMed 
+                ? "index.php?page=rdv&idMedecin=$idMed" 
+                   : "index.php?page=accueil";
+            header("Location: $url");
+            exit();
+        } else {
+            header("Location: index.php?page=verification&error=code_invalide&idMedecin=$idMed");
+            exit();
         }
-        break;
+    }
+    break;
 
     case 'login':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {

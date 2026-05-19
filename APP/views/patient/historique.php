@@ -114,6 +114,31 @@ include ROOT . '/APP/views/layout/navbar.php';
   <div id="rdv-list"></div>
 </div>
 
+
+
+
+<div class="modal fade" id="modalDiagnostic" tabindex="-1">
+    <div class="modal-dialog modal-lg shadow-lg">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-light border-0">
+                <h5 class="modal-title fw-bold">Aperçu du document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="modalBodyContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button class="btn btn-sm btn-primary px-4" onclick="window.print()">
+                    <i class="bi bi-printer me-2"></i> Imprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ══════════ MODAL MODIFIER ══════════ -->
 <div class="modal fade" id="modalModifier" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered" style="max-width:460px">
@@ -126,6 +151,11 @@ include ROOT . '/APP/views/layout/navbar.php';
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
+        <div id="modal-error-msg" class="alert alert-danger d-none mb-3" style="border-radius:10px">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span id="modal-error-text"></span>
+    </div>
+
         <div class="mb-3">
           <label class="fw-bold small mb-2">Nouvelle date</label>
           <input type="date" class="form-control" id="modal-date">
@@ -197,7 +227,9 @@ include ROOT . '/APP/views/layout/navbar.php';
 </div>
 
 <!-- Scripts -->
-<script>let rendezVous = <?php echo $rdvJson; ?>;</script>
+<script>
+let rendezVous = <?php echo $rdvJson; ?>;
+</script>
 
 
 

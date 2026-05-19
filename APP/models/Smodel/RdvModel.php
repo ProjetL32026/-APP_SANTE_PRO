@@ -4,10 +4,9 @@ class RdvModel
 {
     private $db;
 
-    public function __construct()
+    public function __construct($db)
     {
-        global $pdo; // On va chercher ta variable globale
-        $this->db = $pdo;
+        $this->db = $db;
     }
 
     /**

@@ -6,22 +6,7 @@
 
 
 // ==================== DONNÉES ====================
-    const medecinsData = {
-      cardiologie: [
-        { nom: "Dr. Ahmed Benali",  specialite: "Cardiologue interventionnel", exp: "12 ans" },
-        { nom: "Dr. Sara Merabet",  specialite: "Cardiologue rythmologue",     exp: "9 ans"  },
-        { nom: "Dr. Karim Hadjadj", specialite: "Cardiologue",                 exp: "15 ans" }
-      ],
-      ophtalmologie: [
-        { nom: "Dr. Leila Bouzid",   specialite: "Ophtalmologue chirurgical", exp: "11 ans" },
-        { nom: "Dr. Youssef Rahmani",specialite: "Spécialiste rétine",        exp: "14 ans" }
-      ],
-      dermatologie: [
-        { nom: "Dr. Fatima Zahra Belkacem", specialite: "Dermatologue esthétique", exp: "10 ans" },
-        { nom: "Dr. Sofiane Khelifi",       specialite: "Dermatologue",             exp: "13 ans" },
-        { nom: "Dr. Amina Larbi",           specialite: "Spécialiste laser",        exp: "9 ans"  }
-      ]
-    };
+    
  
     // ==================== FONCTIONS ====================
     function showDoctors(specialty) {

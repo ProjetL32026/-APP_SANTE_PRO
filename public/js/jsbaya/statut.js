@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnConge) {
         btnConge.addEventListener('change', function() {
             // On définit le statut textuel
-            const nouveauStatus = this.checked ? 'Congé' : 'Absent';
+            const nouveauStatus = this.checked ? 'Congé' : 'Actif';
             
             // On sauvegarde l'état actuel pour pouvoir annuler en cas d'erreur
             const checkbox = this;

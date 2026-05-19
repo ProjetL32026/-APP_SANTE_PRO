@@ -29,10 +29,11 @@ class PatientModel {
      * Elle récupère les informations de l'utilisateur (nom, prénom) croisées avec les informations de la table médecin.
      */
     public function getMedecinsBySpec($id_spec) {
-        $sql = "SELECT u.id, u.nom, u.prenom, m.type, m.status, m.heure_debut, m.heure_fin
-                FROM medecin m
-                JOIN utilisateur u ON m.id_medecin = u.id
-                WHERE m.id_specialite = :id_spec";
+       $sql = "SELECT u.id, u.nom, u.prenom, u.telephone,
+               m.type, m.status, m.heure_debut, m.heure_fin, m.jour_travail
+        FROM medecin m
+        JOIN utilisateur u ON m.id_medecin = u.id
+        WHERE m.id_specialite = :id_spec";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id_spec' => $id_spec]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -166,16 +167,15 @@ class PatientModel {
     }
 
     public function recupererPatientParId($id) {
-        // On fait une JOIN pour récupérer Nom et Prénom en même temps
-        $sql = "SELECT u.nom, u.prenom, p.* 
-                FROM utilisateur u 
-                JOIN patient p ON u.id = p.id_patient 
-                WHERE u.id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
+    // On ajoute u.email et u.telephone dans le SELECT
+    $sql = "SELECT u.nom, u.prenom, u.email, u.telephone, p.* 
+            FROM utilisateur u 
+            JOIN patient p ON u.id = p.id_patient 
+            WHERE u.id = ?";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
     public function countRdvByMedecin($id_medecin) {
         $sql = "SELECT date, periode, COUNT(*) as total 
                 FROM rendez_vous 
@@ -203,37 +203,48 @@ class PatientModel {
     }
 
     // Une fonction qui compte si ce patient existe déjà pour ce jour-là
-    public function aDejaUnRdvLeMemeJour($nom, $prenom, $date_rdv) {
-        // On vérifie si un RDV existe avec le même nom, prénom ET date
-        $sql = "SELECT COUNT(*) FROM rendez_vous 
-                WHERE nom_patient = :nom 
-                AND prenom_patient = :prenom 
-                AND date = :date";
-        
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            'nom'    => $nom,
-            'prenom' => $prenom,
-            'date'   => $date_rdv
-        ]);
-        
-        return $stmt->fetchColumn() > 0; // Retourne true s'il existe déjà
-    }
+    public function aDejaUnRdvDansCetteSpecialite($nom, $prenom, $date, $idMedecin) {
+    // 1. On récupère d'abord la spécialité du médecin actuel
+    $sqlSpec = "SELECT id_specialite FROM medecin WHERE id_medecin = ?";
+    $stmtSpec = $this->pdo->prepare($sqlSpec);
+    $stmtSpec->execute([$idMedecin]);
+    $idSpecialite = $stmtSpec->fetchColumn();
+
+    if (!$idSpecialite) return false;
+
+    // 2. On vérifie si le patient a un RDV le même jour dans CETTE spécialité
+    $sql = "SELECT COUNT(*) FROM rendez_vous r
+            JOIN medecin m ON r.id_medecin = m.id_medecin
+            WHERE r.nom_patient = :nom 
+            AND r.prenom_patient = :prenom 
+            AND r.date = :date 
+            AND m.id_specialite = :id_spec";
+            
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        'nom'     => $nom,
+        'prenom'  => $prenom,
+        'date'    => $date,
+        'id_spec' => $idSpecialite
+    ]);
+    
+    return $stmt->fetchColumn() > 0;
+}
 
     /**
  * Récupère tous les rendez-vous d'un patient avec les infos du médecin
  */
 public function getRendezVousByPatient($id_patient) {
-    // En utilisant r.*, on récupère l'ID quelque soit son nom (id, id_rdv, etc.)
+    // On sélectionne r.* (tous les champs du RDV) 
+    // PLUS les noms qui nous manquent via des JOIN
     $sql = "SELECT 
                 r.*, 
-                r.date as date_rdv,
                 u.nom as nom_medecin, 
                 u.prenom as prenom_medecin,
                 s.nom_specialite
             FROM rendez_vous r
             JOIN medecin m ON r.id_medecin = m.id_medecin
-            JOIN utilisateur u ON m.id_medecin = u.id
+            JOIN utilisateur u ON m.id_medecin = u.id 
             JOIN specialite s ON m.id_specialite = s.id_specialite
             WHERE r.id_patient = ?
             ORDER BY r.date DESC";
@@ -242,12 +253,11 @@ public function getRendezVousByPatient($id_patient) {
     $stmt->execute([$id_patient]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 /**
  * Annuler un rendez-vous (change le statut en 'annule')
  */
 public function annulerRendezVous($id_rdv) {
-    $sql = "UPDATE rendez_vous SET statut = 'annule' WHERE id_rendez_vous = ?";
+    $sql = "UPDATE rendez_vous SET statut = 'Annulé' WHERE id_rdv = ?";
     return $this->pdo->prepare($sql)->execute([$id_rdv]);
 }
 
@@ -255,8 +265,10 @@ public function annulerRendezVous($id_rdv) {
  * Modifier la date et la période d'un rendez-vous
  */
 public function modifierRendezVous($id_rdv, $nouvelle_date, $nouvelle_periode) {
-    $sql = "UPDATE rendez_vous SET date = ?, periode = ?, statut = 'En attente' 
-            WHERE id_rendez_vous = ?";
+    $sql = "UPDATE rendez_vous SET date = ?, periode = ?, statut = 'En attente'
+            WHERE id_rdv = ?";
     return $this->pdo->prepare($sql)->execute([$nouvelle_date, $nouvelle_periode, $id_rdv]);
 }
+
+
 }

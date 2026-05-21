@@ -222,25 +222,54 @@ function updateRecap() {
 // ═══════════════════════════════════════════════
 function soumettreRDV() {
     const elDate    = document.getElementById('hidden-date');
-    const elPeriode = document.getElementById('hidden-periode');  // ✅ avec e
+    const elPeriode = document.getElementById('hidden-periode');
     const form      = document.getElementById('rdv-form');
+    const elNom     = document.getElementById('inp-nom');
+    const elPrenom  = document.getElementById('inp-prenom');
+    const elDdn     = document.getElementById('inp-ddn');
 
     if (!elDate || !elPeriode || !form) {
         alert("Erreur technique : élément introuvable dans le formulaire.");
         return false;
     }
 
-    if (elDate.value === "" || elPeriode.value === "") {
-        alert("Veuillez sélectionner une date ET un créneau (matin/après-midi).");
+    // Validation date et créneau
+    if (!elDate.value) {
+        alert("⚠️ Veuillez sélectionner une date dans le calendrier.");
+        return false;
+    }
+    if (!elPeriode.value) {
+        alert("⚠️ Veuillez sélectionner un créneau (Matin ou Après-midi).");
         return false;
     }
 
-    // DEBUG — affiche dans la console ce qui sera envoyé
-    console.log("Soumission : date=" + elDate.value + " | periode=" + elPeriode.value);
+    // Validation nom
+    if (!elNom.value.trim()) {
+        elNom.focus();
+        elNom.classList.add('is-invalid');
+        alert("⚠️ Veuillez saisir le nom du patient.");
+        return false;
+    }
 
+    // Validation prénom
+    if (!elPrenom.value.trim()) {
+        elPrenom.focus();
+        elPrenom.classList.add('is-invalid');
+        alert("⚠️ Veuillez saisir le prénom du patient.");
+        return false;
+    }
+
+    // Validation date de naissance
+    if (!elDdn.value) {
+        elDdn.focus();
+        elDdn.classList.add('is-invalid');
+        alert("⚠️ Veuillez saisir la date de naissance du patient.");
+        return false;
+    }
+
+    console.log("Soumission : date=" + elDate.value + " | periode=" + elPeriode.value);
     form.submit();
 }
-
 // ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
@@ -250,6 +279,12 @@ function init() {
     currentMonth = now.getMonth();
     initPlacesData();
     buildCalendar();
+
+    // Enlève le rouge quand l'utilisateur corrige le champ
+    ['inp-nom', 'inp-prenom', 'inp-ddn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => el.classList.remove('is-invalid'));
+    });
 }
 
 window.onload = init;

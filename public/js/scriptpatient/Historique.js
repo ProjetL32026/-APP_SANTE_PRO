@@ -48,7 +48,7 @@ function statutConfig(statut) {
     annule:   { label:'Annulé',     cls:'badge-annule',   icon:'fa-times-circle'   },
     confirme: { label:'Confirmé',   cls:'badge-confirme', icon:'fa-check-circle'   },
     // Change 'consulte' en 'passe' ici pour matcher normaliserStatut
-    passe:    { label:'Consulté',   cls:'badge-passe',    icon:'fa-notes-medical'  } 
+    consulte:    { label:'Consulté',   cls:'badge-passe',    icon:'fa-notes-medical'  } 
   };
   return map[cle] || map.attente;
 }
@@ -78,12 +78,15 @@ function renderActions(rdv) {
 
   // 1. Si CONSULTÉ : On affiche le bouton diagnostic
   
-  if (cle === 'consulte') { 
-    return `
-      <button class="btn-action btn-diagnostic" onclick="voirDiagnostic(${rdv.id_rdv})">
-        <i class="fas fa-file-medical me-1"></i> Voir Diagnostic
-      </button>`;
-  }
+  if (cle === 'consulte') {
+  return `
+    <button class="btn-action btn-diagnostic"
+      data-bs-toggle="modal"
+      data-bs-target="#modalDiagnostic"
+      data-id="${rdv.id_rdv}">
+      <i class="fas fa-file-medical me-1"></i> Voir Diagnostic
+    </button>`;
+}
 
   // 2. Si ANNULÉ : Texte informatif
   if (cle === 'annule') {
@@ -107,16 +110,19 @@ function renderActions(rdv) {
 let rdvEnCours = null;
 
 function ouvrirModifier(idRdv) {
-  rdvEnCours = rendezVous.find(r => r.id_rdv == idRdv);
-  if (!rdvEnCours) return;
-  // Pré-remplir la modal si elle existe
-  const inputDate = document.getElementById('modal-date');
-  const inputCren = document.getElementById('modal-creneau');
-  if (inputDate) inputDate.value = rdvEnCours.date;
-  if (inputCren) inputCren.value = rdvEnCours.periode;
-  // Ouvrir la modal Bootstrap
-  const modal = document.getElementById('modalModifier');
-  if (modal) new bootstrap.Modal(modal).show();
+    rdvEnCours = rendezVous.find(r => r.id_rdv == idRdv);
+    if (!rdvEnCours) return;
+    const inputDate = document.getElementById('modal-date');
+    const inputCren = document.getElementById('modal-creneau');
+    if (inputDate) inputDate.value = rdvEnCours.date;
+    if (inputCren) inputCren.value = rdvEnCours.periode;
+
+    // AJOUTE : Cacher le message d'erreur à l'ouverture
+    const errorDiv = document.getElementById('modal-error-msg');
+    if (errorDiv) errorDiv.classList.add('d-none');
+
+    const modal = document.getElementById('modalModifier');
+    if (modal) new bootstrap.Modal(modal).show();
 }
 
 function ouvrirAnnuler(idRdv) {
@@ -236,7 +242,10 @@ function sauvegarderModif() {
   const newDate    = document.getElementById('modal-date').value;
   const newCreneau = document.getElementById('modal-creneau').value;
 
-  if (!newDate) { alert('Veuillez choisir une date.'); return; }
+  if (!newDate) { 
+    showToast('warning', 'Date manquante', 'Veuillez choisir une date.');
+    return; 
+  }
 
   fetch('index.php?page=modifier_rdv', {
     method: 'POST',
@@ -246,15 +255,22 @@ function sauvegarderModif() {
   .then(r => r.json())
   .then(data => {
     if (data.success) {
+      // ✅ Fermer SEULEMENT si succès
       bootstrap.Modal.getInstance(document.getElementById('modalModifier')).hide();
       const idx = rendezVous.findIndex(r => r.id_rdv == rdvEnCours.id_rdv);
       rendezVous[idx].date    = newDate;
       rendezVous[idx].periode = newCreneau;
       renderList();
       showToast('success', 'Rendez-vous modifié', 'Nouveau créneau : ' + dateComplete(newDate));
-    }
+    } else {
+    // Afficher l'erreur DANS la modale
+    const errorDiv  = document.getElementById('modal-error-msg');
+    const errorText = document.getElementById('modal-error-text');
+    errorText.textContent = data.message || 'Ce médecin ne travaille pas ce jour-là.';
+    errorDiv.classList.remove('d-none');
+}
   })
-  .catch(() => alert('Erreur lors de la modification. Réessayez.'));
+  .catch(() => showToast('danger', 'Erreur', 'Erreur lors de la modification. Réessayez.'));
 }
 
 // ═══════════════════════════════════════════
@@ -302,14 +318,32 @@ function showToast(type, title, msg) {
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-function voirDiagnostic(idRdv) {
-    // Redirection vers la page de diagnostic avec l'ID
-    window.location.href = `index.php?page=diagnostic&id=${idRdv}`;
-}
+
 
 
 
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
-window.onload = () => renderList();
+window.onload = () => {
+    renderList();
+
+    // LISTENER MODAL — ici après que le DOM est prêt
+    const modalDiag = document.getElementById('modalDiagnostic');
+    if (modalDiag) {
+        modalDiag.addEventListener('show.bs.modal', function(event) {
+            const btn = event.relatedTarget;
+            const idRdv = btn.getAttribute('data-id');
+            const body = document.getElementById('modalBodyContent');
+
+            body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
+
+            fetch(`index.php?page=voir_ordonnance&id=${idRdv}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.text())
+            .then(html => { body.innerHTML = html; })
+            .catch(() => { body.innerHTML = '<p class="text-danger text-center">Erreur de chargement.</p>'; });
+        });
+    }
+};

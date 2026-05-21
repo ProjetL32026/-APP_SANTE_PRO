@@ -308,8 +308,8 @@ include ROOT . '/APP/views/layout/navbar.php';
 
 <script>
     // 1. ON DÉCLARE LES VARIABLES D'ABORD (IMPORTANT)
-   window.joursPermis = <?php echo json_encode($joursChiffres); ?>;
-window.RDV_EXISTANTS = <?php echo json_encode($rdvDejaExistants ?? []); ?>;
+    window.joursPermis = <?php echo json_encode($joursChiffres); ?>;
+    window.RDV_EXISTANTS = <?php echo json_encode($rdvDejaExistants ?? []); ?>;
     window.selectedDate = null;
     window.selectedCreneau = null;
     window.parentInfos = {

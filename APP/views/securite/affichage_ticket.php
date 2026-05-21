@@ -54,7 +54,7 @@
 <body>
     <div class="ticket">
         <h2 style="color: #1e3a8a;">VOTRE TICKET</h2>
-        <p>Patient : <strong><?= htmlspecialchars($ticket['p_nom']) ?></strong></p>
+        <p>Patient : <strong><?= htmlspecialchars($ticket['p_prenom'] . ' ' . $ticket['p_nom']) ?></strong></p>
         <p>Médecin : <strong>Dr. <?= htmlspecialchars($ticket['m_nom']) ?></strong></p>
 
         <div class="num-box">

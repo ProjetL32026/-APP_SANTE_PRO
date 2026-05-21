@@ -1,6 +1,11 @@
 <?php
-
-$host = 'localhost';
+// ============================================
+// config/connexion.php
+// Connexion à la base de données MySQL
+// Inclus dans TOUS les Models
+// ============================================
+ 
+$host   = 'localhost';
 $port = '3306';
 $dbname = 'sante_pro_db';
 $user = 'root';

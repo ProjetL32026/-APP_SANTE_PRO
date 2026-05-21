@@ -231,6 +231,35 @@ class PatientModel {
     return $stmt->fetchColumn() > 0;
 }
 
+
+public function aDejaUnRdvDansCetteSpecialiteSaufCelui($nom, $prenom, $date, $idMedecin, $idRdvExclu) {
+    $sqlSpec = "SELECT id_specialite FROM medecin WHERE id_medecin = ?";
+    $stmtSpec = $this->pdo->prepare($sqlSpec);
+    $stmtSpec->execute([$idMedecin]);
+    $idSpecialite = $stmtSpec->fetchColumn();
+
+    if (!$idSpecialite) return false;
+
+    $sql = "SELECT COUNT(*) FROM rendez_vous r
+            JOIN medecin m ON r.id_medecin = m.id_medecin
+            WHERE r.nom_patient = :nom 
+            AND r.prenom_patient = :prenom 
+            AND r.date = :date 
+            AND m.id_specialite = :id_spec
+            AND r.id_rdv != :id_rdv_exclu";  // ← exclut le RDV actuel
+            
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        'nom'          => $nom,
+        'prenom'       => $prenom,
+        'date'         => $date,
+        'id_spec'      => $idSpecialite,
+        'id_rdv_exclu' => $idRdvExclu
+    ]);
+    
+    return $stmt->fetchColumn() > 0;
+}
+
     /**
  * Récupère tous les rendez-vous d'un patient avec les infos du médecin
  */
@@ -268,6 +297,43 @@ public function modifierRendezVous($id_rdv, $nouvelle_date, $nouvelle_periode) {
     $sql = "UPDATE rendez_vous SET date = ?, periode = ?, statut = 'En attente'
             WHERE id_rdv = ?";
     return $this->pdo->prepare($sql)->execute([$nouvelle_date, $nouvelle_periode, $id_rdv]);
+}
+
+/**
+ * Récupère un seul RDV par son ID (pour l'ordonnance)
+ */
+public function getRdvById($id_rdv) {
+    $sql = "SELECT 
+                r.*,
+                u.nom as nom_medecin,
+                u.prenom as prenom_medecin,
+                s.nom_specialite,
+                c.diagnostic,
+                c.prescription
+            FROM rendez_vous r
+            JOIN medecin m ON r.id_medecin = m.id_medecin
+            JOIN utilisateur u ON m.id_medecin = u.id
+            JOIN specialite s ON m.id_specialite = s.id_specialite
+            LEFT JOIN consultation c ON c.id_rdv = r.id_rdv
+            WHERE r.id_rdv = ?";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$id_rdv]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function rechercherMedecins($recherche) {
+    $sql = "SELECT u.id, u.nom, u.prenom, u.telephone,
+                   m.type, m.status, m.heure_debut, m.heure_fin, m.jour_travail
+            FROM medecin m
+            JOIN utilisateur u ON m.id_medecin = u.id
+            WHERE u.nom LIKE :search 
+               OR u.prenom LIKE :search2";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        'search'  => '%' . $recherche . '%',
+        'search2' => '%' . $recherche . '%'
+    ]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 

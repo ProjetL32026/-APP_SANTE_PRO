@@ -1,7 +1,7 @@
 <?php
 /**
  * SANTE_PRO - INDEX GLOBAL RÉVISÉ
- **/
+ */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -71,7 +71,7 @@ if ($page === 'log') {
 if ($role === 'admin') {
     switch ($page) {
         case 'medcin':
-            require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php';
+            require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php';
             break;
         case 'infirmier':
             require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';
@@ -138,13 +138,15 @@ elseif ($role === 'medecin') {
     $data  = json_decode(file_get_contents('php://input'), true);
     $idRdv = (int)($data['idRdv'] ?? 0);
 
-    // Vérification de sécurité de base
     if (!isset($_SESSION['patient_id']) || $idRdv <= 0) {
         echo json_encode(['success' => false]);
         exit();
     }
 
-    $ok = $model->annulerRendezVous($idRdv);
+    // CORRECTION : instancier le modèle ici
+    require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+    $patientModel = new PatientModel($pdo);
+    $ok = $patientModel->annulerRendezVous($idRdv);
     echo json_encode(['success' => (bool)$ok]);
     exit();
 
@@ -155,31 +157,70 @@ case 'modifier_rdv':
     $periode = $data['periode'] ?? '';
 
     if (!isset($_SESSION['patient_id']) || $idRdv <= 0 || !$date) {
-        echo json_encode(['success' => false]);
+        echo json_encode(['success' => false, 'message' => 'Données invalides.']);
         exit();
     }
 
-    $ok = $model->modifierRendezVous($idRdv, $date, $periode);
+    require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+    $patientModel = new PatientModel($pdo);
+
+    // Récupérer le RDV existant pour avoir nom/prénom/médecin
+    $rdvExistant = $patientModel->getRdvById($idRdv);
+
+    // Vérification jour de travail du médecin
+    $medecin = $patientModel->getMedecinById($rdvExistant['id_medecin']);
+    $map = ['Lun'=>1,'Mar'=>2,'Mer'=>3,'Jeu'=>4,'Ven'=>5,'Sam'=>6,'Dim'=>0];
+    $joursPermis = [];
+    foreach (explode(',', $medecin['jour_travail'] ?? '') as $j) {
+        $cle = trim($j);
+        if (isset($map[$cle])) $joursPermis[] = $map[$cle];
+    }
+    $jourChoisi = (int)date('w', strtotime($date));
+    if (!in_array($jourChoisi, $joursPermis)) {
+        echo json_encode(['success' => false, 'message' => 'Ce médecin ne travaille pas ce jour-là.']);
+        exit();
+    }
+
+    // AJOUT : Vérification doublon — même patient, même spécialité, même jour
+    // Mais on exclut le RDV en cours de modification (idRdv)
+    if ($patientModel->aDejaUnRdvDansCetteSpecialiteSaufCelui(
+        $rdvExistant['nom_patient'],
+        $rdvExistant['prenom_patient'],
+        $date,
+        $rdvExistant['id_medecin'],
+        $idRdv  // ← on exclut le RDV actuel
+    )) {
+        echo json_encode(['success' => false, 'message' => 'Ce patient a déjà un rendez-vous ce jour-là dans cette spécialité.']);
+        exit();
+    }
+
+    $ok = $patientModel->modifierRendezVous($idRdv, $date, $periode);
     echo json_encode(['success' => (bool)$ok]);
     exit();
-      
 
-        // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
+    case 'voir_ordonnance':
+    if (!isset($_SESSION['patient_id'])) {
+        echo '<p class="text-danger">Non autorisé.</p>';
+        exit;
+    }
+    require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+    global $pdo;
+    $patientModel = new PatientModel($pdo);
+    $id  = intval($_GET['id'] ?? 0);
+    $rdv = $patientModel->getRdvById($id);
+    include ROOT . '/APP/views/medecin/ordonnance.php';
+    exit;
+
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':
-            // 1. On appelle d'abord le modèle (le bon chemin sans le 's' si nécessaire)
-            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
-
-            // 2. On appelle le contrôleur
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
-
-            // 3. On initialise
-            $ticketModel = new TicketModel($db);
-            $ticketCtrl = new TicketController($ticketModel);
+            $ticketCtrl = new TicketController();
 
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
-            } elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
+            }
+            // On ajoute 'voirFile' ici pour que le routeur le reconnaisse
+            elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
                 $ticketCtrl->voirFile();
             } else {
                 $ticketCtrl->showSaisie();

@@ -18,17 +18,10 @@ include ROOT . '/APP/views/layout/navbar.php';
  
     <div class="container position-relative">
       <div class="hero-badge">
-<<<<<<< HEAD
         <span class="dot"></span> Centre médical en ligne · Béjaia
       </div>
  
       <h1 class="fw-bold mb-3">Bienvenue au Centre<br>Santé Pro</h1>
-=======
-        <span class="dot"></span> Centre Médical médical en ligne · Béjaia
-      </div>
- 
-      <h1 class="fw-bold mb-3">Bienvenue au Centre Médical<br>Santé Pro</h1>
->>>>>>> bbe6913953dad91cfb25c2b108e7a58bf6bbe366
       <p class="lead mb-5 mx-auto">Prenez rendez-vous facilement avec nos médecins spécialistes, 24h/24</p>
  
       <div class="hero-actions d-flex gap-3 justify-content-center flex-wrap">

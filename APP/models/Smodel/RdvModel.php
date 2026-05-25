@@ -4,9 +4,9 @@ class RdvModel
 {
     private $db;
 
-    public function __construct()
+    public function __construct($db)
     {
-        $this->db = Database::getConnection();
+        $this->db = $db;
     }
 
     /**

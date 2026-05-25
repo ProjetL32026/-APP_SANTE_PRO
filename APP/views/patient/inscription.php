@@ -35,6 +35,19 @@ $idMedecin = $_GET['idMedecin'] ?? '';
 
                 <form action="index.php?controller=auth&action=inscription" method="POST">
                    <input type="hidden" name="id_medecin" value="<?php echo $idMedecin; ?>">
+                   <?php if (isset($_GET['error']) && $_GET['error'] === 'email_existe'): ?>
+    <div class="alert alert-danger d-flex align-items-center gap-2 rounded-3 mb-4">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Cette adresse email est déjà utilisée. <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="fw-bold text-danger">Connectez-vous ici</a></span>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_GET['error']) && $_GET['error'] === '1'): ?>
+    <div class="alert alert-danger d-flex align-items-center gap-2 rounded-3 mb-4" id="alert-login-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Email ou mot de passe incorrect. Veuillez réessayer.</span>
+    </div>
+<?php endif; ?>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Nom complet *</label>
@@ -61,17 +74,27 @@ $idMedecin = $_GET['idMedecin'] ?? '';
                             <input type="text" name="username" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Mot de passe *</label>
-                            <input type="password" name="mdp" class="form-control" required>
-                        </div>
+    <label class="form-label small fw-bold">Mot de passe *</label>
+    <input type="password" name="mdp" class="form-control" 
+           minlength="6"
+           title="Minimum 6 caractères"
+           required>
+    <div class="form-text text-muted">Minimum 6 caractères</div>
+</div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Date de naissance *</label>
                             <input type="date" name="date_naissance" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Téléphone *</label>
-                            <input type="tel" name="telephone" class="form-control" placeholder="05XXXXXXXX" required>
-                        </div>
+    <label class="form-label small fw-bold">Téléphone *</label>
+    <input type="tel" name="telephone" class="form-control" 
+           placeholder="05XXXXXXXX" 
+           pattern="(05|06|07)[0-9]{8}"
+           maxlength="10"
+           title="Le numéro doit commencer par 05, 06 ou 07 et contenir 10 chiffres"
+           required>
+    <div class="form-text text-muted">Doit commencer par 05, 06 ou 07</div>
+</div>
                     </div>
 
                     <div class="text-center mt-5">
@@ -137,23 +160,10 @@ $idMedecin = $_GET['idMedecin'] ?? '';
     </div>
 </div>
 
-<!--<script>
-// Gestion de l'affichage de la zone du code
-document.getElementById('btn-envoyer-code').addEventListener('click', function() {
-    const email = document.getElementById('email_input').value;
-    const msg = document.getElementById('msg-envoi');
-    
-    if(email.includes('@')) {
-        // Message visuel pour le patient
-        msg.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Un code de confirmation a été envoyé à ' + email + '</span>';
-        
-        // On affiche le champ de saisie du code avec une petite animation
-        const zoneCode = document.getElementById('zone-code');
-        zoneCode.style.display = 'block';
-    } else {
-        alert('Veuillez entrer une adresse email valide.');
-    }
+<script>
+document.querySelector('input[name="telephone"]').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
 });
-</script>-->
+</script>
 
 <?php include ROOT . '/APP/views/layout/footer.php'; ?>

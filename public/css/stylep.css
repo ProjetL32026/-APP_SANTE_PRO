@@ -848,4 +848,13 @@ body {
 
 .avatar-container img {
     background-color: #f0f9ff;
+<<<<<<< HEAD
+=======
+}
+
+
+.st-consulte {
+    background-color: #e0f2fe; /* Bleu clair */
+    color: #0369a1;            /* Bleu foncé */
+>>>>>>> bbe6913953dad91cfb25c2b108e7a58bf6bbe366
 }

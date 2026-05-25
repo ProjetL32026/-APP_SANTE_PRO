@@ -1,7 +1,5 @@
 <?php 
-if (!defined('BASE_URL')) {
-    define('BASE_URL', '/santepro');
-}
+
 // 1. Définition des variables pour le Header global
 $pageTitle = "Admin | log"; 
 $pageCSS = "style_admin.css";

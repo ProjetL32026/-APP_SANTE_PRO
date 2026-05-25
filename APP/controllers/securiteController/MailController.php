@@ -1,8 +1,6 @@
 <?php
-/**
- * SANTE_PRO - MailController
- * Chemin : /APP/controllers/securiteController/MailController.php
- */
+
+
 
 // Utilisation de la constante ROOT pour les inclusions
 require_once ROOT . '/libs/PHPMailer/Exception.php';

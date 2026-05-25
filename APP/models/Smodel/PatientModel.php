@@ -1,11 +1,16 @@
 <?php
+
+require_once ROOT . '/config/db.php'; // Sécurité : on s'assure d'inclure le fichier contenant $pdo
+
 class PatientModel
 {
     private $db;
 
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        // On récupère directement la variable globale $pdo de ton architecture
+        global $pdo;
+        $this->db = $pdo;
     }
 
     /**
@@ -45,13 +50,6 @@ class PatientModel
     }
 
     /**
-     * Récupère les infos du ticket pour l'affichage Live
-     * Note : Correction de la jointure pour utiliser u.email comme les autres fonctions
-     */
-    /**
-     * Récupère les infos du ticket en joignant la table utilisateur pour le nom
-     */
-    /**
      * Récupère les infos du ticket en joignant 'utilisateur' pour le Patient ET pour le Médecin
      */
     public function getTicketDetailsByEmail($email)
@@ -60,7 +58,7 @@ class PatientModel
                     r.*, 
                     u_p.nom as p_nom_famille, u_p.prenom as p_prenom, 
                     u_m.nom as m_nom_famille, u_m.prenom as m_prenom, 
-                    m.status as m_status -- Ta colonne 'status' dans la table medecin
+                    m.status as m_status
                 FROM rendez_vous r
                 JOIN patient p ON r.id_patient = p.id_patient
                 JOIN utilisateur u_p ON p.id_patient = u_p.id
@@ -77,14 +75,10 @@ class PatientModel
         if ($result) {
             $result['p_nom'] = $result['p_prenom'] . ' ' . $result['p_nom_famille'];
             $result['m_nom'] = 'Dr. ' . $result['m_prenom'] . ' ' . $result['m_nom_famille'];
-            // On s'assure que la vue reçoive 'statut_medecin' basé sur ta colonne 'status'
             $result['statut_medecin'] = $result['m_status'];
         }
 
         return $result;
-
-
-
     }
 
     /**

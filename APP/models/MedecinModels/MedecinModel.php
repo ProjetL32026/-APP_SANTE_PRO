@@ -18,7 +18,7 @@ class MedecinModel
             JOIN utilisateur u ON p.id_patient = u.id 
             LEFT JOIN consultation c ON r.id_rdv = c.id_rdv
             WHERE r.id_medecin = :id_m 
-            AND r.statut IN ('Présent', 'Chez Medecin')
+            AND r.statut IN ('Présent', 'chez le medecin')
             AND c.id_rdv IS NULL 
             ORDER BY r.periode ASC";
 
@@ -29,7 +29,7 @@ class MedecinModel
 
     public function updateStatutEnConsultation(int $id_rdv): bool
     {
-        $sql = "UPDATE rendez_vous SET statut = 'Chez Medecin' WHERE id_rdv = :id_rdv";
+        $sql = "UPDATE rendez_vous SET statut = 'chez le medecin' WHERE id_rdv = :id_rdv";
         return $this->db->prepare($sql)->execute(['id_rdv' => $id_rdv]);
     }
 

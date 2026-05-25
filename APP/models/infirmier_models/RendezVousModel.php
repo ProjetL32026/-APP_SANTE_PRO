@@ -8,7 +8,8 @@ class RendezVousModel {
 
     /**
      * Récupère les rendez-vous du jour avec tri par priorité
-     * Tri : En attente/Présent (0) -> Absent (1) -> Annulé (2)
+     * Tri : Confirmé/Présent (0) -> Absent (1) -> Annulé (2)
+     * Exclut explicitement le statut 'En attente'
      */
     public function getTodayRendezVous($id_medecin) {
         $sql = "SELECT r.id_rdv, t.numero, r.periode, r.statut, 
@@ -18,18 +19,21 @@ class RendezVousModel {
                 LEFT JOIN ticket t ON r.id_rdv = t.id_rdv
                 JOIN patient p ON r.id_patient = p.id_patient
                 JOIN utilisateur u ON p.id_patient = u.id
-                WHERE r.date = CURDATE() AND r.id_medecin = :id_med
+                WHERE r.date = CURDATE() 
+                  AND r.id_medecin = :id_med 
+                  AND r.statut != 'En attente'   -- Exclut les rendez-vous en attente
                 ORDER BY 
                     (CASE 
                         WHEN r.statut = 'Annulé' THEN 2 
                         WHEN r.statut = 'Absent' THEN 1 
-                        ELSE 0 
+                        ELSE 0 -- Concerne 'Confirmé' et 'Présent'
                     END) ASC, 
                     t.numero ASC"; 
         
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id_med' => $id_medecin]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $return = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $return ? $return : [];
     }
 
     public function updateStatut($id_rdv, $nouveau_statut) {
@@ -59,8 +63,15 @@ class RendezVousModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Compte tous les rendez-vous du jour en excluant ceux 'En attente'
+     */
     public function countToday($id_medecin) {
-        $sql = "SELECT COUNT(*) AS total FROM rendez_vous WHERE id_medecin = :id_medecin AND date = CURDATE()";
+        $sql = "SELECT COUNT(*) AS total 
+                FROM rendez_vous 
+                WHERE id_medecin = :id_medecin 
+                  AND date = CURDATE() 
+                  AND statut != 'En attente'"; // <--- Correction apportée ici
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id_medecin' => $id_medecin]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);

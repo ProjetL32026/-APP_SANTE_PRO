@@ -34,6 +34,13 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
     .table tbody tr.ligne-annulee:hover {
         background-color: #fecaca !important;
     }
+
+    /* Style pour la ligne consultée (incliquable) */
+    tr.ligne-consultee {
+        opacity: 0.6;
+        background-color: #f8f9fa !important;
+        pointer-events: none; /* Bloque tous les clics et événements de souris */
+    }
 </style>
 
 <div class="main-content">
@@ -67,14 +74,23 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
                     
                     // Détection précise des états pour le style visuel
                     $isAnnule = (strcasecmp(trim($s), 'Annulé') == 0 || strcasecmp(trim($s), 'Annule') == 0);
+                    $isConsulte = (strcasecmp(trim($s), 'Consulté') == 0 || strcasecmp(trim($s), 'Consulte') == 0);
                     $isAbsent = ($s == 'Absent'); 
                     
                     // Application des classes de ligne
-                    $rowClass = $isAnnule ? 'ligne-annulee' : ($isAbsent ? 'ligne-terminee' : '');
+                    $rowClass = '';
+                    if ($isAnnule) {
+                        $rowClass = 'ligne-annulee';
+                    } elseif ($isConsulte) {
+                        $rowClass = 'ligne-consultee';
+                    } elseif ($isAbsent) {
+                        $rowClass = 'ligne-terminee';
+                    }
                     
                     // Gestion des badges de couleur
                     $statusBadgeClass = 'waiting'; // Par défaut
                     if ($s == 'Présent') $statusBadgeClass = 'present';
+                    elseif ($isConsulte) $statusBadgeClass = 'consulted'; // Badge consulté si défini dans ton CSS
                     elseif ($isAbsent || $isAnnule || $s == 'Retard') $statusBadgeClass = 'absent';
                 ?>
                 
@@ -99,33 +115,26 @@ require_once __DIR__ . '/../layout/sidebar/sidebar_infirmier.php';
                     
                     <td>
                         <span class="status-label <?php echo $statusBadgeClass; ?>">
-                            <?php 
-                                // Si c'est Absent, on affiche le mot "Absent", ce qui correspond à votre logique de tri
-                                echo htmlspecialchars($s); 
-                            ?>
+                            <?php echo htmlspecialchars($s); ?>
                         </span>
                     </td>
                     
                     <td class="text-center">
-                        <?php if ($isAnnule): ?>
-                            <!-- Boutons désactivés pour les annulés -->
-                            <button class="btn-action btn-present-sm btn-disabled"><i class="fas fa-check"></i></button>
-                            <button class="btn-action btn-absent-sm btn-disabled"><i class="fas fa-times"></i></button>
-                            <button class="btn-action btn-reorder-sm btn-disabled">Fin</button>
+                        <?php if ($isAnnule || $isConsulte): ?>
+                            <button class="btn-action btn-present-sm btn-disabled" disabled><i class="fas fa-check"></i></button>
+                            <button class="btn-action btn-absent-sm btn-disabled" disabled><i class="fas fa-times"></i></button>
+                            <button class="btn-action btn-reorder-sm btn-disabled" disabled>Fin</button>
                         <?php else: ?>
-                            <!-- Action Présent -->
                             <button class="btn-action btn-present-sm" title="Marquer présent" 
                                     onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Présent')">
                                 <i class="fas fa-check"></i>
                             </button>
                             
-                            <!-- Action Absent -->
                             <button class="btn-action btn-absent-sm" title="Marquer absent" 
                                     onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Absent')">
                                 <i class="fas fa-times"></i>
                             </button>
                             
-                            <!-- Action Fin (pousse le patient vers le bas en mettant le statut 'Absent') -->
                             <button class="btn-action btn-reorder-sm" title="Mettre à la fin" 
                                     onclick="executerAction(<?php echo $rdv['id_rdv']; ?>, 'status', 'Absent')">
                                 Fin

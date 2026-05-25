@@ -10,6 +10,12 @@ class ChoixMedecinController {
     }
 
     public function handleRequest() {
+        // --- SÉCURITÉ : Bloquer l'accès si un médecin a déjà été choisi ---
+        if (isset($_SESSION['id_medecin_choisi'])) {
+            header("Location: index.php?page=dashbord");
+            exit();
+        }
+
         $action = $_GET['action'] ?? null;
         if ($action === 'select_doctor') {
             $id = $_GET['id'] ?? null;

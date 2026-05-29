@@ -21,3 +21,16 @@
 </head>
 
 <body class="<?= $bodyClass ?? '' ?>">
+<script>
+    // Si l'utilisateur est connecté mais que le sessionStorage est vide, 
+    // cela signifie qu'il vient de fermer et réouvrir son navigateur/onglet.
+    <?php if (isset($_SESSION['role'])): ?>
+        if (!sessionStorage.getItem('session_active')) {
+            // Destruction immédiate et radicale de la session côté serveur
+            window.location.href = 'index.php?page=deconnexion';
+        }
+    <?php endif; ?>
+
+    // Tant que l'onglet reste ouvert, on marque la session comme active
+    sessionStorage.setItem('session_active', 'true');
+</script>

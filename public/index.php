@@ -29,15 +29,21 @@ $action = $_GET['action'] ?? null;
 $role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? null;
 
 // 5. Bloc de détection Connexion / Inscription (Votre logique exacte)
-if ($page === 'connexion' || (isset($_GET['action']) && $_GET['action'] === 'login')) {
-    if (isset($_GET['from']) && $_GET['from'] === 'inscription') {
-        // On mémorise qu'après le login, il faut aller au RDV
-        $_SESSION['redirect_after_login'] = 'rdv';
-        $_SESSION['temp_id_medecin'] = $_GET['idMedecin'] ?? null;
-    } else {
-        // Sinon, on s'assure que la redirection par défaut est l'accueil
-        $_SESSION['redirect_after_login'] = 'accueil';
+// 6. Gestion de la déconnexion
+if ($page === 'logout' || $page === 'deconnexion') {
+    $_SESSION = array(); // Vide toutes les variables de session
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        ); // Tue le cookie
     }
+    session_destroy(); // Détruit la session sur le serveur
+    
+    // On redirige vers la page de login pro
+    header("Location: index.php?page=accueil");
+    exit();
 }
 
 // 6. Gestion de la déconnexion

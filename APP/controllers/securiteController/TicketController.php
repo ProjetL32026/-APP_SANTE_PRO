@@ -4,7 +4,6 @@ class TicketController
 {
     private $model;
 
-    // Le constructeur reçoit le modèle injecté depuis l'index
     public function __construct($model)
     {
         $this->model = $model;
@@ -23,15 +22,21 @@ class TicketController
         if (!empty($code) && !empty($email)) {
             if ($this->model->verifierCodeTicket($email, $code)) {
 
-                // 2. Modification du statut pour le rendez-vous de demain
+                // 1. Passage automatique à 'Confirmé' au clic
                 $this->model->confirmerStatutRdv($email);
 
-                // 3. On récupère les infos mis à jour pour l'affichage
+                // 2. Récupération des détails (le modèle exclut déjà les 'Consultés')
                 $ticket = $this->model->getTicketDetails($email);
 
-                // Optionnel : tu peux créer une variable pour afficher un badge "Confirmé !" sur ta vue
-                $statut_confirme = true;
+                // VÉRIFICATION DE SÉCURITÉ :
+                // Si getTicketDetails renvoie null, le patient a été consulté/annulé
+                if (!$ticket) {
+                    $msg_erreur = "Votre ticket a expiré ou a déjà été utilisé.";
+                    require_once ROOT . '/APP/views/securite/saisie_ticket.php';
+                    return;
+                }
 
+                $statut_confirme = true;
                 require_once ROOT . '/APP/views/securite/affichage_ticket.php';
                 exit();
             } else {
@@ -47,7 +52,7 @@ class TicketController
     {
         $email = $_GET['email'] ?? null;
 
-        // Utilisation du modèle via $this->model
+        // Le modèle verrouille l'accès si le statut est 'Consulté'
         $ticket = $this->model->getTicketDetails($email);
 
         if ($ticket) {
@@ -56,7 +61,8 @@ class TicketController
             $resteAvantMoi = $this->model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
             require_once ROOT . '/APP/views/securite/file_attente_live.php';
         } else {
-            header("Location: index.php?page=ticket&action=saisie");
+            // REDIRECTION SI LE TICKET N'EST PLUS VALIDE
+            header("Location: index.php?page=ticket&action=saisie&erreur=expire");
             exit();
         }
     }

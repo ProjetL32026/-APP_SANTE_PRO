@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (label.includes('Annulé')) return '#F44336';
         if (label.includes('En attente')) return '#FF9800';
         if (label.includes('Consulté')) return '#2196F3';
+        if (label.includes('Présent')) return '#FFEB3B'; // Jaune standard (Style Material Design)
+if (label.includes('Absent')) return '#9C27B0';  // Mauve / Violet
         return '#9E9E9E';
     });
 

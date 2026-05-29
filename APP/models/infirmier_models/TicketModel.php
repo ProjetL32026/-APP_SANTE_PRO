@@ -20,7 +20,7 @@ class TicketModel {
             JOIN rendez_vous r ON t.id_rdv = r.id_rdv 
             LEFT JOIN utilisateur u ON r.id_patient = u.id 
             WHERE r.id_medecin = :id 
-            AND r.statut = 'Chez le médecin' 
+            AND r.statut = 'chez le medecin' 
             AND r.date = CURDATE() 
             LIMIT 1";
     
@@ -31,13 +31,13 @@ class TicketModel {
 
     /**
      * ACTION DE L'INFIRMIER :
-     * 1. Termine le patient qui était chez le médecin.
+     * 1. Termine le patient qui était chez le medecin.
      * 2. NE CHANGE PAS le statut du suivant (il reste 'Présent').
      */
     public function appelerProchainPatient($id_medecin) {
         // A. On termine SEULEMENT la consultation qui était en cours
         $stmt = $this->db->prepare("UPDATE rendez_vous SET statut = 'Consulté'
-                            WHERE statut = 'Chez le médecin'
+                            WHERE statut = 'chez le medecin'
                             AND id_medecin = :id
                             AND date = CURDATE()");
         $stmt->execute(['id' => $id_medecin]);
@@ -48,18 +48,18 @@ class TicketModel {
 
     /**
      * CORRECTION : Affiche le numéro du ticket actuel.
-     * Il cherche d'abord celui qui est 'Chez le médecin', 
+     * Il cherche d'abord celui qui est 'Chez le medecin', 
      * sinon il prend le premier qui est 'Présent'.
      */
     public function getProchainTicketAffichage($id_medecin) {
-        // On cherche le ticket qui est soit déjà chez le médecin, soit le prochain à passer
+        // On cherche le ticket qui est soit déjà chez le medecin, soit le prochain à passer
         $sql = "SELECT t.numero 
                 FROM ticket t 
                 JOIN rendez_vous r ON t.id_rdv = r.id_rdv 
                 WHERE r.id_medecin = :id 
-                AND r.statut IN ('Chez le médecin', 'Présent') 
+                AND r.statut IN ('chez le medecin', 'Présent') 
                 AND r.date = CURDATE() 
-                ORDER BY CASE WHEN r.statut = 'Chez le médecin' THEN 1 ELSE 2 END ASC, 
+                ORDER BY CASE WHEN r.statut = 'chez le medecin' THEN 1 ELSE 2 END ASC, 
                          t.numero ASC 
                 LIMIT 1";
                 

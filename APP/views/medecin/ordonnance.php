@@ -1,7 +1,3 @@
-
-
-
-
 <div class="prescription-paper shadow mx-auto bg-white p-5" id="ordonnanceContent">
     <div class="d-flex justify-content-between pb-3 mb-4 border-bottom">
         <div>

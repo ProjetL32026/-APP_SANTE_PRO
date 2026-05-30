@@ -1,14 +1,15 @@
 <?php
+
 /**
  * Fichier : APP/views/medecin/file_attente.php
+ * @var array $file_attente
+ * @var int $nb_termines
  */
 
-// 1. Préparation des variables pour le Header
 $pageTitle = "Tableau de Bord - Santé Pro";
-$pageCSS = "stylebaya.css"; 
-$pageScripts = ['jsbaya/file_attente.js']; 
+$pageCSS = "stylebaya.css";
+$pageScripts = ['jsbaya/file_attente.js'];
 
-// 2. Inclusion du Header et de la Sidebar
 require_once ROOT . '/APP/views/layout/header.php';
 require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 ?>
@@ -53,35 +54,46 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
             <table class="table m-0 table-hover">
                 <thead class="bg-light sticky-top">
                     <tr>
-                        <th class="ps-4">NOM DU PATIENT</th>
-                        <th>HEURE / PÉRIODE</th>
-                        <th class="text-center">ACTION</th>
+                        <th width="50%" class="ps-4">NOM DU PATIENT</th>
+                        <th width="30%">PÉRIODE</th>
+                        <th width="20%" class="text-center">ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!empty($file_attente)): ?>
-                        <?php foreach ($file_attente as $p): ?>
+                        <?php foreach ($file_attente as $index => $patient): ?>
                             <tr class="align-middle">
-                                <td class="fw-bold ps-4">
-                                    <?= htmlspecialchars(($p['nom'] ?? '') . ' ' . ($p['prenom'] ?? '')) ?>
-                                </td>
+                                <td class="fw-bold text-dark ps-4"><?= htmlspecialchars($patient['nom'] . ' ' . $patient['prenom']) ?></td>
                                 <td>
-                                    <span class="badge bg-light text-primary border border-primary px-3">
-                                        <?= htmlspecialchars($p['heure_prevue'] ?? 'En attente') ?>
+                                    <span class="badge bg-light text-primary border border-primary px-3 text-capitalize">
+                                        <i class="bi bi-clock me-1"></i> <?= htmlspecialchars($patient['periode'] ?? 'En attente') ?>
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="index.php?page=medecin&action=consulter&id_rdv=<?= $p['id_rdv'] ?>" class="btn btn-primary btn-sm px-4 shadow-sm">
-                                        Ouvrir
-                                    </a>
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        <?php if ($index === 0): ?>
+                                            <a href="index.php?page=medecin&action=consulter&id_rdv=<?= $patient['id_rdv'] ?>"
+                                               class="btn btn-sm text-white fw-medium border-0 shadow-sm text-center d-inline-flex align-items-center justify-content-center"
+                                               style="background-color: var(--teal, #008080); min-width: 110px; height: 32px;">
+                                                <i class="bi bi-folder2-open me-1"></i> Consulter
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="btn btn-sm btn-light border fw-medium text-muted text-center d-inline-flex align-items-center justify-content-center"
+                                                    disabled
+                                                    style="min-width: 110px; height: 32px; cursor: not-allowed;"
+                                                    title="Vous devez d'abord consulter le patient prioritaire">
+                                                <i class="bi bi-lock-fill me-1"></i> En attente
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="3" class="text-center p-5 text-muted">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Aucun patient en attente pour le moment.
+                            <td colspan="3" class="text-center py-4 text-muted">
+                                <i class="bi bi-emoji-smile fs-4 d-block mb-2"></i>
+                                Aucun patient dans la file d'attente pour le moment.
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -89,7 +101,4 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
             </table>
         </div>
     </div>
-</div> <?php
-// 3. Inclusion du Footer
-require_once ROOT . '/APP/views/layout/footer.php';
-?>
+</div>

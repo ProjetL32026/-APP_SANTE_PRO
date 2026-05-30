@@ -97,20 +97,21 @@ class TicketModel
      */
     public function getRendezVousAPourvoir($dateCible)
     {
-        $sql = "SELECT u.email, u.nom, r.id_rdv, r.id_medecin, u_m.nom as medecin_nom 
-                FROM rendez_vous r 
-                JOIN utilisateur u ON r.id_patient = u.id 
-                JOIN medecin m ON r.id_medecin = m.id_medecin
-                JOIN utilisateur u_m ON m.id_medecin = u_m.id
-                WHERE DATE(r.date) = :dateCible 
-                AND r.statut NOT IN ('Consulté', 'Annulé')
-                AND r.mail_envoye = 0
-                ORDER BY r.id_rdv ASC";
+        // Ajoute r.statut ici dans le SELECT :
+        $sql = "SELECT u.email, u.nom, r.id_rdv, r.id_medecin, u_m.nom as medecin_nom, r.statut 
+            FROM rendez_vous r 
+            JOIN utilisateur u ON r.id_patient = u.id 
+            JOIN medecin m ON r.id_medecin = m.id_medecin
+            JOIN utilisateur u_m ON m.id_medecin = u_m.id
+            WHERE DATE(r.date) = :dateCible 
+            AND r.statut NOT IN ('Consulté', 'Annulé')
+            AND (r.mail_envoye = 0 OR r.mail_envoye IS NULL)
+            ORDER BY r.id_rdv ASC";
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['dateCible' => $dateCible]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
     public function getPositionFileDemain($id_medecin, $dateCible)
     {
         $sql = "SELECT COUNT(*) FROM ticket t 

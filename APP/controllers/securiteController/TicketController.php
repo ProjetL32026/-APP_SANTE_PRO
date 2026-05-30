@@ -1,12 +1,15 @@
 <?php
+// Vérifie bien que ce chemin est correct selon ton architecture
+require_once ROOT . '/APP/models/Smodel/TicketModel.php';
 
 class TicketController
 {
     private $model;
 
-    public function __construct($model)
+    public function __construct($db)
     {
-        $this->model = $model;
+        // Le contrôleur crée le modèle avec la connexion reçue
+        $this->model = new TicketModel($db);
     }
 
     public function showSaisie()
@@ -21,15 +24,9 @@ class TicketController
 
         if (!empty($code) && !empty($email)) {
             if ($this->model->verifierCodeTicket($email, $code)) {
-
-                // 1. Passage automatique à 'Confirmé' au clic
                 $this->model->confirmerStatutRdv($email);
-
-                // 2. Récupération des détails (le modèle exclut déjà les 'Consultés')
                 $ticket = $this->model->getTicketDetails($email);
 
-                // VÉRIFICATION DE SÉCURITÉ :
-                // Si getTicketDetails renvoie null, le patient a été consulté/annulé
                 if (!$ticket) {
                     $msg_erreur = "Votre ticket a expiré ou a déjà été utilisé.";
                     require_once ROOT . '/APP/views/securite/saisie_ticket.php';
@@ -51,8 +48,6 @@ class TicketController
     public function voirFile()
     {
         $email = $_GET['email'] ?? null;
-
-        // Le modèle verrouille l'accès si le statut est 'Consulté'
         $ticket = $this->model->getTicketDetails($email);
 
         if ($ticket) {
@@ -61,8 +56,7 @@ class TicketController
             $resteAvantMoi = $this->model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
             require_once ROOT . '/APP/views/securite/file_attente_live.php';
         } else {
-            // REDIRECTION SI LE TICKET N'EST PLUS VALIDE
-            header("Location: index.php?page=ticket&action=saisie&erreur=expire");
+            header("Location: index.php?page=ticket&erreur=expire");
             exit();
         }
     }

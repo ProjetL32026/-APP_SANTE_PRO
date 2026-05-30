@@ -1,5 +1,5 @@
 <?php 
-require_once ROOT . '/config/db.php';
+
 $pageCSS    = 'stylep.css';
 $bodyClass  = 'bg-light';
 $idMedecin = $_GET['idMedecin'] ?? '';

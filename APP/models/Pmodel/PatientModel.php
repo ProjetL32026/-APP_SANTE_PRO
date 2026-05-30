@@ -178,9 +178,10 @@ class PatientModel {
 }
     public function countRdvByMedecin($id_medecin) {
         $sql = "SELECT date, periode, COUNT(*) as total 
-                FROM rendez_vous 
-                WHERE id_medecin = :id 
-                GROUP BY date, periode";
+        FROM rendez_vous 
+        WHERE id_medecin = :id 
+        AND statut != 'Annulé'
+        GROUP BY date, periode";
                 
         try {
             $stmt = $this->pdo->prepare($sql);

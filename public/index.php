@@ -29,21 +29,15 @@ $action = $_GET['action'] ?? null;
 $role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? null;
 
 // 5. Bloc de détection Connexion / Inscription (Votre logique exacte)
-// 6. Gestion de la déconnexion
-if ($page === 'logout' || $page === 'deconnexion') {
-    $_SESSION = array(); // Vide toutes les variables de session
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        ); // Tue le cookie
+if ($page === 'connexion' || (isset($_GET['action']) && $_GET['action'] === 'login')) {
+    if (isset($_GET['from']) && $_GET['from'] === 'inscription') {
+        // On mémorise qu'après le login, il faut aller au RDV
+        $_SESSION['redirect_after_login'] = 'rdv';
+        $_SESSION['temp_id_medecin'] = $_GET['idMedecin'] ?? null;
+    } else {
+        // Sinon, on s'assure que la redirection par défaut est l'accueil
+        $_SESSION['redirect_after_login'] = 'accueil';
     }
-    session_destroy(); // Détruit la session sur le serveur
-    
-    // On redirige vers la page de login pro
-    header("Location: index.php?page=accueil");
-    exit();
 }
 
 // 6. Gestion de la déconnexion
@@ -77,7 +71,7 @@ if ($page === 'log') {
 if ($role === 'admin') {
     switch ($page) {
         case 'medcin':
-            require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php';
+            require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php';
             break;
         case 'infirmier':
             require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';
@@ -116,7 +110,7 @@ elseif ($role === 'infirmier') {
 
 // --- ESPACE MÉDECIN ---
 elseif ($role === 'medecin') {
-    require_once ROOT . '/APP/controllers/MedecinControllers/MedecinController.php';
+    require_once ROOT . '/APP/controllers/MedcinControllers/MedecinController.php';
 }
 
 /**
@@ -140,99 +134,22 @@ elseif ($role === 'medecin') {
             require_once ROOT . '/APP/views/patient/inscription.php';
             break;
 
-        case 'annuler_rdv':
-    $data  = json_decode(file_get_contents('php://input'), true);
-    $idRdv = (int)($data['idRdv'] ?? 0);
-
-    if (!isset($_SESSION['patient_id']) || $idRdv <= 0) {
-        echo json_encode(['success' => false]);
-        exit();
-    }
-
-    // CORRECTION : instancier le modèle ici
-    require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
-    $patientModel = new PatientModel($pdo);
-    $ok = $patientModel->annulerRendezVous($idRdv);
-    echo json_encode(['success' => (bool)$ok]);
-    exit();
-
-case 'modifier_rdv':
-    $data    = json_decode(file_get_contents('php://input'), true);
-    $idRdv   = (int)($data['idRdv'] ?? 0);
-    $date    = $data['date']    ?? '';
-    $periode = $data['periode'] ?? '';
-
-    if (!isset($_SESSION['patient_id']) || $idRdv <= 0 || !$date) {
-        echo json_encode(['success' => false, 'message' => 'Données invalides.']);
-        exit();
-    }
-
-    require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
-    $patientModel = new PatientModel($pdo);
-
-    // Récupérer le RDV existant pour avoir nom/prénom/médecin
-    $rdvExistant = $patientModel->getRdvById($idRdv);
-
-    // Vérification jour de travail du médecin
-    $medecin = $patientModel->getMedecinById($rdvExistant['id_medecin']);
-    $map = ['Lun'=>1,'Mar'=>2,'Mer'=>3,'Jeu'=>4,'Ven'=>5,'Sam'=>6,'Dim'=>0];
-    $joursPermis = [];
-    foreach (explode(',', $medecin['jour_travail'] ?? '') as $j) {
-        $cle = trim($j);
-        if (isset($map[$cle])) $joursPermis[] = $map[$cle];
-    }
-    $jourChoisi = (int)date('w', strtotime($date));
-    if (!in_array($jourChoisi, $joursPermis)) {
-        echo json_encode(['success' => false, 'message' => 'Ce médecin ne travaille pas ce jour-là.']);
-        exit();
-    }
-
-    // AJOUT : Vérification doublon — même patient, même spécialité, même jour
-    // Mais on exclut le RDV en cours de modification (idRdv)
-    if ($patientModel->aDejaUnRdvDansCetteSpecialiteSaufCelui(
-        $rdvExistant['nom_patient'],
-        $rdvExistant['prenom_patient'],
-        $date,
-        $rdvExistant['id_medecin'],
-        $idRdv  // ← on exclut le RDV actuel
-    )) {
-        echo json_encode(['success' => false, 'message' => 'Ce patient a déjà un rendez-vous ce jour-là dans cette spécialité.']);
-        exit();
-    }
-
-    $ok = $patientModel->modifierRendezVous($idRdv, $date, $periode);
-    echo json_encode(['success' => (bool)$ok]);
-    exit();
-
-    case 'voir_ordonnance':
-    if (!isset($_SESSION['patient_id'])) {
-        echo '<p class="text-danger">Non autorisé.</p>';
-        exit;
-    }
-    require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
-    global $pdo;
-    $patientModel = new PatientModel($pdo);
-    $id  = intval($_GET['id'] ?? 0);
-    $rdv = $patientModel->getRdvById($id);
-    include ROOT . '/APP/views/medecin/ordonnance.php';
-    exit;
-
+        // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
-            $ticketCtrl = new TicketController();
+
+            // CORRECTION : Injection de $db ici
+            $ticketCtrl = new TicketController($db);
 
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
-            }
-            // On ajoute 'voirFile' ici pour que le routeur le reconnaisse
-            elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
+            } elseif ($action === 'live' || $action === 'voir_file' || $action === 'voirFile') {
                 $ticketCtrl->voirFile();
             } else {
                 $ticketCtrl->showSaisie();
             }
             break;
-
         case 'accueil':
         case 'accueil_patient':
         default:

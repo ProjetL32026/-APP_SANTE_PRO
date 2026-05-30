@@ -1,6 +1,6 @@
 <?php
 // 1. Vérification de sécurité
-require_once ROOT . '/config/db.php';
+
 $pageTitle  = 'Prendre Rendez-vous';
 $pageCSS ='stylep.css';
 $pageScripts = ['scriptpatient/rdv.js'];

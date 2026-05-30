@@ -1,5 +1,5 @@
 <?php
-require_once ROOT . '/config/db.php';
+
 $pageTitle  = 'Santé Pro - Mon Espace';
 $pageCSS    = 'stylep.css';
 $pageScripts = ['scriptpatient/Historique.js'];

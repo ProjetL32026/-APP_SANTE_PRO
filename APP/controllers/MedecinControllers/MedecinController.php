@@ -73,6 +73,7 @@ switch ($action) {
             }
             $prescriptionFormattee = implode("<br>", $prescriptionLines);
 
+            $success = false;
             if ($id_rdv && (!empty($diagnostic) || !empty($prescriptionFormattee))) {
                 $success = $model->saveConsultation($id_rdv, $id_medecin, $diagnostic, $prescriptionFormattee);
                 $model->updateStatutRetourFile($id_rdv);

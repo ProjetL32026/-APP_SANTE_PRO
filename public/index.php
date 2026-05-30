@@ -1,7 +1,7 @@
 <?php
 /**
  * SANTE_PRO - INDEX GLOBAL RÉVISÉ
- **/
+ */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -110,7 +110,7 @@ elseif ($role === 'infirmier') {
 
 // --- ESPACE MÉDECIN ---
 elseif ($role === 'medecin') {
-    require_once ROOT . '/APP/controllers/MedecinControllers/MedecinController.php';
+    require_once ROOT . '/APP/controllers/MedcinControllers/MedecinController.php';
 }
 
 /**
@@ -137,15 +137,10 @@ elseif ($role === 'medecin') {
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':
-            // 1. On appelle d'abord le modèle (le bon chemin sans le 's' si nécessaire)
-            require_once ROOT . '/APP/models/Smodel/TicketModel.php';
-
-            // 2. On appelle le contrôleur
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
 
-            // 3. On initialise
-            $ticketModel = new TicketModel($db);
-            $ticketCtrl = new TicketController($ticketModel);
+            // CORRECTION : Injection de $db ici
+            $ticketCtrl = new TicketController($db);
 
             if ($action === 'valider') {
                 $ticketCtrl->validerEtAfficher();
@@ -155,7 +150,6 @@ elseif ($role === 'medecin') {
                 $ticketCtrl->showSaisie();
             }
             break;
-
         case 'accueil':
         case 'accueil_patient':
         default:

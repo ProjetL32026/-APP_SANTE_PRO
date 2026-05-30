@@ -97,7 +97,8 @@ class TicketModel
      */
     public function getRendezVousAPourvoir($dateCible)
     {
-        // Ajoute r.statut ici dans le SELECT :
+        // On ajoute une condition pour ignorer les RDV dont la date/heure est passée
+        // On s'assure de ne prendre que les statuts valides
         $sql = "SELECT u.email, u.nom, r.id_rdv, r.id_medecin, u_m.nom as medecin_nom, r.statut 
             FROM rendez_vous r 
             JOIN utilisateur u ON r.id_patient = u.id 
@@ -105,6 +106,7 @@ class TicketModel
             JOIN utilisateur u_m ON m.id_medecin = u_m.id
             WHERE DATE(r.date) = :dateCible 
             AND r.statut NOT IN ('Consulté', 'Annulé')
+            AND r.date > NOW() 
             AND (r.mail_envoye = 0 OR r.mail_envoye IS NULL)
             ORDER BY r.id_rdv ASC";
 

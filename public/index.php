@@ -71,7 +71,7 @@ if ($page === 'log') {
 if ($role === 'admin') {
     switch ($page) {
         case 'medcin':
-            require_once ROOT . '/APP/controllers/admin_controllers/MedcinController.php';
+            require_once ROOT . '/APP/controllers/admin_controllers/medcinController.php';
             break;
         case 'infirmier':
             require_once ROOT . '/APP/controllers/admin_controllers/InfirmierController.php';
@@ -110,7 +110,7 @@ elseif ($role === 'infirmier') {
 
 // --- ESPACE MÉDECIN ---
 elseif ($role === 'medecin') {
-    require_once ROOT . '/APP/controllers/MedcinControllers/MedecinController.php';
+    require_once ROOT . '/APP/controllers/MedecinControllers/MedecinController.php';
 }
 
 /**
@@ -134,7 +134,86 @@ elseif ($role === 'medecin') {
             require_once ROOT . '/APP/views/patient/inscription.php';
             break;
 
-        // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
+        case 'annuler_rdv':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $idRdv = (int) ($data['idRdv'] ?? 0);
+
+            if (!isset($_SESSION['patient_id']) || $idRdv <= 0) {
+                echo json_encode(['success' => false]);
+                exit();
+            }
+
+            // CORRECTION : instancier le modèle ici
+            require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+            $patientModel = new PatientModel($pdo);
+            $ok = $patientModel->annulerRendezVous($idRdv);
+            echo json_encode(['success' => (bool) $ok]);
+            exit();
+
+        case 'modifier_rdv':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $idRdv = (int) ($data['idRdv'] ?? 0);
+            $date = $data['date'] ?? '';
+            $periode = $data['periode'] ?? '';
+
+            if (!isset($_SESSION['patient_id']) || $idRdv <= 0 || !$date) {
+                echo json_encode(['success' => false, 'message' => 'Données invalides.']);
+                exit();
+            }
+
+            require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+            $patientModel = new PatientModel($pdo);
+
+            // Récupérer le RDV existant pour avoir nom/prénom/médecin
+            $rdvExistant = $patientModel->getRdvById($idRdv);
+
+            // Vérification jour de travail du médecin
+            $medecin = $patientModel->getMedecinById($rdvExistant['id_medecin']);
+            $map = ['Lun' => 1, 'Mar' => 2, 'Mer' => 3, 'Jeu' => 4, 'Ven' => 5, 'Sam' => 6, 'Dim' => 0];
+            $joursPermis = [];
+            foreach (explode(',', $medecin['jour_travail'] ?? '') as $j) {
+                $cle = trim($j);
+                if (isset($map[$cle]))
+                    $joursPermis[] = $map[$cle];
+            }
+            $jourChoisi = (int) date('w', strtotime($date));
+            if (!in_array($jourChoisi, $joursPermis)) {
+                echo json_encode(['success' => false, 'message' => 'Ce médecin ne travaille pas ce jour-là.']);
+                exit();
+            }
+
+            // AJOUT : Vérification doublon — même patient, même spécialité, même jour
+            // Mais on exclut le RDV en cours de modification (idRdv)
+            if (
+                $patientModel->aDejaUnRdvDansCetteSpecialiteSaufCelui(
+                    $rdvExistant['nom_patient'],
+                    $rdvExistant['prenom_patient'],
+                    $date,
+                    $rdvExistant['id_medecin'],
+                    $idRdv  // ← on exclut le RDV actuel
+                )
+            ) {
+                echo json_encode(['success' => false, 'message' => 'Ce patient a déjà un rendez-vous ce jour-là dans cette spécialité.']);
+                exit();
+            }
+
+            $ok = $patientModel->modifierRendezVous($idRdv, $date, $periode);
+            echo json_encode(['success' => (bool) $ok]);
+            exit();
+
+        case 'voir_ordonnance':
+            if (!isset($_SESSION['patient_id'])) {
+                echo '<p class="text-danger">Non autorisé.</p>';
+                exit;
+            }
+            require_once ROOT . '/APP/models/Pmodel/PatientModel.php';
+            global $pdo;
+            $patientModel = new PatientModel($pdo);
+            $id = intval($_GET['id'] ?? 0);
+            $rdv = $patientModel->getRdvById($id);
+            include ROOT . '/APP/views/medecin/ordonnance.php';
+            exit;
+
         // PARTIE TICKET (SÉCURITÉ / EMAIL TOUTE SEULE)
         case 'ticket':
             require_once ROOT . '/APP/controllers/securiteController/TicketController.php';
@@ -150,6 +229,7 @@ elseif ($role === 'medecin') {
                 $ticketCtrl->showSaisie();
             }
             break;
+
         case 'accueil':
         case 'accueil_patient':
         default:

@@ -1,9 +1,15 @@
 <?php
-/** @var array $patient */
-$id_rdv = $_GET['id_rdv'] ?? null;
-$pageTitle = "Nouvelle Consultation";
-$pageCSS = "stylebaya.css"; // Votre fichier CSS spécifique
-$pageScripts = ['jsbaya/consultation.js']; // Script pour gérer la validation
+
+/**
+ * Fichier : APP/views/medecin/consultation.php
+ * @var int $id_rdv
+ * @var string $nomCompletPatient
+ */
+
+$pageTitle = "Dossier Patient";
+$pageCSS = "stylebaya.css";
+$pageScripts = ['jsbaya/consultation.js'];
+
 require_once ROOT . '/APP/views/layout/header.php';
 require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 ?>
@@ -19,15 +25,18 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
             <form action="index.php?page=medecin&action=enregistrer" method="POST">
                 <input type="hidden" name="id_rdv" value="<?= htmlspecialchars($id_rdv) ?>">
 
-
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <label class="form-label fw-bold mb-0">
                             <i class="bi bi-clipboard2-pulse me-2 text-teal"></i>Observations / Diagnostic
                         </label>
                         <span class="badge bg-light text-dark border py-2 px-3 rounded-pill">
-                            <i class="bi bi-person-fill text-teal me-1"></i>
-                            Patient : <span class="fw-bold"><?= htmlspecialchars($patient['nom'] . ' ' . $patient['prenom']) ?></span>
+                            <i class="bi bi-person-fill text-teal me-1"></i> Patient :
+                            <?php if (!empty($patientData)): ?>
+                                <?= htmlspecialchars($patientData['nom'] . ' ' . $patientData['prenom']) ?>
+                            <?php else: ?>
+                                Patient Anonyme / Inconnu
+                            <?php endif; ?>
                         </span>
                     </div>
                     <textarea name="diagnostic" class="form-control-custom" rows="5"
@@ -57,7 +66,6 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
                                     <td><input type="text" name="medoc[]" class="form-control form-control-sm" placeholder="Ex: Paracétamol 1g" required></td>
                                     <td><input type="text" name="poso[]" class="form-control form-control-sm" placeholder="Ex: 1 cp matin et soir"></td>
                                     <td><input type="text" name="duree[]" class="form-control form-control-sm" placeholder="Ex: 5 jours"></td>
-                                    
                                 </tr>
                             </tbody>
                         </table>
@@ -66,8 +74,7 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 
                 <div class="d-flex justify-content-between align-items-center mt-5 border-top pt-4">
                     <a href="index.php?page=medecin&action=annuler_consultation&id_rdv=<?= htmlspecialchars($id_rdv) ?>"
-                        class="text-muted text-decoration-none fw-bold hover-teal">
-                        <i class="bi bi-arrow-left"></i> Retour
+                        class="text-muted text-decoration-none fw-bold hover-teal"></i> Retour au tableau de bord
                     </a>
 
                     <button type="submit" class="btn btn-save px-5">

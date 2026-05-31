@@ -1,8 +1,14 @@
 <?php
-/** @var array $historique */
+
+/**
+ * Fichier : APP/views/medecin/historique.php
+ * @var array $historique
+ */
+
 $pageTitle = "Historique des Consultations";
 $pageCSS = "stylebaya.css";
 $pageScripts = ['jsbaya/historique.js', 'jsbaya/statut.js'];
+
 require_once ROOT . '/APP/views/layout/header.php';
 require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 ?>
@@ -15,30 +21,23 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
     </div>
 
     <!-- Barre de recherche compacte -->
-    <div class="search-bar mb-4">
-        <form action="index.php" method="GET" class="d-flex align-items-center gap-2" style="max-width: 400px;">
-            <input type="hidden" name="page" value="medecin">
-            <input type="hidden" name="action" value="historique">
+    <div class="search-container mb-4">
+        <div class="position-relative" style="max-width: 450px;">
+            <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted search-icon">
+                <i class="bi bi-search fs-6"></i>
+            </span>
 
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search text-muted"></i>
-                </span>
-                <!-- L'ID "searchInput" est utilisé par historique.js pour l'AJAX[cite: 4] -->
-                <input type="text" id="searchInput" name="search"
-                    class="form-control border-start-0"
-                    placeholder="Nom ou prénom du patient..."
-                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
-                    autocomplete="off">
+            <input type="text"
+                id="searchInput"
+                class="form-control custom-search-input"
+                placeholder="Rechercher un patient par nom ou prénom..."
+                autocomplete="off"
+                value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+
+            <div id="searchSpinner" class="spinner-border spinner-border-sm text-teal position-absolute top-50 end-0 translate-middle-y me-3 d-none" role="status">
+                <span class="visually-hidden">Chargement...</span>
             </div>
-
-            <?php if (!empty($_GET['search'])): ?>
-                <a href="index.php?page=medecin&action=historique"
-                    class="btn btn-sm btn-outline-secondary text-nowrap">
-                    Effacer
-                </a>
-            <?php endif; ?>
-        </form>
+        </div>
     </div>
 
     <!-- Tableau des résultats -->
@@ -71,20 +70,53 @@ require_once ROOT . '/APP/views/layout/sidebar/sidebarbaya.php';
 
     <!-- Fenêtre Modale pour l'aperçu de l'ordonnance -->
     <div class="modal fade" id="modalConsultation" tabindex="-1" aria-labelledby="modalConsultationLabel">
-        <div class="modal-dialog modal-lg shadow-lg">
-            <div class="modal-content border-0">
-                <div class="modal-header bg-light border-0">
-                    <h5 class="modal-title fw-bold text-teal">Aperçu du document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-transparent border-0 shadow-none">
+                <div class="text-end mb-2">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-5 bg-gray-100">
-                    <!-- Ce fichier contient la mise en page de l'ordonnance[cite: 3] -->
-                    <?php include 'ordonnance.php'; ?>
+
+                <div class="modal-body p-0">
+                    <div class="prescription-paper shadow mx-auto bg-white p-4" id="ordonnanceContent">
+
+                        <div class="d-flex justify-content-between pb-2 mb-3 border-bottom">
+                            <div>
+                                <h4 class="fw-bold text-teal mb-0">SANTÉ PRO</h4>
+                                <small class="text-muted">Cabinet Médical Multiservice</small>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0 fw-bold" id="dateModal"></p>
+                                <p class="small text-muted mb-0">Béjaïa, Algérie</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 p-2 bg-light rounded shadow-inner">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-0">Patient : <strong id="nomPatientModal" class="fs-5 text-dark"></strong></p>
+                                <span class="badge bg-white text-dark border">Document Officiel</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 pb-3 border-bottom">
+                            <h6 class="text-teal fw-bold text-uppercase small mb-2">
+                                <i class="bi bi-clipboard2-pulse me-2"></i>Diagnostic
+                            </h6>
+                            <p id="diagModal" class="fst-italic text-dark ps-3 border-start border-4 border-light mb-0"></p>
+                        </div>
+
+                        <div class="prescription-body">
+                            <h5 class="text-center fw-bold text-uppercase mb-4" style="letter-spacing: 2px;">Ordonnance</h5>
+                            <div id="prescModal" class="ps-3" style="line-height: 1.6; font-size: 1.05rem;"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
-                    <button type="button" class="btn btn-sm btn-primary px-4" onclick="window.print()">
-                        <i class="bi bi-printer me-2"></i> Imprimer
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="button" class="btn btn-light border shadow-sm px-4 py-2" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-2"></i> Fermer
+                    </button>
+                    <button type="button" class="btn btn-teal text-white shadow px-4 py-2" onclick="window.print()" style="background-color: #0d9488; border-color: #0d9488;">
+                        <i class="bi bi-printer-fill me-2"></i> Imprimer le document
                     </button>
                 </div>
             </div>

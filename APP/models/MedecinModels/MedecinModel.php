@@ -11,20 +11,28 @@ class MedecinModel
     // Récupérer la file d'attente (Patients non consultés)
     public function getFileAttente(int $id_medecin): array
     {
-        // Correction de la jointure : p.id_patient correspond à u.id
-        $sql = "SELECT u.nom, u.prenom, r.id_rdv, r.periode, r.statut
+        // COALESCE prend le nom/prénom de rdv, et s'ils sont NULL, prend ceux d'utilisateur
+        $sql = "SELECT 
+                COALESCE(r.nom_patient, u.nom) AS nom, 
+                COALESCE(r.prenom_patient, u.prenom) AS prenom, 
+                r.id_rdv, 
+                r.periode, 
+                r.statut, 
+                t.numero
             FROM rendez_vous r
             JOIN patient p ON r.id_patient = p.id_patient
             JOIN utilisateur u ON p.id_patient = u.id 
+            JOIN ticket t ON r.id_rdv = t.id_rdv
             LEFT JOIN consultation c ON r.id_rdv = c.id_rdv
             WHERE r.id_medecin = :id_m 
-            AND r.statut IN ('Présent', 'Chez le medecin')
-            AND c.id_rdv IS NULL 
-            ORDER BY r.periode ASC";
-
+              AND r.statut IN ('Présent', 'Chez le medecin')
+              AND c.id_rdv IS NULL                          
+            ORDER BY 
+                CASE WHEN r.periode = 'matin' THEN 1 ELSE 2 END ASC, -- Matin en premier
+                t.numero ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id_m' => $id_medecin]);
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function updateStatutEnConsultation(int $id_rdv): bool
@@ -43,7 +51,9 @@ class MedecinModel
     public function getPatientDetails(int $id_rdv)
     {
         // Jointure directe simplifiée
-        $sql = "SELECT u.nom, u.prenom 
+        $sql = "SELECT 
+                    COALESCE(r.nom_patient, u.nom) AS nom, 
+                    COALESCE(r.prenom_patient, u.prenom) AS prenom
                 FROM rendez_vous r
                 JOIN patient p ON r.id_patient = p.id_patient
                 JOIN utilisateur u ON p.id_patient = u.id
@@ -84,19 +94,46 @@ class MedecinModel
         }
     }
 
-    public function getHistorique(int $id_medecin): array
-    {
-        $sql = "SELECT c.*, u.nom, u.prenom, r.periode 
-                FROM consultation c
-                JOIN rendez_vous r ON c.id_rdv = r.id_rdv
-                JOIN patient p ON r.id_patient = p.id_patient
-                JOIN utilisateur u ON p.id_patient = u.id
-                WHERE c.id_medecin = :id_medecin
-                ORDER BY c.date DESC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id_medecin' => $id_medecin]);
-        return $stmt->fetchAll();
+    public function getHistorique(int $id_medecin, string $search = ''): array
+{
+    $sql = "SELECT 
+            COALESCE(r.nom_patient, u.nom) AS nom, 
+            COALESCE(r.prenom_patient, u.prenom) AS prenom,
+            c.id_consultation,
+            c.date,
+            c.diagnostic,
+            c.prescription,
+            c.id_rdv,
+            r.periode 
+            FROM consultation c
+            JOIN rendez_vous r ON c.id_rdv = r.id_rdv
+            JOIN patient p ON r.id_patient = p.id_patient
+            JOIN utilisateur u ON p.id_patient = u.id
+            WHERE c.id_medecin = :id_medecin";
+
+    // Si une recherche est fournie
+    if (!empty($search)) {
+        $sql .= " AND (
+                    -- Recherche sur Nom + Espace + Prénom (pour rdv et utilisateur)
+                    CONCAT(COALESCE(r.nom_patient, u.nom), ' ', COALESCE(r.prenom_patient, u.prenom)) LIKE :search 
+                    OR 
+                    -- Recherche sur Prénom + Espace + Nom (au cas où le médecin inverse l'ordre)
+                    CONCAT(COALESCE(r.prenom_patient, u.prenom), ' ', COALESCE(r.nom_patient, u.nom)) LIKE :search
+                 )";
     }
+
+    $sql .= " ORDER BY c.date DESC";
+
+    $stmt = $this->db->prepare($sql);
+    
+    $params = ['id_medecin' => $id_medecin];
+    if (!empty($search)) {
+        $params['search'] = '%' . $search . '%';
+    }
+
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function getDetailsConsultation(int $id_rdv)
     {

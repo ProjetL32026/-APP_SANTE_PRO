@@ -2,37 +2,47 @@
 require_once '../APP/models/MedecinModels/MedecinModel.php';
 $model = new MedecinModel($pdo);
 
-$id_medecin = $_SESSION['user_id'];
+$id_medecin = $_SESSION['user_id'] ?? null;
 $action = $_GET['action'] ?? 'liste';
+
+// Sécurité : On s'assure que le médecin est bien connecté
+if (!$id_medecin) {
+    header('Location: index.php?page=connexion');
+    exit();
+}
+
 $is_en_conge = $model->getStatusConge($id_medecin);
 
 switch ($action) {
     case 'liste':
         $file_attente = $model->getFileAttente($id_medecin);
         $nb_termines = $model->getCountTermines($id_medecin);
+
         $pageTitle = "Tableau de Bord";
         $pageCSS = "stylebaya.css";
 
-        // Permet à la sidebar de savoir si le bouton doit être coché
-        $is_en_conge = $model->getStatusConge($id_medecin);
-
-        require_once '../APP/views/layout/header.php';
-        require_once '../APP/views/medecin/file_attente.php';
-        require_once '../APP/views/layout/footer.php';
+        require_once '../APP/views/layout/header.php';       // 1. En-tête global
+        require_once '../APP/views/medecin/file_attente.php'; // 2. Le corps (La vue épurée)
+        require_once '../APP/views/layout/footer.php';       // 3. Le pied de page global
         break;
 
     case 'consulter':
-        $id_rdv = $_GET['id_rdv'] ?? null;
-        if ($id_rdv) {
-            $model->updateStatutEnConsultation($id_rdv);
-            $patient = $model->getPatientDetails($id_rdv);
-            $pageTitle = "Fiche Patient";
-            $pageCSS = "stylebaya.css";
-
-            require_once '../APP/views/layout/header.php';
-            require_once '../APP/views/medecin/consultation.php';
-            require_once '../APP/views/layout/footer.php';
+        $id_rdv = filter_input(INPUT_GET, 'id_rdv', FILTER_VALIDATE_INT);
+        if (!$id_rdv) {
+            header('Location: index.php?page=medecin&action=liste');
+            exit();
         }
+
+        $model->updateStatutEnConsultation($id_rdv);
+        $patientData = $model->getPatientDetails($id_rdv);
+
+        $pageTitle = "Dossier Patient";
+        $pageCSS = "stylebaya.css";
+        $pageScripts = ['jsbaya/consultation.js'];
+
+        require_once '../APP/views/layout/header.php';
+        require_once '../APP/views/medecin/consultation.php'; 
+        require_once '../APP/views/layout/footer.php';
         break;
 
     case 'annuler_consultation':
@@ -47,71 +57,96 @@ switch ($action) {
 
     case 'enregistrer':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id_rdv = $_POST['id_rdv'] ?? null;
-            $diagnostic = $_POST['diagnostic'] ?? '';
+            $id_rdv = filter_input(INPUT_POST, 'id_rdv', FILTER_VALIDATE_INT);
+            $diagnostic = trim($_POST['diagnostic'] ?? '');
 
-            if ($id_rdv) {
-                $ordonnance_finale = "";
-                if (isset($_POST['medoc']) && is_array($_POST['medoc'])) {
-                    foreach ($_POST['medoc'] as $key => $nom_medoc) {
-                        if (!empty(trim($nom_medoc))) {
-                            $poso = $_POST['poso'][$key] ?? '';
-                            $duree = $_POST['duree'][$key] ?? '';
-                            $ordonnance_finale .= "• " . htmlspecialchars($nom_medoc) . " : " . htmlspecialchars($poso) . " (" . htmlspecialchars($duree) . ")\n";
-                        }
-                    }
+            // Récupération et formatage de la prescription (médicaments)
+            $medocs = $_POST['medoc'] ?? [];
+            $posos = $_POST['poso'] ?? [];
+            $durees = $_POST['duree'] ?? [];
+
+            $prescriptionLines = [];
+            for ($i = 0; $i < count($medocs); $i++) {
+                if (!empty($medocs[$i])) {
+                    $prescriptionLines[] = "• " . htmlspecialchars($medocs[$i]) . " : " . htmlspecialchars($posos[$i]) . " (" . htmlspecialchars($durees[$i]) . ")";
                 }
-                $success = $model->saveConsultation($id_rdv, $id_medecin, $diagnostic, $ordonnance_finale);
-                header('Location: index.php?page=medecin&action=liste&saved=' . ($success ? '1' : '0'));
-                exit();
             }
-            header('Location: index.php?page=medecin&action=liste&error=missing_id');
+            $prescriptionFormattee = implode("<br>", $prescriptionLines);
+
+            $success = false;
+            if ($id_rdv && (!empty($diagnostic) || !empty($prescriptionFormattee))) {
+                $success = $model->saveConsultation($id_rdv, $id_medecin, $diagnostic, $prescriptionFormattee);
+                $model->updateStatutRetourFile($id_rdv);
+            }
+
+            // 2. 🔥 ICI : On force le statut à rester ou devenir 'Chez le medecin'
+            if ($success) {
+                $model->updateStatutEnConsultation($id_rdv);
+            }
+            header('Location: index.php?page=medecin&action=liste');
             exit();
         }
         break;
 
     case 'historique':
-        $search = $_GET['search'] ?? ''; // Récupère le texte de recherche
+        // 1. Récupération du mot-clé s'il existe
+        $search = $_GET['search'] ?? '';
+
+        // 2. Appel du modèle avec le filtre de recherche
         $historique = $model->getHistorique($id_medecin, $search);
+
+        // 3. Détection de la requête AJAX
+        // Ton fichier historique.js envoie l'en-tête 'X-Requested-With'
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            require_once '../APP/views/medecin/historique_rows.php';
-            exit; // On arrête l'exécution ici pour ne pas envoyer le header/footer
+            // Si c'est de l'AJAX, on affiche UNIQUEMENT les lignes du tableau
+            include '../APP/views/medecin/historique_rows.php';
+            exit(); // On stoppe le script pour ne pas charger les structures globales
         }
-        // Récupération du statut pour la sidebar ici aussi
-        $is_en_conge = $model->getStatusConge($id_medecin);
-        $pageTitle = "Historique";
+
+        // Cas normal (chargement initial de la page ou actualisation globale)
+        $pageTitle = "Historique des Consultations";
         $pageCSS = "stylebaya.css";
+        $pageScripts = ['jsbaya/historique.js', 'jsbaya/statut.js'];
 
         require_once '../APP/views/layout/header.php';
         require_once '../APP/views/medecin/historique.php';
         require_once '../APP/views/layout/footer.php';
         break;
+
     case 'get_ordonnance':
-        $id_rdv = $_GET['id_rdv'] ?? null;
+        $id_rdv = filter_input(INPUT_GET, 'id_rdv', FILTER_VALIDATE_INT);
         if ($id_rdv) {
             $cons = $model->getDetailsConsultation($id_rdv);
+
             if ($cons) {
+                // Cas normal : On inclut la vue partielle de l'ordonnance
                 include '../APP/views/medecin/ordonnance.php';
             } else {
-                echo "<div class='alert alert-danger'>Consultation introuvable.</div>";
+                // CORRECTION MVC : Au lieu d'un "echo" de div Bootstrap, 
+                // on délègue le rendu de l'erreur à une vue dédiée.
+                require_once '../APP/views/errors/404.php';
             }
         }
-        exit();
+        exit(); // Très important pour stopper le script en cas de requête AJAX
         break;
 
     case 'toggle_conge':
-        // On nettoie le tampon pour être sûr de n'envoyer QUE du JSON
+        // Sécurisation de la sortie en pur JSON
         ob_clean();
         header('Content-Type: application/json');
 
         $nouveauStatus = $_POST['status'] ?? 'Actif';
         $success = $model->updateStatusConge($id_medecin, $nouveauStatus);
 
-        // On répond au format JSON pour statut.js
         echo json_encode([
             'success' => $success,
-            'status' => $nouveauStatus
+            'status' => $nouveauStatus,
+            'message' => $success ? "Statut mis à jour avec succès." : "Erreur lors de la mise à jour."
         ]);
         exit();
         break;
+
+    default:
+        header('Location: index.php?page=medecin&action=liste');
+        exit();
 }

@@ -19,13 +19,21 @@ class MailController
     {
         $mail = new PHPMailer(true);
         $mail->isSMTP();
-        $mail->Host = 'sandbox.smtp.mailtrap.io';
+
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Port = 2525;
-        $mail->Username = '1c2fd7f6a9d314'; // Tes identifiants Mailtrap
-        $mail->Password = '40b99133297871';
+
+        // Ton adresse Gmail complète
+        $mail->Username = 'sabine.mssd@gmail.com';
+
+        // Ton MOT DE PASSE D'APPLICATION (les 16 caractères générés chez Google)
+        $mail->Password = 'jfqhqwtxksfgwowc';
+
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
         $mail->CharSet = 'UTF-8';
-        $mail->setFrom('no-reply@santepro.com', 'SANTE PRO');
+        $mail->setFrom('sabine.mssd@gmail.com', 'SANTE PRO');
 
         return $mail;
     }
@@ -36,7 +44,6 @@ class MailController
     public function envoyerTicket($email, $nom, $code_tk, $pos, $medecin)
     {
         try {
-            // Lien dynamique pour valider le ticket directement
             $lien = "http://localhost/santepro/public/index.php?page=ticket&action=valider"
                 . "&email=" . urlencode($email)
                 . "&codeticket=" . urlencode($code_tk);
@@ -47,43 +54,37 @@ class MailController
             $m->Subject = "🎫 Votre Ticket de Consultation - SANTE PRO";
 
             $m->Body = "
-            <div style='max-width: 450px; margin: 20px auto; font-family: Arial, sans-serif; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
-                <div style='background-color: #1e3a8a; padding: 25px; text-align: center;'>
-                    <h1 style='color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px;'>SANTE PRO</h1>
+        <div style='max-width: 450px; margin: 20px auto; font-family: Arial, sans-serif; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+            <div style='background-color: #1e3a8a; padding: 25px; text-align: center;'>
+                <h1 style='color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px;'>SANTE PRO</h1>
+            </div>
+            <div style='padding: 40px 30px; text-align: center; background-color: #ffffff;'>
+                <h2 style='color: #1e293b; margin-top: 0;'>Bonjour $nom,</h2>
+                <p style='color: #64748b; font-size: 16px;'>
+                    Votre ticket pour votre consultation avec le <b>Dr. $medecin</b> est prêt.
+                </p>
+                <div style='background:#f1f5f9; padding:20px; border-radius:12px; margin:25px 0;'>
+                    <span style='color:#64748b; font-size:12px; display:block; margin-bottom:5px;'>VOTRE CODE D'ACCÈS</span>
+                    <b style='font-size:32px; color:#2563eb; letter-spacing:4px;'>$code_tk</b>
                 </div>
-                
-                <div style='padding: 40px 30px; text-align: center; background-color: #ffffff;'>
-                    <h2 style='color: #1e293b; margin-top: 0;'>Bonjour $nom,</h2>
-                    <p style='color: #64748b; font-size: 16px;'>
-                        Votre ticket pour votre consultation avec le <b>Dr. $medecin</b> est prêt.
-                    </p>
-                    
-                    <div style='background:#f1f5f9; padding:20px; border-radius:12px; margin:25px 0;'>
-                        <span style='color:#64748b; font-size:12px; display:block; margin-bottom:5px;'>VOTRE CODE D'ACCÈS</span>
-                        <b style='font-size:32px; color:#2563eb; letter-spacing:4px;'>$code_tk</b>
-                    </div>
+                <p style='color: #64748b;'>Position actuelle dans la file d'attente : <b>#$pos</b></p>
+                <div style='margin: 35px 0;'>
+                    <a href='$lien' style='background-color: #2563eb; color: #ffffff; padding: 18px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px;'>
+                        ACCÉDER AU TICKET DIGITAL
+                    </a>
+                </div>
+            </div>
+            <div style='background-color: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #e2e8f0;'>
+                <p style='color: #94a3b8; font-size: 11px; margin: 0;'>&copy; 2026 SANTE PRO - Gestion Hospitalière</p>
+            </div>
+        </div>";
 
-                    <p style='color: #64748b;'>Position actuelle dans la file d'attente : <b>#$pos</b></p>
-                    
-                    <div style='margin: 35px 0;'>
-                        <a href='$lien' style='background-color: #2563eb; color: #ffffff; padding: 18px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px;'>
-                            ACCÉDER AU TICKET DIGITAL
-                        </a>
-                    </div>
-                    
-                    <p style='color: #94a3b8; font-size: 13px;'>
-                        Merci de votre confiance,<br>L'équipe SANTE PRO
-                    </p>
-                </div>
-                
-                <div style='background-color: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #e2e8f0;'>
-                    <p style='color: #94a3b8; font-size: 11px; margin: 0;'>&copy; 2026 SANTE PRO - Gestion Hospitalière</p>
-                </div>
-            </div>";
-
+            // Retourne true si l'envoi réussit
             return $m->send();
+
         } catch (Exception $e) {
-            error_log("Erreur MailTicket : " . $e->getMessage());
+            // Enregistre l'erreur dans les logs PHP pour diagnostic
+            error_log("Erreur MailTicket (PHPMailer) : " . $m->ErrorInfo);
             return false;
         }
     }

@@ -8,6 +8,16 @@ require_once $pathMail;
 
 class RdvController
 {
+    private $db;
+
+    public function __construct($db = null)
+    {
+        if ($db === null && isset($GLOBALS['db'])) {
+            $db = $GLOBALS['db'];
+        }
+        $this->db = $db;
+    }
+
     /**
      * Cette fonction vérifie si le médecin est absent et annule les RDV en envoyant des mails.
      * Elle est conçue pour être appelée dès que le système détecte le changement de statut en BDD.
@@ -19,7 +29,7 @@ class RdvController
             $date = date('Y-m-d');
         }
 
-        $model = new RdvModel();
+        $model = new RdvModel($this->db);
         $mailCtrl = new MailController();
 
         // 1. On interroge la BDD pour voir si le statut du médecin est 'absent'

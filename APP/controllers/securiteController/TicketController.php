@@ -52,8 +52,18 @@ class TicketController
 
         if ($ticket) {
             $id_medecin = $ticket['id_medecin'];
+
+            // Données pour la vue
             $ticketAppele = $this->model->getTicketActuelDuMedecin($id_medecin);
             $resteAvantMoi = $this->model->calculerNombreAttente($id_medecin, $ticket['id_rdv']);
+
+            // Logique de vérification de date
+            $dateRdv = date('Y-m-d', strtotime($ticket['date']));
+            $dateActuelle = date('Y-m-d');
+
+            // Variable booléenne pour la vue
+            $estJourDuRdv = ($dateRdv === $dateActuelle);
+
             require_once ROOT . '/APP/views/securite/file_attente_live.php';
         } else {
             header("Location: index.php?page=ticket&erreur=expire");

@@ -142,5 +142,24 @@ class TicketModel
             $this->db->rollBack();
             throw $e;
         }
+    }/**
+     * Récupère uniquement la file d'attente active pour la journée actuelle.
+     * Empêche l'affichage des RDV futurs ou passés non traités.
+     */
+    public function getFileAttenteActive($id_medecin)
+    {
+        // Version ultra-sécurisée
+        $sql = "SELECT r.id_rdv, u.nom, u.prenom, r.heure_rdv, t.numero 
+        FROM rendez_vous r
+        JOIN utilisateur u ON r.id_patient = u.id
+        JOIN ticket t ON r.id_rdv = t.id_rdv
+        WHERE r.id_medecin = :id_m 
+        AND r.statut = 'Confirmé' 
+        AND DATE(r.date) = CURDATE() 
+        ORDER BY t.numero ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_m' => $id_medecin]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -22,9 +22,8 @@ class TicketModel
     // Blocage automatique si le statut est 'Consulté' ou 'Annulé'
     public function getTicketDetails($email)
     {
-        // On utilise COALESCE pour prendre le nom/prénom de 'rendez_vous' 
-        // s'ils existent, sinon on prend ceux de la table 'utilisateur'
-        $sql = "SELECT r.*, u_p.email, CONCAT('TK-', r.id_rdv) as numero_affiche,
+        $sql = "SELECT r.*, u_p.email, t.numero as numero_ticket,
+            CONCAT('TK-', r.id_rdv) as numero_affiche,
             COALESCE(NULLIF(r.nom_patient, ''), u_p.nom) as p_nom, 
             COALESCE(NULLIF(r.prenom_patient, ''), u_p.prenom) as p_prenom, 
             u_m.nom as m_nom
@@ -32,6 +31,7 @@ class TicketModel
             JOIN utilisateur u_p ON r.id_patient = u_p.id
             JOIN medecin m ON r.id_medecin = m.id_medecin
             JOIN utilisateur u_m ON m.id_medecin = u_m.id
+            LEFT JOIN ticket t ON r.id_rdv = t.id_rdv  -- Jointure ajoutée
             WHERE u_p.email = :email 
             AND r.statut NOT IN ('Consulté', 'Annulé') 
             AND DATE(r.date) >= CURDATE()

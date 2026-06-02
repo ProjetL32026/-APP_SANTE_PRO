@@ -83,9 +83,8 @@
                 <?= htmlspecialchars($ticketAppele) ?>
             </h1>
             <div class="stats">
-                <div><small style="color: #94a3b8;">VOTRE RANG</small><br><strong style="font-size: 1.5rem;">
-                        <?= htmlspecialchars($ticket['numero_affiche']) ?>
-                    </strong></div>
+                <div><small style="color: #94a3b8;">VOTRE TICKET </small><br><strong style="font-size: 1.5rem;">
+                        <?= htmlspecialchars($ticket['numero_ticket'] ?? '---') ?> </strong></div>
                 <div><small style="color: #94a3b8;">ATTENTE</small><br><strong style="font-size: 1.5rem; color: #f87171;">
                         <?= htmlspecialchars($resteAvantMoi) ?> pers.
                     </strong></div>
